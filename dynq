@@ -1,0 +1,4 @@
+#!/bin/bash
+java -cp target/classes:target/lib/* \
+  -Djava.util.logging.config.file= \
+  dynq.MainKt "$@"

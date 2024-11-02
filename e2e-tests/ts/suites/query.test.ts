@@ -78,7 +78,7 @@ test('partition key staff, select first and last names, content only -> staff fu
       .contentOnly()
       .execute()
       .parse();
-  assert.sameDeepOrderedMembers(
+  assert.deepEqual(
       content,
       [
         {
@@ -350,6 +350,43 @@ test('global index film_id, partition key 604, sort key begins with "1" -> film_
           film_id: 604,
           uuid: '1a4476bc-64c3-11ef-b2df-5396b83cf5bb',
           entity: 'film'
+        }
+      ]
+  );
+});
+
+test('select (reserved word) name and id, partition key language -> all language names and IDs', async () => {
+  const { content } = await new ReadCommand()
+      .select('name, id')
+      .partitionKey('.entity = "language"')
+      .execute()
+      .parse();
+  assert.deepEqual(
+      content,
+      [
+        {
+          name: 'English             ',
+          id: 1
+        },
+        {
+          name: 'Italian             ',
+          id: 2
+        },
+        {
+          name: 'Japanese            ',
+          id: 3
+        },
+        {
+          name: 'Mandarin            ',
+          id: 4
+        },
+        {
+          name: 'French              ',
+          id: 5
+        },
+        {
+          name: 'German              ',
+          id: 6
         }
       ]
   );

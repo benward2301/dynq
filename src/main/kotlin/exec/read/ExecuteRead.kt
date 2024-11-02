@@ -169,17 +169,13 @@ private suspend fun getItem(
 ) {
     val requests = partitionKey.values.flatMap { partitionKeyValue ->
         sortKey.values.map { sortKeyValue ->
-            GetItemRequest.builder()
-                .tableName(command.tableName())
-                .projectionExpression(command.projectionExpression())
-                .returnConsumedCapacity(ReturnConsumedCapacity.TOTAL)
-                .consistentRead(command.consistentRead())
-                .key(
-                    mapOf(
-                        Pair(partitionKey.name, partitionKeyValue),
-                        Pair(sortKey.name, sortKeyValue),
-                    )
-                ).build()
+            buildGetItem(
+                command,
+                partitionKey.name,
+                partitionKeyValue,
+                sortKey.name,
+                sortKeyValue
+            )
         }
     }
     parallelise(
@@ -447,15 +443,10 @@ private fun buildSingleItemQuery(
     sortKeyName: String,
     sortKeyValue: AttributeValue
 ): QueryRequest.Builder {
-    return buildQueryBase(command)
+    return buildQueryBase(command, partitionKeyName, sortKeyName)
         .keyConditionExpression(
             "$PARTITION_KEY_NAME_TOKEN = $PARTITION_KEY_VALUE_TOKEN" +
                     " and $SORT_KEY_NAME_TOKEN = $SORT_KEY_VALUE_TOKEN"
-        ).expressionAttributeNames(
-            mapOf(
-                Pair(PARTITION_KEY_NAME_TOKEN, partitionKeyName),
-                Pair(SORT_KEY_NAME_TOKEN, sortKeyName)
-            )
         ).expressionAttributeValues(
             mapOf(
                 Pair(PARTITION_KEY_VALUE_TOKEN, partitionKeyValue),
@@ -472,7 +463,6 @@ private fun buildMultiItemQuery(
 ): QueryRequest.Builder {
     val keyConditionExpr: String
     val partitionExpr = "$PARTITION_KEY_NAME_TOKEN = $PARTITION_KEY_VALUE_TOKEN"
-    val exprAttrNames = mutableMapOf(Pair(PARTITION_KEY_NAME_TOKEN, partitionKeyName))
     val exprAttrValues = mutableMapOf(Pair(PARTITION_KEY_VALUE_TOKEN, partitionKeyValue))
     if (sortKey == null) {
         keyConditionExpr = partitionExpr
@@ -513,25 +503,74 @@ private fun buildMultiItemQuery(
         }
 
         keyConditionExpr = "$partitionExpr AND $sortExpr"
-        exprAttrNames[SORT_KEY_NAME_TOKEN] = sortKey.name
         exprAttrValues[SORT_KEY_VALUE_TOKEN] = sortOperand
     }
 
-    return buildQueryBase(command)
+    return buildQueryBase(command, partitionKeyName, sortKey?.name)
         .keyConditionExpression(keyConditionExpr)
-        .expressionAttributeNames(exprAttrNames)
         .expressionAttributeValues(exprAttrValues)
         .limit(command.scanLimit())
         .consistentRead(command.consistentRead())
 }
 
-private fun buildQueryBase(command: ReadCommand): QueryRequest.Builder {
+private fun buildQueryBase(
+    command: ReadCommand,
+    partitionKeyName: String,
+    sortKeyName: String? = null
+): QueryRequest.Builder {
+    val exprAttrNames = mutableMapOf(Pair(PARTITION_KEY_NAME_TOKEN, partitionKeyName))
+    if (sortKeyName != null) {
+        exprAttrNames[SORT_KEY_NAME_TOKEN] = sortKeyName
+    }
     return QueryRequest.builder()
         .tableName(command.tableName())
-        .projectionExpression(command.projectionExpression())
+        .projectionExpression(
+            command.projectionExpression()?.let { sanitizeProjExpr(it, exprAttrNames) }
+        )
+        .expressionAttributeNames(exprAttrNames)
         .returnConsumedCapacity(ReturnConsumedCapacity.TOTAL)
         .indexName(command.globalIndexName())
         .consistentRead(command.consistentRead())
+}
+
+private fun buildGetItem(
+    command: ReadCommand,
+    partitionKeyName: String,
+    partitionKeyValue: AttributeValue,
+    sortKeyName: String,
+    sortKeyValue: AttributeValue
+): GetItemRequest {
+    val builder = GetItemRequest.builder()
+        .tableName(command.tableName())
+        .returnConsumedCapacity(ReturnConsumedCapacity.TOTAL)
+        .consistentRead(command.consistentRead())
+        .key(
+            mapOf(
+                Pair(partitionKeyName, partitionKeyValue),
+                Pair(sortKeyName, sortKeyValue),
+            )
+        )
+    val projExpr = command.projectionExpression()
+    if (projExpr != null) {
+        val exprAttrNames = mutableMapOf<String, String>()
+        builder.projectionExpression(sanitizeProjExpr(projExpr, exprAttrNames))
+            .expressionAttributeNames(exprAttrNames)
+    }
+    return builder.build()
+}
+
+private fun sanitizeProjExpr(
+    projExpr: String,
+    exprAttrNames: MutableMap<String, String>
+): String {
+    val names = projExpr.split(",").map(String::trim)
+    val aliases = mutableListOf<String>()
+    for (i in names.indices) {
+        val alias = "#a$i"
+        exprAttrNames[alias] = names[i]
+        aliases.add(alias)
+    }
+    return aliases.joinToString(", ")
 }
 
 private fun buildKeyMatcher(filter: String?): KeyMatcher? {

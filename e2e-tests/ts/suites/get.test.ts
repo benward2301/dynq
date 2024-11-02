@@ -81,3 +81,21 @@ test('partition key [store, inventory], sort key 1, concurrency 2 -> meta, store
       ]
   );
 });
+
+test('select (reserved word) name, partition key category, sort key 11, content only -> name "Horror"', async () => {
+  const content = await new ReadCommand()
+      .select('name')
+      .partitionKey('.entity = "category"')
+      .sortKey('.id = 11')
+      .contentOnly()
+      .execute()
+      .parse();
+  assert.deepEqual(
+      content,
+      [
+        {
+          name: 'Horror'
+        }
+      ]
+  );
+});

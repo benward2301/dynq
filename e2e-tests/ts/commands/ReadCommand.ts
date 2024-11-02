@@ -1,11 +1,12 @@
-import { Command } from "./Command";
+import { Command }    from './Command.js';
+import { TABLE_NAME } from '../table.js';
 
 export class ReadCommand extends Command {
 
   readonly aggregate = this.arg<string>('aggregate');
   readonly concurrency = this.arg<number>('concurrency');
+  readonly contentOnly = this.flag('content-only');
   readonly consistentRead = this.flag('consistent-read');
-  readonly compact = this.flag('compact');
   readonly endpointUrl = this.arg<string>('endpoint-url');
   readonly from = this.arg<string>('from');
   readonly rearrangeAttrs = this.flag('rearrange-attrs');
@@ -23,7 +24,7 @@ export class ReadCommand extends Command {
   constructor() {
     super();
     this.endpointUrl('http://localhost:8000');
-    this.from('dvd_rental');
+    this.from(TABLE_NAME);
   }
 
 }

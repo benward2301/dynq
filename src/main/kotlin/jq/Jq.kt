@@ -14,7 +14,7 @@ fun jq(
     colorize: Boolean = false,
     sortKeys: Boolean = false
 ): String? {
-    if (filter == null && !pretty && !colorize) {
+    if (filter == null && !pretty && !colorize && !sortKeys) {
         return input
     }
     val output = PatchedJqRequest(
@@ -69,6 +69,10 @@ private class PatchedJqRequest(
 
     override fun getModulePaths(): MutableList<File> {
         return this.from.modulePaths
+    }
+
+    override fun isSortKeys(): Boolean {
+        return this.from.isSortKeys
     }
 
     override fun getDumpFlags(): Int {

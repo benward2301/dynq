@@ -1,16 +1,13 @@
 import { exec }           from 'child_process';
 import { AssertionError } from 'chai';
 
-export class Command {
+export abstract class Command {
 
   private readonly options = new Map<string, unknown>();
 
-  private constructor() {
-  }
-
   execute(): CommandOutput {
     const prom = new Promise<string>((resolve, reject) => {
-      exec(`dynq ${this.buildArgs()}`, (err, stdout) => {
+      exec(`./dynq ${this.buildArgs()}`, (err, stdout) => {
         if (err) {
           reject(err);
         }
@@ -19,7 +16,7 @@ export class Command {
     });
     return {
       raw: () => prom,
-      object: () => prom.then(stdout => {
+      parse: () => prom.then(stdout => {
         try {
           return JSON.parse(stdout);
         } catch (err) {
@@ -57,5 +54,5 @@ export class Command {
 
 export interface CommandOutput {
   raw(): Promise<string>;
-  object(): Promise<object>;
+  parse(): Promise<any>;
 }

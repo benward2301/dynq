@@ -447,12 +447,11 @@ private fun buildSingleItemQuery(
     sortKeyName: String,
     sortKeyValue: AttributeValue
 ): QueryRequest.Builder {
-    val builder = buildQueryBase(command)
+    return buildQueryBase(command)
         .keyConditionExpression(
             "$PARTITION_KEY_NAME_TOKEN = $PARTITION_KEY_VALUE_TOKEN" +
                     " and $SORT_KEY_NAME_TOKEN = $SORT_KEY_VALUE_TOKEN"
-        )
-        .expressionAttributeNames(
+        ).expressionAttributeNames(
             mapOf(
                 Pair(PARTITION_KEY_NAME_TOKEN, partitionKeyName),
                 Pair(SORT_KEY_NAME_TOKEN, sortKeyName)
@@ -462,12 +461,7 @@ private fun buildSingleItemQuery(
                 Pair(PARTITION_KEY_VALUE_TOKEN, partitionKeyValue),
                 Pair(SORT_KEY_VALUE_TOKEN, sortKeyValue)
             )
-        ).consistentRead(command.consistentRead())
-    val index = command.globalIndexName()
-    if (index != null) {
-        builder.indexName(index)
-    }
-    return builder
+        )
 }
 
 private fun buildMultiItemQuery(
@@ -524,11 +518,11 @@ private fun buildMultiItemQuery(
     }
 
     return buildQueryBase(command)
-        .indexName(command.globalIndexName())
         .keyConditionExpression(keyConditionExpr)
         .expressionAttributeNames(exprAttrNames)
         .expressionAttributeValues(exprAttrValues)
         .limit(command.scanLimit())
+        .consistentRead(command.consistentRead())
 }
 
 private fun buildQueryBase(command: ReadCommand): QueryRequest.Builder {
@@ -536,6 +530,8 @@ private fun buildQueryBase(command: ReadCommand): QueryRequest.Builder {
         .tableName(command.tableName())
         .projectionExpression(command.projectionExpression())
         .returnConsumedCapacity(ReturnConsumedCapacity.TOTAL)
+        .indexName(command.globalIndexName())
+        .consistentRead(command.consistentRead())
 }
 
 private fun buildKeyMatcher(filter: String?): KeyMatcher? {

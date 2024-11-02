@@ -5,7 +5,6 @@ export default defineConfig({
     sequence: {
       concurrent: true
     },
-    maxConcurrency: 10,
     testTimeout: 30000
   }
 });

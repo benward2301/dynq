@@ -1,5 +1,6 @@
 {
   "name": "@dynq/e2e-tests",
+  "type": "module",
   "version": "1.0.0",
   "author": "Ben Ward",
   "license": "ISC",

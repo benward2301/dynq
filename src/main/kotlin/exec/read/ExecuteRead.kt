@@ -4,11 +4,15 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.google.common.base.CharMatcher
 import dynq.cli.command.ReadCommand
 import dynq.error.FriendlyError
+import dynq.exec.read.model.FilterOutput
+import dynq.exec.read.model.RawReadOutput
+import dynq.exec.read.model.ReadMetadata
 import dynq.jq.jq
 import dynq.jq.jqn
-import dynq.model.DynamoDbItem
 import dynq.model.KeyMatcher
-import dynq.model.PaginatedResponse
+import dynq.model.ddb.DynamoDbItem
+import dynq.model.ddb.PaginatedResponse
+import dynq.model.ddb.ReadProjection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.toList
@@ -60,7 +64,7 @@ fun executeRead(command: ReadCommand) {
             readChannel.close()
         }
         launch {
-            filter(command, readChannel, filterChannel)
+            filter(ddb, command, readChannel, filterChannel)
             reading.cancel()
         }
         launch {
@@ -118,12 +122,7 @@ private suspend fun scan(
                     .build()
                 val response = ddb.scan(request)
                 scannedCount.addAndGet(response.scannedCount())
-                PaginatedResponse(
-                    response.items(),
-                    response.consumedCapacity().capacityUnits(),
-                    response.scannedCount(),
-                    if (response.hasLastEvaluatedKey()) response.lastEvaluatedKey() else null
-                )
+                PaginatedResponse.from(response)
             }
         }
     }
@@ -136,7 +135,7 @@ private suspend fun query(
     partitionKey: KeyMatcher.Values,
     sortKey: KeyMatcher?
 ) {
-    parallelise(
+    parallelize(
         command,
         buildQueries(command, partitionKey, sortKey),
     ) { builder ->
@@ -150,12 +149,7 @@ private suspend fun query(
                     .limit(remaining)
                     .build()
             )
-            PaginatedResponse(
-                response.items(),
-                response.consumedCapacity().capacityUnits(),
-                response.scannedCount(),
-                if (response.hasLastEvaluatedKey()) response.lastEvaluatedKey() else null
-            )
+            PaginatedResponse.from(response)
         }
     }
 }
@@ -178,7 +172,7 @@ private suspend fun getItem(
             )
         }
     }
-    parallelise(
+    parallelize(
         command,
         requests,
     ) { request ->
@@ -196,6 +190,7 @@ private suspend fun getItem(
 }
 
 private suspend fun filter(
+    ddb: DynamoDbClient,
     command: ReadCommand,
     readChannel: Channel<RawReadOutput>,
     filterChannel: Channel<FilterOutput>
@@ -218,10 +213,20 @@ private suspend fun filter(
     expression += "]"
 
     var hitCount = 0
+    var keys: Pair<String, String?>? = null
     val batch = mutableListOf<RawReadOutput>()
 
     for (input in readChannel) {
-        batch.add(input)
+        batch.add(
+            if (command.expand()) {
+                expandItems(
+                    ddb,
+                    command,
+                    input,
+                    keys ?: getTableKeys(ddb, command.tableName()).also { keys = it }
+                )
+            } else input
+        )
         if (batch.size == input.batchSize) {
             val output = filterBatch(batch, expression)
             filterChannel.send(output)
@@ -383,13 +388,13 @@ private suspend fun autoPaginate(
 private fun buildScanBase(command: ReadCommand): ScanRequest.Builder {
     return ScanRequest.builder()
         .tableName(command.tableName())
-        .projectionExpression(command.projectionExpression())
         .totalSegments(command.concurrency())
         .consistentRead(command.consistentRead())
         .returnConsumedCapacity(ReturnConsumedCapacity.TOTAL)
+        .apply { sanitizeProjExpr(command.projectionExpression()).applyTo(this) }
 }
 
-private suspend fun <T> parallelise(
+private suspend fun <T> parallelize(
     command: ReadCommand,
     inputs: Collection<T>,
     consume: suspend (item: T) -> Unit
@@ -524,13 +529,10 @@ private fun buildQueryBase(
     }
     return QueryRequest.builder()
         .tableName(command.tableName())
-        .projectionExpression(
-            command.projectionExpression()?.let { sanitizeProjExpr(it, exprAttrNames) }
-        )
-        .expressionAttributeNames(exprAttrNames)
         .returnConsumedCapacity(ReturnConsumedCapacity.TOTAL)
         .indexName(command.globalIndexName())
         .consistentRead(command.consistentRead())
+        .apply { sanitizeProjExpr(command.projectionExpression(), exprAttrNames).applyTo(this) }
 }
 
 private fun buildGetItem(
@@ -540,7 +542,7 @@ private fun buildGetItem(
     sortKeyName: String,
     sortKeyValue: AttributeValue
 ): GetItemRequest {
-    val builder = GetItemRequest.builder()
+    return GetItemRequest.builder()
         .tableName(command.tableName())
         .returnConsumedCapacity(ReturnConsumedCapacity.TOTAL)
         .consistentRead(command.consistentRead())
@@ -549,28 +551,29 @@ private fun buildGetItem(
                 Pair(partitionKeyName, partitionKeyValue),
                 Pair(sortKeyName, sortKeyValue),
             )
-        )
-    val projExpr = command.projectionExpression()
-    if (projExpr != null) {
-        val exprAttrNames = mutableMapOf<String, String>()
-        builder.projectionExpression(sanitizeProjExpr(projExpr, exprAttrNames))
-            .expressionAttributeNames(exprAttrNames)
-    }
-    return builder.build()
+        ).apply { sanitizeProjExpr(command.projectionExpression()).applyTo(this) }
+        .build()
 }
 
 private fun sanitizeProjExpr(
-    projExpr: String,
-    exprAttrNames: MutableMap<String, String>
-): String {
+    projExpr: String?,
+    exprAttrNames: Map<String, String>? = null
+): ReadProjection {
+    if (projExpr == null) {
+        return ReadProjection(null, exprAttrNames)
+    }
     val names = projExpr.split(",").map(String::trim)
     val aliases = mutableListOf<String>()
+    val map = mutableMapOf<String, String>()
+    if (exprAttrNames != null) {
+        map.putAll(exprAttrNames)
+    }
     for (i in names.indices) {
         val alias = "#a$i"
-        exprAttrNames[alias] = names[i]
+        map[alias] = names[i]
         aliases.add(alias)
     }
-    return aliases.joinToString(", ")
+    return ReadProjection(aliases.joinToString(", "), map)
 }
 
 private fun buildKeyMatcher(filter: String?): KeyMatcher? {
@@ -631,4 +634,105 @@ private fun isMaxHeapSizeExceeded(command: ReadCommand): Boolean {
         ?.coerceAtMost(defaultMax)
         ?: defaultMax
     return effectiveMax <= runtime.totalMemory() - runtime.freeMemory()
+}
+
+private fun expandItems(
+    ddb: DynamoDbClient,
+    command: ReadCommand,
+    readOutput: RawReadOutput,
+    keyNames: Pair<String, String?>
+): RawReadOutput {
+    var unprocessedKeys: KeysAndAttributes? = null
+    val expanded = mutableListOf<RawReadOutput>()
+
+    // TODO parallelize
+    for (chunk in readOutput.items.chunked(100)) do {
+        unprocessedKeys = unprocessedKeys ?: KeysAndAttributes.builder()
+            .keys(chunk.map { item ->
+                item.filterKeys { keyNames.toList().contains(it) }
+            })
+            .consistentRead(command.consistentRead())
+            .apply { sanitizeProjExpr(command.projectionExpression()).applyTo(this) }
+            .build()
+
+        val requestItems = mapOf(
+            Pair(
+                command.tableName(),
+                unprocessedKeys
+            )
+        )
+        val response = ddb.batchGetItem(
+            BatchGetItemRequest.builder()
+                .requestItems(requestItems)
+                .returnConsumedCapacity(ReturnConsumedCapacity.TOTAL)
+                .build()
+        )
+        if (response.hasUnprocessedKeys()) {
+            unprocessedKeys = response.unprocessedKeys()[command.tableName()]
+        } else {
+            unprocessedKeys = null
+        }
+
+        expanded.add(
+            RawReadOutput(
+                response.responses()[command.tableName()] as List<DynamoDbItem>,
+                ReadMetadata(
+                    readOutput.meta.requestType,
+                    response.consumedCapacity().sumOf { it.capacityUnits() },
+                )
+            )
+        )
+    } while (unprocessedKeys != null)
+
+    return readOutput.copy(items = emptyList())
+        .add(expanded.reduce(RawReadOutput::add))
+}
+
+fun RawReadOutput.add(other: RawReadOutput): RawReadOutput {
+    return this.copy(
+        items = this.items + other.items,
+        meta = mergeReadMetadata(this.meta, other.meta)
+    )
+}
+
+fun ReadMetadata.add(other: ReadMetadata): ReadMetadata {
+    fun addNullableInts(n1: Int?, n2: Int?): Int? {
+        return listOfNotNull(n1, n2).takeUnless { it.isEmpty() }?.sum()
+    }
+    return this.copy(
+        consumedCapacity = this.consumedCapacity + other.consumedCapacity,
+        requestCount = this.requestCount + other.requestCount,
+        scannedCount = addNullableInts(this.scannedCount, other.scannedCount),
+        hitCount = addNullableInts(this.hitCount, other.hitCount)
+    )
+}
+
+fun mergeReadMetadata(
+    primary: ReadMetadata,
+    secondary: ReadMetadata
+): ReadMetadata {
+    fun addNullableInts(n1: Int?, n2: Int?): Int? {
+        return listOfNotNull(n1, n2).takeUnless { it.isEmpty() }?.sum()
+    }
+    listOfNotNull(primary.scannedCount, secondary.scannedCount).takeUnless { it.isEmpty() }?.sum()
+    return primary.copy(
+        consumedCapacity = primary.consumedCapacity + secondary.consumedCapacity,
+        requestCount = primary.requestCount + secondary.requestCount,
+        scannedCount = addNullableInts(primary.scannedCount, secondary.scannedCount),
+        hitCount = addNullableInts(primary.hitCount, secondary.hitCount)
+    )
+}
+
+private fun getTableKeys(
+    ddb: DynamoDbClient,
+    tableName: String
+): Pair<String, String?> {
+    return ddb.describeTable(
+        DescribeTableRequest.builder()
+            .tableName(tableName)
+            .build()
+    ).table()
+        .keySchema()
+        .map { it.attributeName() }
+        .let { Pair(it.first(), it.getOrNull(1)) }
 }

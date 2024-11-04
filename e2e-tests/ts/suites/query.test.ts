@@ -391,3 +391,69 @@ test('select (reserved word) name and id, partition key language -> all language
       ]
   );
 });
+
+test('partition key 20, global index country_id, expand index, where is city, transform to city' +
+    ' -> meta, all city names in Canada',
+    async () => {
+      const output = await new ReadCommand()
+          .partitionKey('.country_id = 20')
+          .globalIndex('country_id')
+          .expand()
+          .where('.entity == "city"')
+          .transform('.city')
+          .execute()
+          .parse();
+      assert.deepEqual(
+          output,
+          {
+            meta: {
+              requestType: 'Query',
+              consumedCapacity: 4.5,
+              requestCount: 2,
+              scannedCount: 8,
+              hitCount: 7
+            },
+            content: [
+              'Lethbridge',
+              'Halifax',
+              'Richmond Hill',
+              'Oshawa',
+              'Gatineau',
+              'London',
+              'Vancouver'
+            ]
+          }
+      );
+    }
+);
+
+test('partition key 5, global index customer_id, expand, where is payment, sort by payment date, limit 1' +
+    ' -> first payment by customer#5',
+    async () => {
+      const { content } = await new ReadCommand()
+          .partitionKey('.customer_id = 5')
+          .globalIndex('customer_id')
+          .expand()
+          .where('.entity == "payment"')
+          .aggregate('sort_by(.payment_date)')
+          .limit(1)
+          .execute()
+          .parse();
+      assert.deepEqual(
+          content,
+          [
+            {
+              amount: 1.99,
+              payment_id: 29041,
+              staff_id: 2,
+              id: 29041,
+              customer_id: 5,
+              uuid: 'ef9000fc-664e-11ef-a403-e71d5e0b92ff',
+              payment_date: '2007-04-09T07:20:08.996577',
+              entity: 'payment',
+              rental_id: 5156
+            }
+          ]
+      );
+    }
+);

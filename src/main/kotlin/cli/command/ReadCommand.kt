@@ -146,16 +146,17 @@ interface ReadCommand : Command {
     )
     fun maxHeapSize(): Int?
 
+    @CliOption(
+        short = 'x',
+        long = "expand"
+    )
+    fun expand(): Boolean
+
+//
 //    @CliOption(
 //        long = "stream"
 //    )
 //    fun stream(): Boolean
-//
-//    @CliOption(
-//        short = 'x',
-//        long = "expand-keys"
-//    )
-//    fun expandKeys(): Boolean
 //
 //    @CliOption(
 //        long = "binary-encoding"

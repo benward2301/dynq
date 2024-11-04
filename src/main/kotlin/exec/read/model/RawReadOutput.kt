@@ -1,6 +1,6 @@
-package dynq.exec.read
+package dynq.exec.read.model
 
-import dynq.model.DynamoDbItem
+import dynq.model.ddb.DynamoDbItem
 
 data class RawReadOutput(
     val items: List<DynamoDbItem>,

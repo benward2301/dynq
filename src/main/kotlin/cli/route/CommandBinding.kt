@@ -1,6 +1,7 @@
 package dynq.cli.route
 
 import dynq.cli.anno.CliOption
+import dynq.cli.command.Command
 import org.apache.commons.cli.CommandLine
 import org.apache.commons.cli.DefaultParser
 import org.apache.commons.cli.Option
@@ -16,16 +17,16 @@ import kotlin.reflect.full.memberFunctions
 import kotlin.reflect.typeOf
 import kotlin.system.exitProcess
 
-class CommandBinding<T : Any>(
+class CommandBinding<T : Command>(
     val cls: KClass<T>,
-    val executor: (command: T) -> Unit
+    val executor: CommandExecutor<T>
 ) {
 
     fun execute(commandName: String?, args: Array<String>): Nothing {
         val options = buildApacheOptions()
         interceptInfoArgs(commandName, options, args)
         val commandLine = DefaultParser().parse(options, args)
-        executor(createCommandProxy(commandLine))
+        this.executor.accept(createCommandProxy(commandLine))
         exitProcess(0)
     }
 
@@ -92,4 +93,8 @@ class CommandBinding<T : Any>(
         return options
     }
 
+}
+
+fun interface CommandExecutor<T : Command> {
+    fun accept(command: T)
 }

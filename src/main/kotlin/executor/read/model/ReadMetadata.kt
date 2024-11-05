@@ -1,8 +1,8 @@
-package dynq.exec.read.model
+package dynq.executor.read.model
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
-import dynq.model.ddb.DynamoDbItem
-import dynq.model.ddb.DynamoDbItemSerializer
+import dynq.ddb.model.DynamoDbItem
+import dynq.ddb.model.DynamoDbItemSerializer
 
 data class ReadMetadata(
     val requestType: String,

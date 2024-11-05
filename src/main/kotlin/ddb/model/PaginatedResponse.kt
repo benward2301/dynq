@@ -1,4 +1,4 @@
-package dynq.model.ddb
+package dynq.ddb.model
 
 import software.amazon.awssdk.services.dynamodb.model.QueryResponse
 import software.amazon.awssdk.services.dynamodb.model.ScanResponse

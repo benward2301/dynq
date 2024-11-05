@@ -1,4 +1,4 @@
-package dynq.exec.read.model
+package dynq.executor.read.model
 
 import software.amazon.awssdk.protocols.jsoncore.JsonNode
 

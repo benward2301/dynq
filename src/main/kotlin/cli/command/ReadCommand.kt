@@ -152,22 +152,10 @@ interface ReadCommand : Command {
     )
     fun expand(): Boolean
 
-//
-//    @CliOption(
-//        long = "stream"
-//    )
-//    fun stream(): Boolean
-//
-//    @CliOption(
-//        long = "binary-encoding"
-//    )
-//    fun binaryEncoding()
-//
-//    @CliOption(
-//        short = 'D',
-//        long = "dump"
-//    )
-//    fun dump()
+    @CliOption(
+        long = "stream"
+    )
+    fun stream(): Boolean
 //
 //    @CliOption(
 //        short = 'M',

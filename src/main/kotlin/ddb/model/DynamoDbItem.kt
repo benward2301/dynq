@@ -1,4 +1,4 @@
-package dynq.model.ddb
+package dynq.ddb.model
 
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.JsonSerializer

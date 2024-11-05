@@ -1,4 +1,4 @@
-package dynq.model
+package dynq.executor.read.model
 
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue
 

@@ -14,7 +14,7 @@ fun jq(
     colorize: Boolean = false,
     sortKeys: Boolean = false
 ): String? {
-    if (filter == null && !pretty && !colorize && !sortKeys) {
+    if (listOf(filter != null, pretty, colorize, sortKeys).none { it }) {
         return input
     }
     val output = PatchedJqRequest(

@@ -75,16 +75,12 @@ interface ReadCommand : Command {
     @CliOption(
         long = "colorize"
     )
-    fun colorize(): Boolean {
-        return System.console().isTerminal
-    }
+    fun colorize(): Boolean
 
     @CliOption(
         long = "monochrome"
     )
-    fun monochrome(): Boolean {
-        return !this.colorize()
-    }
+    fun monochrome(): Boolean
 
     @CliOption(
         long = "compact"

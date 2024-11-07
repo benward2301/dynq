@@ -207,3 +207,17 @@ test('rearrange attrs, scan limit 1 -> sorted keys', async () => {
   const keys = Object.keys(content[0]);
   assert.sameOrderedMembers(keys, [...keys].sort());
 });
+
+test('where id is 928, transform to id, concurrency 6, stream, -> 5 928s', async () => {
+  const output = await new ReadCommand()
+      .where('.id == 928')
+      .concurrency(6)
+      .transform('.id')
+      .stream()
+      .execute()
+      .raw();
+  assert.deepEqual(
+      output,
+      new Array(5).fill(928).join('\n') + '\n'
+  );
+});

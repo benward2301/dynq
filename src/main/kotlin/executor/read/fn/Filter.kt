@@ -1,9 +1,7 @@
-package dynq.exec.read
+package dynq.executor.read.fn
 
 import dynq.cli.command.ReadCommand
 import dynq.error.FriendlyError
-import dynq.executor.read.fn.aggregateMetadata
-import dynq.executor.read.fn.expandItems
 import dynq.executor.read.model.FilterOutput
 import dynq.executor.read.model.RawReadOutput
 import dynq.jq.jqn

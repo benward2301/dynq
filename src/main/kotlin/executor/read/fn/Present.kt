@@ -3,7 +3,6 @@ package dynq.executor.read.fn
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.google.common.base.CharMatcher
 import dynq.cli.command.ReadCommand
-import dynq.error.FriendlyError
 import dynq.executor.read.model.FilterOutput
 import dynq.jq.jq
 import kotlinx.coroutines.channels.Channel
@@ -16,10 +15,15 @@ suspend fun present(
     command: ReadCommand,
     outputChannel: Channel<FilterOutput>
 ) {
+    if (command.stream()) {
+        streamOutput(command, outputChannel)
+        return
+    }
+
     val limit = command.limit()
     val aggregator = command.aggregate()
     val contentOnly = command.contentOnly()
-    val resultSets = outputChannel.toList()
+    val filterOutputs = outputChannel.toList()
 
     var expression = "flatten | .[0:${limit ?: ""}]"
     if (aggregator != null) {
@@ -28,7 +32,7 @@ suspend fun present(
 
     if (!contentOnly) {
         val metadata = aggregateMetadata(
-            resultSets.map { it.meta },
+            filterOutputs.map { it.meta },
             limit == null && command.concurrency() == 1
         )
         expression += " | {$METADATA_PROP: ${
@@ -37,7 +41,7 @@ suspend fun present(
     }
 
     var content = CharMatcher.anyOf("\r\n\t").removeFrom(
-        resultSets.map { it.items }
+        filterOutputs.map { it.items }
             .flatten()
             .toString()
     )
@@ -45,15 +49,42 @@ suspend fun present(
         content = jq(content, sortKeys = true)!!
     }
 
-    val output = jq(
+    jq(
         content,
         filter = expression,
         pretty = !command.compact(),
-        colorize = command.colorize() && !command.monochrome()
-    )
-    if (output == null) {
-        throw FriendlyError("bad aggregation filter")
-    }
+        colorize = colorize(command)
+    ).let(::println)
+}
 
-    println(output)
+private suspend fun streamOutput(
+    command: ReadCommand,
+    outputChannel: Channel<FilterOutput>
+) {
+    var remaining = command.limit()
+
+    for (filterOutput in outputChannel) {
+        val found = filterOutput.items
+            .takeIf { it.isNotEmpty() }
+            .also {
+                if (it != null) {
+                    jq(
+                        it.toString(),
+                        filter = ".[0:${remaining ?: ""}] | .[]",
+                        pretty = !command.compact(),
+                        sortKeys = command.rearrangeAttributes(),
+                        colorize = colorize(command)
+                    ).let(::println)
+                }
+            }.let { it?.size ?: 0 }
+
+        if (remaining != null) {
+            remaining -= found
+            if (remaining <= 0) break
+        }
+    }
+}
+
+private fun colorize(command: ReadCommand): Boolean {
+    return command.colorize() || System.console().isTerminal && !command.monochrome()
 }

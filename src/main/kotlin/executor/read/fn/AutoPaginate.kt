@@ -34,8 +34,7 @@ suspend fun autoPaginate(
                     response.consumedCapacity,
                     scannedCount = response.scannedCount,
                     lastEvaluatedKey = response.lastEvaluatedKey
-                ),
-                command.concurrency()
+                )
             )
         )
         if (remaining != null) {

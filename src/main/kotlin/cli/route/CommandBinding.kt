@@ -60,15 +60,18 @@ class CommandBinding<T : Command>(
                     (!fn.isAbstract && InvocationHandler.invokeDefault(proxy, method) as Boolean)
         }
 
-        val raw: String? = commandLine.getOptionValue(optionName)
+        val values: Array<String>? = commandLine.getOptionValues(optionName)
         return when {
-            raw == null ->
+            values == null ->
                 if (method.isDefault) InvocationHandler.invokeDefault(proxy, method) else null
 
             typeOf<Int>().isSubtypeOf(fn.returnType) ->
-                Integer.parseInt(raw)
+                Integer.parseInt(values[0])
 
-            else -> raw
+            typeOf<Array<String>>().isSubtypeOf(fn.returnType) ->
+                values
+
+            else -> values[0]
         }
     }
 
@@ -85,6 +88,8 @@ class CommandBinding<T : Command>(
                     .option(anno.short.takeIf { it.isLetter() }?.toString())
                     .longOpt(anno.long)
                     .hasArg(hasArg)
+                    .numberOfArgs(if (hasArg) anno.maxArgs else 0)
+                    .optionalArg(anno.minArgs != anno.maxArgs)
                     .required(isRequired)
                     .desc(anno.desc)
                     .build()

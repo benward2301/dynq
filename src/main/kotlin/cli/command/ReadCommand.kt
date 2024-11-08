@@ -61,7 +61,7 @@ interface ReadCommand : Command {
     fun profile(): String?
 
     @CliOption(
-        short = 'r',
+        short = 'R',
         long = "region",
     )
     fun region(): String?
@@ -152,18 +152,14 @@ interface ReadCommand : Command {
         long = "stream"
     )
     fun stream(): Boolean
-//
-//    @CliOption(
-//        short = 'M',
-//        long = "metadata-only"
-//    )
-//    fun metadataOnly(): Boolean
-//
-//    @CliOption(
-//        short = 'R',
-//        long = "reduce"
-//    )
-//    fun reduce(): List<String>?
+
+    @CliOption(
+        short = 'r',
+        long = "reduce",
+        minArgs = 2,
+        maxArgs = 3
+    )
+    fun reduce(): Array<String>?
 
     override fun getMutuallyExclusiveOptions(): Collection<Pair<Function<*>, Function<*>>> {
         return listOf(

@@ -20,41 +20,29 @@ suspend fun present(
         return
     }
 
-    val limit = command.limit()
-    val aggregator = command.aggregate()
-    val contentOnly = command.contentOnly()
     val filterOutputs = outputChannel.toList()
 
-    var expression = "flatten | .[0:${limit ?: ""}]"
-    if (aggregator != null) {
-        expression += " | $aggregator"
-    }
-
-    if (!contentOnly) {
-        val metadata = aggregateMetadata(
-            filterOutputs.map { it.meta },
-            limit == null && command.concurrency() == 1
-        )
-        expression += " | {$METADATA_PROP: ${
-            jacksonObjectMapper().writer().writeValueAsString(metadata)
-        }, $CONTENT_PROP: .} | del(..|nulls)"
-    }
-
-    var content = CharMatcher.anyOf("\r\n\t").removeFrom(
+    CharMatcher.anyOf("\r\n\t").removeFrom(
         filterOutputs.map { it.items }
             .flatten()
             .toString()
-    )
-    if (command.rearrangeAttributes()) {
-        content = jq(content, sortKeys = true)!!
-    }
-
-    jq(
-        content,
-        filter = expression,
-        pretty = !command.compact(),
-        colorize = colorize(command)
-    ).let(::println)
+    ).let {
+        jq(
+            it,
+            filter = buildAggregationFilter(command),
+            sortKeys = command.rearrangeAttributes()
+        )
+    }.let {
+        if (it == null) {
+            throw Error("bad aggregation filter")
+        }
+        jq(
+            it,
+            filter = buildPresentationFilter(command, filterOutputs),
+            pretty = !command.compact(),
+            colorize = colorize(command)
+        )
+    }.let(::println)
 }
 
 private suspend fun streamOutput(
@@ -83,6 +71,36 @@ private suspend fun streamOutput(
             if (remaining <= 0) break
         }
     }
+}
+
+private fun buildAggregationFilter(command: ReadCommand): String {
+    fun String.pipe(arg: String?): String {
+        return if (arg == null) this else "$this | $arg"
+    }
+
+    val limit = command.limit()?.let { ".[0:$it]" }
+
+    return if (command.reduce() == null) {
+        "flatten".pipe(limit)
+            .pipe(command.aggregate())
+    } else {
+        ".[0]".pipe(limit)
+    }
+}
+
+private fun buildPresentationFilter(
+    command: ReadCommand,
+    filterOutputs: List<FilterOutput>
+): String? {
+    return if (command.contentOnly()) null else
+        "{$METADATA_PROP: ${
+            jacksonObjectMapper().writer().writeValueAsString(
+                aggregateMetadata(
+                    filterOutputs.map { it.meta },
+                    command.limit() == null && command.concurrency() == 1
+                )
+            )
+        }, $CONTENT_PROP: .} | del(..|nulls)"
 }
 
 private fun colorize(command: ReadCommand): Boolean {

@@ -9,6 +9,7 @@ export class ReadCommand extends Command {
   readonly consistentRead = this.flag('consistent-read');
   readonly endpointUrl = this.arg<string>('endpoint-url');
   readonly from = this.arg<string>('from');
+  readonly reduce = this.arg<string[]>('reduce');
   readonly rearrangeAttrs = this.flag('rearrange-attrs');
   readonly globalIndex = this.arg<string>('global-index');
   readonly startKey = this.arg<Record<string, string | number>>('start-key');

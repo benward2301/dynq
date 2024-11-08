@@ -1,9 +1,9 @@
 package dynq.executor.read.fn
 
 import dynq.cli.command.ReadCommand
-import dynq.error.FriendlyError
 import dynq.executor.read.model.FilterOutput
 import dynq.executor.read.model.RawReadOutput
+import dynq.executor.read.model.ReadMetadata
 import dynq.jq.jqn
 import kotlinx.coroutines.channels.Channel
 import software.amazon.awssdk.enhanced.dynamodb.document.EnhancedDocument
@@ -16,56 +16,71 @@ suspend fun filter(
     outputChannel: Channel<FilterOutput>
 ) {
     val limit = command.limit()
-    val pretransform = command.pretransform()
-    val where = command.where()
-    val transformer = command.transform()
-
-    var expression = "[.[]"
-    if (pretransform != null) {
-        expression += " | $pretransform"
-    }
-    if (where != null) {
-        expression += " | select($where)"
-    }
-    if (transformer != null) {
-        expression += " | $transformer"
-    }
-    expression += "]"
+    val reducer = command.reduce()
+    val filter = buildSelectionFilter(command)
 
     var hitCount = 0
-    val batch = mutableListOf<RawReadOutput>()
+    var reduction: FilterOutput? = null
 
-    for (input in readChannel) {
-        batch.add(
-            if (command.expand()) {
-                expandItems(ddb, command, input)
-            } else input
+    for (batch in readChannel) {
+        val output = filterBatch(
+            batch.let {
+                if (command.expand()) expandItems(ddb, command, it)
+                else it
+            },
+            filter
         )
-        if (batch.size == input.batchSize) {
-            val output = filterBatch(batch, expression)
+
+        if (reducer == null) {
             outputChannel.send(output)
             hitCount += output.items.size
-            batch.clear()
+            if (limit != null && limit <= hitCount) break
 
-            if (limit != null && limit <= hitCount || isMaxHeapSizeExceeded(command)) {
-                break
+        } else {
+            val meta: ReadMetadata
+            val initialValue: String
+
+            if (reduction == null) {
+                meta = output.meta
+                reduction = output
+                initialValue = reducer[0]
+            } else {
+                meta = aggregateMetadata(
+                    listOf(reduction.meta, output.meta),
+                    false
+                )
+                initialValue = reduction.items[0].toString()
             }
-        }
 
+            val node = jqn(
+                output.items.toString(),
+                "reduce .[] as \$item ($initialValue; ${reducer[1]})"
+                    .pipe(reducer.getOrNull(2))
+                    .pipe(limit?.let { ".[0:$limit]" })
+            )
+            if (node == null) {
+                throw Error("bad reduce filter")
+            }
+            reduction = reduction.copy(
+                items = listOf(node),
+                meta = meta
+            )
+        }
+        if (isMaxHeapSizeExceeded(command)) break
     }
 
-    if (batch.isNotEmpty()) {
-        outputChannel.send(filterBatch(batch, expression))
+    if (reduction != null) {
+        outputChannel.send(reduction)
     }
     outputChannel.close()
 }
 
 private fun filterBatch(
-    batch: List<RawReadOutput>,
+    batch: RawReadOutput,
     expression: String
 ): FilterOutput {
     val items = jqn(
-        batch.flatMap { it.items }
+        batch.items
             .map(EnhancedDocument::fromAttributeValueMap)
             .map(EnhancedDocument::toJson)
             .toString(),
@@ -73,16 +88,22 @@ private fun filterBatch(
     )?.asArray()
 
     if (items == null) {
-        throw FriendlyError("bad item filter")
+        throw Error("bad item filter")
     }
-
-    val metadata = aggregateMetadata(batch.map { it.meta }, true)
-        .copy(hitCount = items.size)
 
     return FilterOutput(
         items,
-        metadata
+        batch.meta.copy(
+            hitCount = items.size
+        )
     )
+}
+
+private fun buildSelectionFilter(command: ReadCommand): String {
+    return "[.[]"
+        .pipe(command.pretransform())
+        .pipe(command.where()?.let { "select($it)" })
+        .pipe(command.transform()) + "]"
 }
 
 private fun isMaxHeapSizeExceeded(command: ReadCommand): Boolean {
@@ -93,4 +114,8 @@ private fun isMaxHeapSizeExceeded(command: ReadCommand): Boolean {
         ?.coerceAtMost(defaultMax)
         ?: defaultMax
     return effectiveMax <= runtime.totalMemory() - runtime.freeMemory()
+}
+
+private fun String.pipe(arg: String?): String {
+    return if (arg == null) this else "$this | $arg"
 }

@@ -457,3 +457,60 @@ test('partition key 5, global index customer_id, expand, where is payment, sort 
       );
     }
 );
+
+test('partition key film, reduce to total film length -> meta, total film length', async () => {
+  const output = await new ReadCommand()
+      .partitionKey('.entity = "film"')
+      .reduce(['0', '. + $item.length'])
+      .execute()
+      .parse();
+  assert.deepEqual(
+      output,
+      {
+        meta: {
+          requestType: 'Query',
+          consumedCapacity: 62,
+          requestCount: 1,
+          scannedCount: 1000,
+          hitCount: 1000
+        },
+        content: 115272
+      }
+  );
+});
+
+test('partition key film, select title and length, reduce to length sort, limit 5' +
+    ' -> title and length of 5 shortest films', async () => {
+  const { content } = await new ReadCommand()
+      .partitionKey('.entity = "film"')
+      .select('title,length')
+      .reduce(['[]', '. + [$item] | sort_by(.length)'])
+      .limit(5)
+      .execute()
+      .parse();
+  assert.deepEqual(
+      content,
+      [
+        {
+          length: 46,
+          title: 'Alien Center'
+        },
+        {
+          length: 46,
+          title: 'Iron Moon'
+        },
+        {
+          length: 46,
+          title: 'Kwai Homeward'
+        },
+        {
+          length: 46,
+          title: 'Labyrinth League'
+        },
+        {
+          length: 46,
+          title: 'Ridgemont Submarine'
+        }
+      ]
+  );
+});

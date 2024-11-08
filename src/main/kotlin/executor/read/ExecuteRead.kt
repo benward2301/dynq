@@ -3,7 +3,6 @@ package dynq.executor.read
 import dynq.cli.command.ReadCommand
 import dynq.cli.route.CommandExecutor
 import dynq.ddb.createDynamoDbClient
-import dynq.exec.read.filter
 import dynq.executor.read.fn.*
 import dynq.executor.read.model.FilterOutput
 import dynq.executor.read.model.KeyMatcher

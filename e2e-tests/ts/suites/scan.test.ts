@@ -101,7 +101,7 @@ test('where last name is "Lollobrigida", limit 1, concurrency 6 -> actor#5', asy
   );
 });
 
-test('transform to entity, aggregate unique, concurrency 6 -> all entities, whole table scanned', async () => {
+test('transform to entity, unique, concurrency 6 -> all entities, whole table scanned', async () => {
   const { meta, content } = await new ReadCommand()
       .transform('.entity')
       .aggregate('unique')
@@ -132,7 +132,7 @@ test('transform to entity, aggregate unique, concurrency 6 -> all entities, whol
   );
 });
 
-test('where entity is film, aggregate length, concurrency 6 -> 1000', async () => {
+test('where entity is film, count, concurrency 6 -> 1000', async () => {
   const { meta, content } = await new ReadCommand()
       .where('.entity == "film"')
       .aggregate('length')
@@ -221,3 +221,61 @@ test('where id is 928, transform to id, concurrency 6, stream, -> 5 928s', async
       new Array(5).fill(928).join('\n') + '\n'
   );
 });
+
+test('transform to uuid, sort and take 5, concurrency 3 -> meta, 5 smallest uuids', async () => {
+  const output = await new ReadCommand()
+      .transform('.uuid')
+      .aggregate('sort | .[0:5]')
+      .concurrency(3)
+      .execute()
+      .parse();
+  assert.deepEqual(
+      output,
+      {
+        meta: {
+          requestType: 'Scan',
+          consumedCapacity: 955,
+          requestCount: 9,
+          scannedCount: 44820,
+          hitCount: 44820
+        },
+        content: [
+          '00010736-65ac-11ef-83b8-afc605e0ae1e',
+          '0001075c-64c3-11ef-ab3e-27885bd0e4c0',
+          '00049bec-64cd-11ef-9a90-638859ebe0f8',
+          '0005c03c-65a7-11ef-8335-133da5598935',
+          '0005f03a-64cf-11ef-ac3e-a7c5fc596ae7'
+        ]
+      }
+  );
+});
+
+test('transform to uuid, reduce sort, limit 5, concurrency 3 -> meta, 5 smallest uuids', async () => {
+  const output = await new ReadCommand()
+      .transform('.uuid')
+      .reduce(['[]', '. + [$item]', 'sort'])
+      .limit(5)
+      .concurrency(3)
+      .execute()
+      .parse();
+  assert.deepEqual(
+      output,
+      {
+        meta: {
+          requestType: 'Scan',
+          consumedCapacity: 955,
+          requestCount: 9,
+          scannedCount: 44820,
+          hitCount: 44820
+        },
+        content: [
+          '00010736-65ac-11ef-83b8-afc605e0ae1e',
+          '0001075c-64c3-11ef-ab3e-27885bd0e4c0',
+          '00049bec-64cd-11ef-9a90-638859ebe0f8',
+          '0005c03c-65a7-11ef-8335-133da5598935',
+          '0005f03a-64cf-11ef-ac3e-a7c5fc596ae7'
+        ]
+      }
+  );
+});
+

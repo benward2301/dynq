@@ -41,11 +41,23 @@ export abstract class Command {
   }
 
   private buildArgs(): string {
+    const quote = (arg: unknown) => `'${arg}'`;
+
     return [...this.options.entries()].flatMap(([name, value]) => {
       const output = [`--${name}`];
-      if (value !== true) {
-        output.push(`'${typeof value === 'object' ? JSON.stringify(value) : value}'`);
+
+      if (value && value !== true) {
+        let push: string;
+        if (value instanceof Array) {
+          push = value.map(quote).join(' ');
+        } else if (typeof value === 'object') {
+          push = quote(JSON.stringify(value));
+        } else {
+          push = quote(value);
+        }
+        output.push(push);
       }
+
       return output;
     }).join(' ');
   }
@@ -54,5 +66,6 @@ export abstract class Command {
 
 export interface CommandOutput {
   raw(): Promise<string>;
+
   parse(): Promise<any>;
 }

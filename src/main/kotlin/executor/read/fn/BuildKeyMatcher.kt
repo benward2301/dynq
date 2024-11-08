@@ -1,6 +1,5 @@
 package dynq.executor.read.fn
 
-import dynq.error.FriendlyError
 import dynq.executor.read.model.KeyMatcher
 import dynq.jq.jqn
 import software.amazon.awssdk.enhanced.dynamodb.internal.converter.attribute.JsonItemAttributeConverter
@@ -29,7 +28,7 @@ private fun buildKeyMatcher(filter: String?): KeyMatcher? {
         filter = "$filter | [.[]][0]"
     )
     if (name == null || node == null) {
-        throw FriendlyError("bad key filter")
+        throw Error("bad key filter")
     }
     val converter = JsonItemAttributeConverter.create()
 

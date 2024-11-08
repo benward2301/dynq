@@ -4,7 +4,6 @@ import dynq.cli.command.ReadCommand
 import dynq.cli.route.CommandBinding
 import dynq.cli.route.dispatchCommandLine
 import dynq.cli.route.registerCommand
-import dynq.error.FriendlyError
 import dynq.executor.read.executeRead
 import kotlin.system.exitProcess
 
@@ -18,8 +17,8 @@ fun main(args: Array<String>) {
     )
     try {
         dispatchCommandLine(args)
-    } catch (err: FriendlyError) {
-        err.printMessage()
+    } catch (err: Error) {
+        err.printStackTrace()
         exitProcess(1)
     }
 }

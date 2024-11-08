@@ -4,6 +4,5 @@ import dynq.ddb.model.DynamoDbItem
 
 data class RawReadOutput(
     val items: List<DynamoDbItem>,
-    val meta: ReadMetadata,
-    var batchSize: Int? = null
+    val meta: ReadMetadata
 )

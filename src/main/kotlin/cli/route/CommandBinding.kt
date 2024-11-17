@@ -2,6 +2,7 @@ package dynq.cli.route
 
 import dynq.cli.anno.CliOption
 import dynq.cli.command.Command
+import jakarta.validation.constraints.Size
 import org.apache.commons.cli.CommandLine
 import org.apache.commons.cli.DefaultParser
 import org.apache.commons.cli.Option
@@ -11,6 +12,7 @@ import java.lang.reflect.Method
 import java.lang.reflect.Proxy
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
+import kotlin.reflect.KType
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.isSubtypeOf
 import kotlin.reflect.full.memberFunctions
@@ -54,8 +56,9 @@ class CommandBinding<T : Command>(
     ): Any? {
         val fn = cls.memberFunctions.find { fn -> fn.name == method.name }
             ?: throw Error("Failed to infer ${KFunction::class.qualifiedName} from ${Method::class.qualifiedName}")
+        val type = fn.returnType
 
-        if (typeOf<Boolean>().isSubtypeOf(fn.returnType)) {
+        if (satisfies<Boolean>(type)) {
             return commandLine.hasOption(optionName) ||
                     (!fn.isAbstract && InvocationHandler.invokeDefault(proxy, method) as Boolean)
         }
@@ -65,13 +68,14 @@ class CommandBinding<T : Command>(
             values == null ->
                 if (method.isDefault) InvocationHandler.invokeDefault(proxy, method) else null
 
-            typeOf<Int>().isSubtypeOf(fn.returnType) ->
-                Integer.parseInt(values[0])
+            satisfies<Int>(type) ->
+                OptionValidator.Int.validate(fn, values[0].toInt())
 
-            typeOf<Array<String>>().isSubtypeOf(fn.returnType) ->
-                values
+            satisfies<Array<String>>(type) ->
+                OptionValidator.StringArray.validate(fn, values)
 
-            else -> values[0]
+            else ->
+                OptionValidator.String.validate(fn, values[0])
         }
     }
 
@@ -80,7 +84,8 @@ class CommandBinding<T : Command>(
         for (fn in cls.memberFunctions) {
             val anno = fn.findAnnotation<CliOption>() ?: continue
             val type = fn.returnType
-            val hasArg = !typeOf<Boolean>().isSubtypeOf(type)
+            val hasArg = !satisfies<Boolean>(type)
+            val argCount = fn.takeIf { satisfies<Array<String>>(type) }?.findAnnotation<Size>()
             val isRequired = hasArg && !type.isMarkedNullable && fn.isAbstract
 
             options.addOption(
@@ -88,8 +93,8 @@ class CommandBinding<T : Command>(
                     .option(anno.short.takeIf { it.isLetter() }?.toString())
                     .longOpt(anno.long)
                     .hasArg(hasArg)
-                    .numberOfArgs(if (hasArg) anno.maxArgs else 0)
-                    .optionalArg(anno.minArgs != anno.maxArgs)
+                    .numberOfArgs(argCount?.max ?: if (hasArg) 1 else 0)
+                    .optionalArg(argCount?.min != argCount?.max)
                     .required(isRequired)
                     .desc(anno.desc)
                     .build()
@@ -100,6 +105,6 @@ class CommandBinding<T : Command>(
 
 }
 
-fun interface CommandExecutor<T : Command> {
-    fun accept(command: T)
+private inline fun <reified T> satisfies(type: KType): Boolean {
+    return typeOf<T>().isSubtypeOf(type)
 }

@@ -2,6 +2,7 @@ package dynq.cli.command
 
 import dynq.cli.anno.CliCommand
 import dynq.cli.anno.CliOption
+import jakarta.validation.constraints.*
 
 @CliCommand(root = true)
 interface ReadCommand : Command {
@@ -10,6 +11,8 @@ interface ReadCommand : Command {
         short = 'f',
         long = "from",
     )
+    @Pattern(regexp = "[a-zA-Z_\\-.]*")
+    @Size(min = 3, max = 255)
     fun tableName(): String
 
     @CliOption(
@@ -46,12 +49,15 @@ interface ReadCommand : Command {
         short = 'i',
         long = "global-index"
     )
+    @Pattern(regexp = "[a-zA-Z_\\-.]*")
+    @Size(min = 3, max = 255)
     fun globalIndexName(): String?
 
     @CliOption(
         short = 'l',
         long = "limit",
     )
+    @Positive
     fun limit(): Int?
 
     @CliOption(
@@ -64,6 +70,8 @@ interface ReadCommand : Command {
         short = 'R',
         long = "region",
     )
+    @Pattern(regexp = "[a-z0-9\\-]*")
+    @Size(min = 3, max = 30)
     fun region(): String?
 
     @CliOption(
@@ -109,6 +117,7 @@ interface ReadCommand : Command {
         short = 'L',
         long = "scan-limit"
     )
+    @Positive
     fun scanLimit(): Int?
 
     @CliOption(
@@ -127,6 +136,8 @@ interface ReadCommand : Command {
         short = 'c',
         long = "concurrency"
     )
+    @Min(1)
+    @Max(999)
     fun concurrency(): Int {
         return 1
     }
@@ -140,6 +151,8 @@ interface ReadCommand : Command {
         short = 'h',
         long = "max-heap-size"
     )
+    @Min(200)
+    @Max(8000)
     fun maxHeapSize(): Int?
 
     @CliOption(
@@ -155,10 +168,9 @@ interface ReadCommand : Command {
 
     @CliOption(
         short = 'r',
-        long = "reduce",
-        minArgs = 2,
-        maxArgs = 3
+        long = "reduce"
     )
+    @Size(min = 2, max = 3)
     fun reduce(): Array<String>?
 
     override fun getMutuallyExclusiveOptions(): Collection<Pair<Function<*>, Function<*>>> {

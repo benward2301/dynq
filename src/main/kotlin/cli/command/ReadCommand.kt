@@ -8,133 +8,138 @@ import jakarta.validation.constraints.*
 interface ReadCommand : Command {
 
     @CliOption(
-        short = 'f',
-        long = "from",
+        long = TABLE_NAME,
+        short = 'f'
     )
     @Pattern(regexp = "[a-zA-Z_\\-.]*")
     @Size(min = 3, max = 255)
     fun tableName(): String
 
     @CliOption(
-        short = 't',
-        long = "transform",
+        long = TRANSFORM,
+        short = 't'
     )
     fun transform(): String?
 
     @CliOption(
-        short = 'w',
-        long = "where",
+        long = WHERE,
+        short = 'w'
     )
     fun where(): String?
 
     @CliOption(
-        long = "pretransform",
+        long = PRETRANSFORM,
         short = 'T'
     )
     fun pretransform(): String?
 
     @CliOption(
-        short = 'P',
-        long = "partition-key"
+        long = PARTITION_KEY,
+        short = 'P'
     )
     fun partitionKey(): String?
 
     @CliOption(
+        long = SORT_KEY,
         short = 'S',
-        long = "sort-key"
+        requires = [PARTITION_KEY]
     )
     fun sortKey(): String?
 
     @CliOption(
+        long = GLOBAL_INDEX_NAME,
         short = 'i',
-        long = "global-index"
+        requires = [PARTITION_KEY],
+        precludes = [CONSISTENT_READ]
     )
     @Pattern(regexp = "[a-zA-Z_\\-.]*")
     @Size(min = 3, max = 255)
     fun globalIndexName(): String?
 
     @CliOption(
-        short = 'l',
-        long = "limit",
+        long = LIMIT,
+        short = 'l'
     )
     @Positive
     fun limit(): Int?
 
     @CliOption(
-        short = 'p',
-        long = "profile",
+        long = PROFILE,
+        short = 'p'
     )
     fun profile(): String?
 
     @CliOption(
-        short = 'R',
-        long = "region",
+        long = REGION,
+        short = 'R'
     )
     @Pattern(regexp = "[a-z0-9\\-]*")
     @Size(min = 3, max = 30)
     fun region(): String?
 
     @CliOption(
-        short = 'e',
-        long = "endpoint-url",
+        long = ENDPOINT_URL,
+        short = 'e'
     )
     fun endpointUrl(): String?
 
     @CliOption(
-        long = "colorize"
+        long = COLORIZE,
+        precludes = [MONOCHROME]
     )
     fun colorize(): Boolean
 
     @CliOption(
-        long = "monochrome"
+        long = MONOCHROME
     )
     fun monochrome(): Boolean
 
     @CliOption(
-        long = "compact"
+        long = COMPACT
     )
     fun compact(): Boolean
 
     @CliOption(
-        short = 'k',
-        long = "start-key"
+        long = START_KEY,
+        short = 'k'
     )
     fun startKey(): String?
 
     @CliOption(
-        short = 'g',
-        long = "rearrange-attrs"
+        long = REARRANGE_ATTRIBUTES,
+        short = 'g'
     )
     fun rearrangeAttributes(): Boolean
 
     @CliOption(
-        short = 'C',
-        long = "content-only"
+        long = CONTENT_ONLY,
+        short = 'C'
     )
     fun contentOnly(): Boolean
 
     @CliOption(
+        long = SCAN_LIMIT,
         short = 'L',
-        long = "scan-limit"
+        precludes = [CONCURRENCY]
     )
     @Positive
     fun scanLimit(): Int?
 
     @CliOption(
-        short = 'a',
-        long = "aggregate"
+        long = AGGREGATE,
+        short = 'a'
     )
     fun aggregate(): String?
 
     @CliOption(
-        short = 's',
-        long = "select"
+        long = PROJECTION_EXPRESSION,
+        short = 's'
     )
     fun projectionExpression(): String?
 
     @CliOption(
-        short = 'c',
-        long = "concurrency"
+        long = CONCURRENCY,
+        short = 'c'
     )
     @Min(1)
     @Max(999)
@@ -143,55 +148,63 @@ interface ReadCommand : Command {
     }
 
     @CliOption(
-        long = "consistent-read"
+        long = CONSISTENT_READ
     )
     fun consistentRead(): Boolean
 
     @CliOption(
-        short = 'h',
-        long = "max-heap-size"
+        long = MAX_HEAP_SIZE,
+        short = 'h'
     )
     @Min(200)
     @Max(8000)
     fun maxHeapSize(): Int?
 
     @CliOption(
+        long = EXPAND,
         short = 'x',
-        long = "expand"
+        requires = [GLOBAL_INDEX_NAME]
     )
     fun expand(): Boolean
 
     @CliOption(
-        long = "stream"
+        long = STREAM,
+        precludes = [AGGREGATE, REDUCE]
     )
     fun stream(): Boolean
 
     @CliOption(
-        short = 'r',
-        long = "reduce"
+        long = REDUCE,
+        short = 'r'
     )
     @Size(min = 2, max = 3)
     fun reduce(): Array<String>?
 
-    override fun getMutuallyExclusiveOptions(): Collection<Pair<Function<*>, Function<*>>> {
-        return listOf(
-            Pair(::colorize, ::monochrome),
-            Pair(::scanLimit, ::partitionKey),
-            Pair(::scanLimit, ::sortKey),
-            Pair(::scanLimit, ::concurrency),
-            Pair(::globalIndexName, ::consistentRead),
-//            Pair(::contentOnly, ::metadataOnly)
-//            Pair(::stream, ::aggregate)
-//            Pair(::metadataOnly, ::contentOnly)
-        )
-    }
-
-    override fun getOptionDependencies(): Collection<Pair<Function<*>, Function<*>>> {
-        return listOf(
-            Pair(::globalIndexName, ::partitionKey),
-            Pair(::sortKey, ::partitionKey),
-//            Pair(::expandKeys, ::globalIndexName),
-        )
-    }
-
 }
+
+private const val TABLE_NAME = "from"
+private const val TRANSFORM = "transform"
+private const val WHERE = "where"
+private const val PRETRANSFORM = "pretransform"
+private const val PARTITION_KEY = "partition-key"
+private const val SORT_KEY = "sort-key"
+private const val GLOBAL_INDEX_NAME = "global-index"
+private const val LIMIT = "limit"
+private const val PROFILE = "profile"
+private const val REGION = "region"
+private const val ENDPOINT_URL = "endpoint-url"
+private const val COLORIZE = "colorize"
+private const val MONOCHROME = "monochrome"
+private const val COMPACT = "compact"
+private const val START_KEY = "start-key"
+private const val REARRANGE_ATTRIBUTES = "rearrange-attrs"
+private const val CONTENT_ONLY = "content-only"
+private const val SCAN_LIMIT = "scan-limit"
+private const val AGGREGATE = "aggregate"
+private const val PROJECTION_EXPRESSION = "select"
+private const val CONCURRENCY = "concurrency"
+private const val CONSISTENT_READ = "consistent-read"
+private const val MAX_HEAP_SIZE = "max-heap-size"
+private const val EXPAND = "expand"
+private const val STREAM = "stream"
+private const val REDUCE = "reduce"

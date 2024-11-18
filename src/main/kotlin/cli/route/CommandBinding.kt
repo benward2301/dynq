@@ -42,6 +42,7 @@ class CommandBinding<T : Command>(
 
         for (method in cls.java.methods) {
             val anno = method.getDeclaredAnnotation(CliOption::class.java) ?: continue
+            verifyOptionDependencies(anno, commandLine)
             optionValues[method.name] = getOptionValue(commandLine, proxy, method, anno.long)
         }
         @Suppress("UNCHECKED_CAST")
@@ -81,6 +82,7 @@ class CommandBinding<T : Command>(
 
     private fun buildApacheOptions(): Options {
         val options = Options()
+
         for (fn in cls.memberFunctions) {
             val anno = fn.findAnnotation<CliOption>() ?: continue
             val type = fn.returnType
@@ -100,9 +102,29 @@ class CommandBinding<T : Command>(
                     .build()
             )
         }
+
         return options
     }
 
+}
+
+private fun verifyOptionDependencies(
+    anno: CliOption,
+    commandLine: CommandLine
+) {
+    if (!commandLine.hasOption(anno.long)) return
+
+    fun Array<String>.rejectIf(
+        reason: String,
+        predicate: (String) -> Boolean
+    ) {
+        this.filter(predicate)
+            .takeUnless { it.isEmpty() }
+            ?.joinToString { "--$it" }
+            ?.let { throw Error("--${anno.long} $reason $it") }
+    }
+    anno.precludes.rejectIf("is incompatible with") { commandLine.hasOption(it) }
+    anno.requires.rejectIf("requires") { !commandLine.hasOption(it) }
 }
 
 private inline fun <reified T> satisfies(type: KType): Boolean {

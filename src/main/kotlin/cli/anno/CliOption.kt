@@ -5,5 +5,7 @@ package dynq.cli.anno
 annotation class CliOption(
     val long: String,
     val short: Char = ' ',
-    val desc: String = ""
+    val desc: String = "",
+    val requires: Array<String> = [],
+    val precludes: Array<String> = []
 )

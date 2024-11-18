@@ -4,12 +4,12 @@ import dynq.executor.read.model.KeyMatcher
 import dynq.jq.jqn
 import software.amazon.awssdk.enhanced.dynamodb.internal.converter.attribute.JsonItemAttributeConverter
 
-fun buildPartitionKeyMatcher(filter: String?): KeyMatcher.Values? {
-    val key = buildKeyMatcher(filter)
-    if (key is KeyMatcher.Range) {
-        throw Error("partition key values must be discrete")
+fun buildPartitionKeyMatcher(filter: String?): KeyMatcher.Discrete? {
+    return when (val key = buildKeyMatcher(filter)) {
+        is KeyMatcher.Continuous -> throw Error("partition key values must be discrete")
+        is KeyMatcher.Discrete -> key
+        else -> null
     }
-    return key as KeyMatcher.Values? // TODO infer?
 }
 
 val buildSortKeyMatcher = ::buildKeyMatcher
@@ -34,13 +34,13 @@ private fun buildKeyMatcher(filter: String?): KeyMatcher? {
 
     if (node.isObject) {
         val map = converter.transformFrom(node).m()
-        return KeyMatcher.Range(
+        return KeyMatcher.Continuous(
             name,
-            gt = map["gt"],
-            gte = map["gte"],
-            lt = map["lt"],
-            lte = map["lte"],
-            beg = map["beg"]
+            gt = map["greater_than"] ?: map["gt"],
+            gte = map["greater_than_or_equals"] ?: map["gte"],
+            lt = map["less_than"] ?: map["lt"],
+            lte = map["less_than_or_equals"] ?: map["lte"],
+            bw = map["begins_with"] ?: map["bw"]
         )
     }
 
@@ -51,5 +51,5 @@ private fun buildKeyMatcher(filter: String?): KeyMatcher? {
     } else {
         throw Error("key value must be string or number")
     }
-    return KeyMatcher.Values(name, nodes.map { converter.transformFrom(it) })
+    return KeyMatcher.Discrete(name, nodes.map { converter.transformFrom(it) })
 }

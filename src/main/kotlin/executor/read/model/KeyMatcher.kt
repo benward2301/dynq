@@ -6,18 +6,18 @@ sealed class KeyMatcher {
 
     abstract val name: String
 
-    data class Values(
+    data class Discrete(
         override val name: String,
         val values: List<AttributeValue>
     ) : KeyMatcher()
 
-    data class Range(
+    data class Continuous(
         override val name: String,
         val gt: AttributeValue?,
         val gte: AttributeValue?,
         val lt: AttributeValue?,
         val lte: AttributeValue?,
-        val beg: AttributeValue?
+        val bw: AttributeValue?
     ) : KeyMatcher() {
 
         fun between(): Pair<AttributeValue, AttributeValue>? {

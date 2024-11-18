@@ -333,7 +333,7 @@ test('global index film_id, partition key 604, sort key begins with "1" -> film_
   const { content } = await new ReadCommand()
       .globalIndex('film_id')
       .partitionKey('.film_id = 604')
-      .sortKey('.uuid.beg = "1"')
+      .sortKey('.uuid.begins_with = "1"')
       .execute()
       .parse();
   assert.deepEqual(

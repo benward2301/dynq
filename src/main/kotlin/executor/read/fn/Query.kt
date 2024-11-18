@@ -20,7 +20,7 @@ suspend fun query(
     command: ReadCommand,
     readChannel: Channel<RawReadOutput>,
     ddb: DynamoDbClient,
-    partitionKey: KeyMatcher.Values,
+    partitionKey: KeyMatcher.Discrete,
     sortKey: KeyMatcher?
 ) {
     parallelize(
@@ -44,11 +44,11 @@ suspend fun query(
 
 private fun buildQueries(
     command: ReadCommand,
-    partitionKey: KeyMatcher.Values,
+    partitionKey: KeyMatcher.Discrete,
     sortKey: KeyMatcher?
 ): List<QueryRequest.Builder> {
     return partitionKey.values.flatMap { partitionKeyValue ->
-        if (sortKey is KeyMatcher.Values) {
+        if (sortKey is KeyMatcher.Discrete) {
             sortKey.values.map { sortKeyValue ->
                 buildSingleItemQuery(
                     command,
@@ -64,7 +64,7 @@ private fun buildQueries(
                     command,
                     partitionKey.name,
                     partitionKeyValue,
-                    sortKey as KeyMatcher.Range? // TODO infer?
+                    sortKey as KeyMatcher.Continuous?
                 )
             )
         }
@@ -94,7 +94,7 @@ private fun buildMultiItemQuery(
     command: ReadCommand,
     partitionKeyName: String,
     partitionKeyValue: AttributeValue,
-    sortKey: KeyMatcher.Range?
+    sortKey: KeyMatcher.Continuous?
 ): QueryRequest.Builder {
     val keyConditionExpr: String
     val partitionExpr = "$PARTITION_KEY_NAME_TOKEN = $PARTITION_KEY_VALUE_TOKEN"
@@ -111,10 +111,10 @@ private fun buildMultiItemQuery(
             sortExpr = "$SORT_KEY_NAME_TOKEN BETWEEN $SORT_KEY_VALUE_TOKEN AND $SORT_KEY_AUX_VALUE_TOKEN"
             sortOperand = between.first
             exprAttrValues[SORT_KEY_AUX_VALUE_TOKEN] = between.second
-        } else if (sortKey.beg != null) {
-            if (sortKey.beg.type() == AttributeValue.Type.S) {
+        } else if (sortKey.bw != null) {
+            if (sortKey.bw.type() == AttributeValue.Type.S) {
                 sortExpr = "begins_with($SORT_KEY_NAME_TOKEN, $SORT_KEY_VALUE_TOKEN)"
-                sortOperand = sortKey.beg
+                sortOperand = sortKey.bw
             } else {
                 throw Error("beg operand must be a string")
             }

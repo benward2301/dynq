@@ -14,8 +14,8 @@ suspend fun getItems(
     command: ReadCommand,
     readChannel: Channel<RawReadOutput>,
     ddb: DynamoDbClient,
-    partitionKey: KeyMatcher.Values,
-    sortKey: KeyMatcher.Values
+    partitionKey: KeyMatcher.Discrete,
+    sortKey: KeyMatcher.Discrete
 ) {
     val requests = partitionKey.values.flatMap { partitionKeyValue ->
         sortKey.values.map { sortKeyValue ->

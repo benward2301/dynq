@@ -7,7 +7,7 @@ export abstract class Command {
 
   execute(): CommandOutput {
     const prom = new Promise<string>((resolve, reject) => {
-      exec(`./dynq ${this.buildArgs()}`, (err, stdout) => {
+      exec(`${process.env.DYNQ} ${this.buildArgs()}`, (err, stdout) => {
         if (err) {
           reject(err);
         }

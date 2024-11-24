@@ -104,5 +104,5 @@ private fun buildPresentationFilter(
 }
 
 private fun colorize(command: ReadCommand): Boolean {
-    return command.colorize() || System.console().isTerminal && !command.monochrome()
+    return command.colorize() || System.console()?.isTerminal == true && !command.monochrome()
 }

@@ -7,7 +7,6 @@ import org.apache.commons.cli.CommandLine
 import org.apache.commons.cli.DefaultParser
 import org.apache.commons.cli.Option
 import org.apache.commons.cli.Options
-import java.lang.reflect.InvocationHandler
 import java.lang.reflect.Method
 import java.lang.reflect.Proxy
 import kotlin.reflect.KClass
@@ -43,7 +42,7 @@ class CommandBinding<T : Command>(
         for (method in cls.java.methods) {
             val anno = method.getDeclaredAnnotation(CliOption::class.java) ?: continue
             verifyOptionDependencies(anno, commandLine)
-            optionValues[method.name] = getOptionValue(commandLine, proxy, method, anno.long)
+            optionValues[method.name] = getOptionValue(commandLine, method, anno)
         }
         @Suppress("UNCHECKED_CAST")
         return proxy as T
@@ -51,23 +50,23 @@ class CommandBinding<T : Command>(
 
     private fun getOptionValue(
         commandLine: CommandLine,
-        proxy: Any,
         method: Method,
-        optionName: String
+        anno: CliOption
     ): Any? {
         val fn = cls.memberFunctions.find { fn -> fn.name == method.name }
             ?: throw Error("Failed to infer ${KFunction::class.qualifiedName} from ${Method::class.qualifiedName}")
         val type = fn.returnType
 
         if (satisfies<Boolean>(type)) {
-            return commandLine.hasOption(optionName) ||
-                    (!fn.isAbstract && InvocationHandler.invokeDefault(proxy, method) as Boolean)
+            return commandLine.hasOption(anno.long)
         }
 
-        val values: Array<String>? = commandLine.getOptionValues(optionName)
+        val values: Array<String> =
+            commandLine.getOptionValues(anno.long)
+                ?: if (anno.default.isNotEmpty()) arrayOf(anno.default) else emptyArray()
+
         return when {
-            values == null ->
-                if (method.isDefault) InvocationHandler.invokeDefault(proxy, method) else null
+            values.isEmpty() -> null
 
             satisfies<Int>(type) ->
                 OptionValidator.Int.validate(fn, values[0].toInt())
@@ -88,7 +87,7 @@ class CommandBinding<T : Command>(
             val type = fn.returnType
             val hasArg = !satisfies<Boolean>(type)
             val argCount = fn.takeIf { satisfies<Array<String>>(type) }?.findAnnotation<Size>()
-            val isRequired = hasArg && !type.isMarkedNullable && fn.isAbstract
+            val isRequired = hasArg && !type.isMarkedNullable && anno.default.isEmpty()
 
             options.addOption(
                 Option.builder()

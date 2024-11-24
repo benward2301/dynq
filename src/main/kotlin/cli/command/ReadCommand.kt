@@ -139,13 +139,12 @@ interface ReadCommand : Command {
 
     @CliOption(
         long = CONCURRENCY,
-        short = 'c'
+        short = 'c',
+        default = "1"
     )
     @Min(1)
     @Max(999)
-    fun concurrency(): Int {
-        return 1
-    }
+    fun concurrency(): Int
 
     @CliOption(
         long = CONSISTENT_READ

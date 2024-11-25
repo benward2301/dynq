@@ -1,12 +1,9 @@
 {
-  "name": "@dynq/e2e-tests",
+  "name": "@dynq/tests",
   "type": "module",
   "version": "1.0.0",
   "author": "Ben Ward",
   "license": "ISC",
-  "scripts": {
-    "test": "./run.sh"
-  },
   "devDependencies": {
     "@types/node": "^22.8.4",
     "typescript": "^5.6.3",

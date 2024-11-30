@@ -4,7 +4,6 @@ import com.arakelian.jq.ImmutableJqLibrary
 import com.arakelian.jq.ImmutableJqRequest
 import com.arakelian.jq.JqLibrary
 import com.arakelian.jq.JqRequest
-import software.amazon.awssdk.protocols.jsoncore.JsonNode
 import java.io.File
 
 fun jq(
@@ -32,20 +31,6 @@ fun jq(
         return null
     }
     return output
-}
-
-fun jqn(
-    input: String,
-    filter: String
-): JsonNode? {
-    val str = jq(
-        input = input,
-        filter = filter
-    )
-    if (str == null) {
-        return null
-    }
-    return JsonNode.parser().parse(str)
 }
 
 private val lib = ImmutableJqLibrary.of()

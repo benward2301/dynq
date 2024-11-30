@@ -250,11 +250,10 @@ test('transform to uuid, sort and take 5, concurrency 3 -> meta, 5 smallest uuid
   );
 });
 
-test('transform to uuid, reduce sort, limit 5, concurrency 3 -> meta, 5 smallest uuids', async () => {
+test('transform to uuid, reduce to least 5, concurrency 3 -> meta, 5 smallest uuids', async () => {
   const output = await new ReadCommand()
       .transform('.uuid')
-      .reduce(['[]', '. + [$item]', 'sort'])
-      .limit(5)
+      .reduce(['[]', '. + [$item]', 'sort | .[0:5]'])
       .concurrency(3)
       .execute()
       .parse();

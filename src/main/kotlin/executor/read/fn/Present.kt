@@ -5,6 +5,7 @@ import com.google.common.base.CharMatcher
 import dynq.cli.command.ReadCommand
 import dynq.executor.read.model.FilterOutput
 import dynq.jq.jq
+import dynq.jq.pipe
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.toList
 
@@ -74,18 +75,8 @@ private suspend fun streamOutput(
 }
 
 private fun buildAggregationFilter(command: ReadCommand): String {
-    fun String.pipe(arg: String?): String {
-        return if (arg == null) this else "$this | $arg"
-    }
-
-    val limit = command.limit()?.let { ".[0:$it]" }
-
-    return if (command.reduce() == null) {
-        "flatten".pipe(limit)
-            .pipe(command.aggregate())
-    } else {
-        ".[0]".pipe(limit)
-    }
+    return (if (command.reduce() == null) "flatten" else ".[0]")
+        .pipe(command.aggregate())
 }
 
 private fun buildPresentationFilter(

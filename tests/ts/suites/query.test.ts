@@ -479,13 +479,12 @@ test('partition key film, reduce to total film length -> meta, total film length
   );
 });
 
-test('partition key film, select title and length, reduce to length sort, limit 5' +
+test('partition key film, select title and length, reduce to shortest 5' +
     ' -> title and length of 5 shortest films', async () => {
   const { content } = await new ReadCommand()
       .partitionKey('.entity = "film"')
       .select('title,length')
-      .reduce(['[]', '. + [$item] | sort_by(.length)'])
-      .limit(5)
+      .reduce(['[]', '. + [$item] | sort_by(.length) | .[:5]'])
       .execute()
       .parse();
   assert.deepEqual(

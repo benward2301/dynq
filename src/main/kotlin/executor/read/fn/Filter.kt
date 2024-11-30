@@ -5,6 +5,7 @@ import dynq.executor.read.model.FilterOutput
 import dynq.executor.read.model.RawReadOutput
 import dynq.executor.read.model.ReadMetadata
 import dynq.jq.jqn
+import dynq.jq.pipe
 import kotlinx.coroutines.channels.Channel
 import software.amazon.awssdk.enhanced.dynamodb.document.EnhancedDocument
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient
@@ -28,44 +29,16 @@ suspend fun filter(
                 if (command.expand()) expandItems(ddb, command, it)
                 else it
             },
-            filter
+            filter.pipe(command.limit()?.let { ".[0:$it]" })
         )
+        hitCount += output.items.size
 
         if (reducer == null) {
             outputChannel.send(output)
-            hitCount += output.items.size
-            if (limit != null && limit <= hitCount) break
-
         } else {
-            val meta: ReadMetadata
-            val initialValue: String
-
-            if (reduction == null) {
-                meta = output.meta
-                reduction = output
-                initialValue = reducer[0]
-            } else {
-                meta = aggregateMetadata(
-                    listOf(reduction.meta, output.meta),
-                    false
-                )
-                initialValue = reduction.items[0].toString()
-            }
-
-            val node = jqn(
-                output.items.toString(),
-                "reduce .[] as \$item ($initialValue; ${reducer[1]})"
-                    .pipe(reducer.getOrNull(2))
-                    .pipe(limit?.let { ".[0:$limit]" })
-            )
-            if (node == null) {
-                throw Error("bad reduce filter")
-            }
-            reduction = reduction.copy(
-                items = listOf(node),
-                meta = meta
-            )
+            reduction = reduceBatch(output, reducer, reduction)
         }
+        if (limit != null && limit <= hitCount) break
         if (isMaxHeapSizeExceeded(command)) break
     }
 
@@ -99,6 +72,39 @@ private fun filterBatch(
     )
 }
 
+private fun reduceBatch(
+    batch: FilterOutput,
+    reducer: Array<String>,
+    reduction: FilterOutput?
+): FilterOutput {
+    val meta: ReadMetadata
+    val initialValue: String
+
+    if (reduction == null) {
+        meta = batch.meta
+        initialValue = reducer[0]
+    } else {
+        meta = aggregateMetadata(
+            listOf(reduction.meta, batch.meta),
+            false
+        )
+        initialValue = reduction.items[0].toString()
+    }
+
+    val node = jqn(
+        batch.items.toString(),
+        "reduce .[] as \$item ($initialValue; ${reducer[1]})"
+            .pipe(reducer.getOrNull(2))
+    )
+    if (node == null) {
+        throw Error("bad reduce filter")
+    }
+    return batch.copy(
+        items = listOf(node),
+        meta = meta
+    )
+}
+
 private fun buildSelectionFilter(command: ReadCommand): String {
     return "[.[]"
         .pipe(command.pretransform())
@@ -114,8 +120,4 @@ private fun isMaxHeapSizeExceeded(command: ReadCommand): Boolean {
         ?.coerceAtMost(defaultMax)
         ?: defaultMax
     return effectiveMax <= runtime.totalMemory() - runtime.freeMemory()
-}
-
-private fun String.pipe(arg: String?): String {
-    return if (arg == null) this else "$this | $arg"
 }

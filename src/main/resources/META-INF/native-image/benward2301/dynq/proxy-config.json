@@ -1,0 +1,5 @@
+[
+  {
+    "interfaces":["dynq.cli.command.ReadCommand"]
+  }
+]

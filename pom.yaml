@@ -9,7 +9,9 @@ properties:
   kotlin.code.style: official
   project.build.sourceEncoding: UTF-8
   kotlin.compiler.jvmTarget: 1.8
-
+  native.skip: false
+  native.outputFile: ${project.artifactId}-${project.version}-${os.name}-${os.arch}
+  
 repositories:
   - id: mavenCentral
     layout: default
@@ -104,13 +106,13 @@ build:
       version: 0.10.3
       extensions: true
       configuration:
+        skip: ${native.skip}
         buildArgs:
           - -Djava.util.logging.config.file=
+          - -o target/${native.outputFile}
       executions:
         - id: build-native
-          inherited: true
           phase: package
-          priority: 0
           goals:
             - compile-no-fork
     - groupId: org.codehaus.mojo
@@ -128,6 +130,7 @@ build:
           goals:
             - exec
           configuration:
+            skip: ${native.skip}
             executable: docker
             arguments:
               - rm
@@ -147,6 +150,7 @@ build:
           goals:
             - exec
           configuration:
+            skip: ${native.skip}
             executable: tests/run.sh
             arguments:
-              - target/dynq
+              - target/${native.outputFile}

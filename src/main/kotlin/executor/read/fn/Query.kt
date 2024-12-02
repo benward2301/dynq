@@ -1,6 +1,7 @@
 package dynq.executor.read.fn
 
 import dynq.cli.command.ReadCommand
+import dynq.cli.whisper
 import dynq.ddb.model.PaginatedResponse
 import dynq.executor.read.model.KeyMatcher
 import dynq.executor.read.model.RawReadOutput
@@ -23,21 +24,26 @@ suspend fun query(
     partitionKey: KeyMatcher.Discrete,
     sortKey: KeyMatcher?
 ) {
+    whisper { "Querying table: ${command.tableName()}${command.globalIndexName()?.let { ".$it" } ?: ""}" }
+
     parallelize(
         command,
         buildQueries(command, partitionKey, sortKey),
-    ) { builder ->
+    ) { builder, coroutineNumber ->
         autoPaginate(
             command,
             readChannel,
             "Query",
+            coroutineNumber
         ) { startKey, remaining ->
-            val response = ddb.query(
-                builder.exclusiveStartKey(startKey)
-                    .limit(remaining)
-                    .build()
-            )
-            PaginatedResponse.from(response)
+            val request = builder.exclusiveStartKey(startKey)
+                .limit(remaining)
+                .build()
+            whisper(coroutineNumber) {
+                "Scanning partition #(${request.expressionAttributeValues()[PARTITION_KEY_VALUE_TOKEN]
+                    .let { it?.s() ?: it?.n() } })"
+            }
+            PaginatedResponse.from(ddb.query(request))
         }
     }
 }

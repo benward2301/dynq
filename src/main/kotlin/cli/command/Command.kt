@@ -1,13 +1,28 @@
 package dynq.cli.command
 
+import dynq.cli.anno.CliOption
+
 interface Command {
 
-    fun getMutuallyExclusiveOptions(): Collection<Pair<Function<*>, Function<*>>> {
-        return emptyList()
-    }
+    @CliOption(
+        long = VERBOSE,
+        short = 'v'
+    )
+    fun verbose(): Boolean
 
-    fun getOptionDependencies(): Collection<Pair<Function<*>, Function<*>>> {
-        return emptyList()
-    }
+    @CliOption(
+        long = COLORIZE,
+        precludes = [MONOCHROME]
+    )
+    fun colorize(): Boolean
+
+    @CliOption(
+        long = MONOCHROME
+    )
+    fun monochrome(): Boolean
 
 }
+
+private const val VERBOSE = "verbose"
+private const val COLORIZE = "colorize"
+private const val MONOCHROME = "monochrome"

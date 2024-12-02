@@ -2,12 +2,14 @@ package dynq.executor.read
 
 import dynq.cli.command.ReadCommand
 import dynq.cli.route.CommandExecutor
+import dynq.cli.whisper
 import dynq.ddb.createDynamoDbClient
 import dynq.executor.read.fn.*
 import dynq.executor.read.model.FilterOutput
 import dynq.executor.read.model.KeyMatcher
 import dynq.executor.read.model.RawReadOutput
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -35,12 +37,14 @@ val executeRead = CommandExecutor<ReadCommand> { command ->
             }
             readChannel.close()
         }
-        launch {
+        val filtering = launch {
             filter(ddb, command, readChannel, outputChannel)
-            reading.cancel()
         }
         launch {
-            present(command, outputChannel)
+            present(command, outputChannel) {
+                reading.cancelAndJoin()
+                filtering.cancelAndJoin()
+            }
         }
     }
 }

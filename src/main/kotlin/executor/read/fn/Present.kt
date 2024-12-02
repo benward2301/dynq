@@ -3,6 +3,7 @@ package dynq.executor.read.fn
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.google.common.base.CharMatcher
 import dynq.cli.command.ReadCommand
+import dynq.cli.whisper
 import dynq.executor.read.model.FilterOutput
 import dynq.jq.jq
 import dynq.jq.pipe
@@ -14,20 +15,24 @@ private const val CONTENT_PROP = "content"
 
 suspend fun present(
     command: ReadCommand,
-    outputChannel: Channel<FilterOutput>
+    outputChannel: Channel<FilterOutput>,
+    cleanup: suspend () -> Unit
 ) {
     if (command.stream()) {
         streamOutput(command, outputChannel)
+        cleanup()
         return
     }
 
     val filterOutputs = outputChannel.toList()
+    cleanup()
 
     CharMatcher.anyOf("\r\n\t").removeFrom(
         filterOutputs.map { it.items }
             .flatten()
             .toString()
     ).let {
+        whisper { "Aggregating results" }
         jq(
             it,
             filter = buildAggregationFilter(command),
@@ -41,7 +46,7 @@ suspend fun present(
             it,
             filter = buildPresentationFilter(command, filterOutputs),
             pretty = !command.compact(),
-            colorize = colorize(command)
+            colorize = command.colorize()
         )
     }.let(::println)
 }
@@ -62,7 +67,7 @@ private suspend fun streamOutput(
                         filter = ".[0:${remaining ?: ""}] | .[]",
                         pretty = !command.compact(),
                         sortKeys = command.rearrangeAttributes(),
-                        colorize = colorize(command)
+                        colorize = command.colorize()
                     ).let(::println)
                 }
             }.let { it?.size ?: 0 }
@@ -92,8 +97,4 @@ private fun buildPresentationFilter(
                 )
             )
         }, $CONTENT_PROP: .} | del(..|nulls)"
-}
-
-private fun colorize(command: ReadCommand): Boolean {
-    return command.colorize() || System.console()?.isTerminal == true && !command.monochrome()
 }

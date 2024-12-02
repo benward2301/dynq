@@ -11,6 +11,7 @@ properties:
   kotlin.compiler.jvmTarget: 1.8
   native.skip: false
   native.outputFile: ${project.artifactId}-${project.version}-${os.name}-${os.arch}
+  test.env.exists: false
   
 repositories:
   - id: mavenCentral
@@ -124,13 +125,14 @@ build:
           goals:
             - exec
           configuration:
+            skip: ${test.env.exists}
             executable: docker/dvd-rental/run.sh
         - id: tear-down-db
           phase: post-integration-test
           goals:
             - exec
           configuration:
-            skip: ${native.skip}
+            skip: ${test.env.exists}
             executable: docker
             arguments:
               - rm

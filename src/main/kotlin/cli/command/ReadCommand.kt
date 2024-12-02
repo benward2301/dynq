@@ -84,17 +84,6 @@ interface ReadCommand : Command {
     fun endpointUrl(): String?
 
     @CliOption(
-        long = COLORIZE,
-        precludes = [MONOCHROME]
-    )
-    fun colorize(): Boolean
-
-    @CliOption(
-        long = MONOCHROME
-    )
-    fun monochrome(): Boolean
-
-    @CliOption(
         long = COMPACT
     )
     fun compact(): Boolean
@@ -192,8 +181,6 @@ private const val LIMIT = "limit"
 private const val PROFILE = "profile"
 private const val REGION = "region"
 private const val ENDPOINT_URL = "endpoint-url"
-private const val COLORIZE = "colorize"
-private const val MONOCHROME = "monochrome"
 private const val COMPACT = "compact"
 private const val START_KEY = "start-key"
 private const val REARRANGE_ATTRIBUTES = "rearrange-attrs"

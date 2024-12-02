@@ -1,6 +1,7 @@
 package dynq.executor.read.fn
 
 import dynq.cli.command.ReadCommand
+import dynq.cli.whisper
 import dynq.executor.read.model.FilterOutput
 import dynq.executor.read.model.RawReadOutput
 import dynq.executor.read.model.ReadMetadata
@@ -20,6 +21,7 @@ suspend fun filter(
     val reducer = command.reduce()
     val filter = buildSelectionFilter(command)
 
+    var scannedCount = 0
     var hitCount = 0
     var reduction: FilterOutput? = null
 
@@ -32,14 +34,24 @@ suspend fun filter(
             filter.pipe(command.limit()?.let { ".[0:$it]" })
         )
         hitCount += output.items.size
+        output.meta.scannedCount?.let {
+            scannedCount += it
+            whisper { "$hitCount of $scannedCount total items retained" }
+        }
 
         if (reducer == null) {
             outputChannel.send(output)
         } else {
             reduction = reduceBatch(output, reducer, reduction)
         }
-        if (limit != null && limit <= hitCount) break
-        if (isMaxHeapSizeExceeded(command)) break
+        if (limit != null && limit <= hitCount) {
+            whisper { "Item limit reached" }
+            break
+        }
+        if (isMaxHeapSizeExceeded(command)) {
+            whisper { "Max heap size exceeded" }
+            break
+        }
     }
 
     if (reduction != null) {

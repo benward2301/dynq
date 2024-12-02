@@ -1,6 +1,7 @@
 package dynq.executor.read.fn
 
 import dynq.cli.command.ReadCommand
+import dynq.cli.whisper
 import dynq.executor.read.model.KeyMatcher
 import dynq.executor.read.model.RawReadOutput
 import dynq.executor.read.model.ReadMetadata
@@ -17,6 +18,8 @@ suspend fun getItems(
     partitionKey: KeyMatcher.Discrete,
     sortKey: KeyMatcher.Discrete
 ) {
+    whisper { "Getting item(s) from table: ${command.tableName()}" }
+
     val requests = partitionKey.values.flatMap { partitionKeyValue ->
         sortKey.values.map { sortKeyValue ->
             buildGetItemRequest(
@@ -31,7 +34,9 @@ suspend fun getItems(
     parallelize(
         command,
         requests,
-    ) { request ->
+    ) { request, coroutineNumber ->
+        whisper(coroutineNumber) { "Getting ${request.key()}" }
+
         val response = ddb.getItem(request)
         readChannel.send(
             RawReadOutput(

@@ -22,12 +22,24 @@ class CommandBinding<T : Command>(
     val cls: KClass<T>,
     val executor: CommandExecutor<T>
 ) {
+    companion object {
+
+        var global: Command = object : Command {
+            override fun verbose(): Boolean = false
+            override fun colorize(): Boolean = false
+            override fun monochrome(): Boolean = false
+        }
+            private set
+
+    }
 
     fun execute(commandName: String?, args: Array<String>): Nothing {
         val options = buildApacheOptions()
         interceptInfoArgs(commandName, options, args)
         val commandLine = DefaultParser().parse(options, args)
-        this.executor.accept(createCommandProxy(commandLine))
+        val proxy = createCommandProxy(commandLine)
+        global = proxy
+        this.executor.accept(proxy)
         exitProcess(0)
     }
 
@@ -44,6 +56,14 @@ class CommandBinding<T : Command>(
             verifyOptionDependencies(anno, commandLine)
             optionValues[method.name] = getOptionValue(commandLine, method, anno)
         }
+
+        // comparison over Boolean cast
+        if (optionValues[Command::colorize.name] == false && optionValues[Command::monochrome.name] == false) {
+            val colorize = System.console()?.isTerminal ?: false
+            optionValues[Command::colorize.name] = colorize
+            optionValues[Command::monochrome.name] = !colorize
+        }
+
         @Suppress("UNCHECKED_CAST")
         return proxy as T
     }

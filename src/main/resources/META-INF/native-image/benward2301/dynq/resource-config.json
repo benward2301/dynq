@@ -60,6 +60,9 @@
       },
       {
         "pattern": "\\Qsoftware/amazon/awssdk/services/dynamodb/execution.interceptors\\E"
+      },
+      {
+        "pattern": "\\Qsoftware/amazon/awssdk/services/sts/execution.interceptors\\E"
       }
     ]
   },

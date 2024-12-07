@@ -23,6 +23,7 @@ export class ReadCommand extends Command {
   readonly transform = this.arg<string>('transform');
   readonly where = this.arg<string>('where');
   readonly expand = this.flag('expand');
+  readonly requestLimit = this.arg<number>('request-limit');
 
   constructor() {
     super();

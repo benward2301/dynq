@@ -278,3 +278,49 @@ test('transform to uuid, reduce to least 5, concurrency 3 -> meta, 5 smallest uu
   );
 });
 
+test('request limit 2, aggregate length -> meta, 11545', async () => {
+  const output = await new ReadCommand()
+      .requestLimit(2)
+      .aggregate('length')
+      .execute()
+      .parse();
+  assert.deepEqual(
+      output,
+      {
+        meta: {
+          requestType: 'Scan',
+          consumedCapacity: 257,
+          requestCount: 2,
+          scannedCount: 11545,
+          hitCount: 11545,
+          lastEvaluatedKey: {
+            id: 20365,
+            entity: 'payment'
+          }
+        },
+        content: 11545
+      }
+  );
+});
+
+test('request limit 1, aggregate length, concurrency 3 -> meta, 15903', async () => {
+  const output = await new ReadCommand()
+      .requestLimit(1)
+      .aggregate('length')
+      .concurrency(3)
+      .execute()
+      .parse();
+  assert.deepEqual(
+      output,
+      {
+        meta: {
+          requestType: 'Scan',
+          consumedCapacity: 365,
+          requestCount: 3,
+          scannedCount: 15903,
+          hitCount: 15903
+        },
+        content: 15903
+      }
+  );
+});

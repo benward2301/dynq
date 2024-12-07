@@ -168,6 +168,13 @@ interface ReadCommand : Command {
     @Size(min = 2, max = 3)
     fun reduce(): Array<String>?
 
+    @CliOption(
+        long = REQUEST_LIMIT,
+        short = 'q'
+    )
+    @Positive
+    fun requestLimit(): Int?
+
 }
 
 private const val TABLE_NAME = "from"
@@ -194,3 +201,4 @@ private const val MAX_HEAP_SIZE = "max-heap-size"
 private const val EXPAND = "expand"
 private const val STREAM = "stream"
 private const val REDUCE = "reduce"
+private const val REQUEST_LIMIT = "request-limit"

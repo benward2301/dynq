@@ -20,8 +20,11 @@ suspend fun autoPaginate(
         remaining: Int?
     ) -> PaginatedResponse
 ) {
-    var scannedCount = 0
     val scanLimit = command.scanLimit()
+    val requestLimit = command.requestLimit()
+
+    var scannedCount = 0
+    var requestCount = 0
     var startKey = command.startKey()?.let {
         EnhancedDocument.fromJson(
             jq(input = it)
@@ -33,19 +36,36 @@ suspend fun autoPaginate(
         }
         val response = read(startKey, scanLimit)
         channel.send(
-            RawReadOutput(
-                response.items,
-                ReadMetadata(
-                    requestType,
-                    response.consumedCapacity,
-                    scannedCount = response.scannedCount,
-                    lastEvaluatedKey = response.lastEvaluatedKey
-                )
-            )
+            buildReadOutput(requestType, response)
         )
         scannedCount += response.scannedCount
         whisper(coroutineNumber) { "${response.scannedCount} item(s) scanned" }
 
         startKey = response.lastEvaluatedKey
-    } while (startKey != null && (scanLimit == null || scannedCount < scanLimit))
+        requestCount++
+    } while (
+        startKey != null &&
+        isCountWithinLimit(scannedCount, scanLimit) &&
+        isCountWithinLimit(requestCount, requestLimit)
+            .also { if (!it) whisper(coroutineNumber) { "Request limit reached" } }
+    )
+}
+
+private fun buildReadOutput(
+    requestType: String,
+    response: PaginatedResponse
+): RawReadOutput {
+    return RawReadOutput(
+        response.items,
+        ReadMetadata(
+            requestType,
+            response.consumedCapacity,
+            scannedCount = response.scannedCount,
+            lastEvaluatedKey = response.lastEvaluatedKey
+        )
+    )
+}
+
+private fun isCountWithinLimit(count: Int, limit: Int?): Boolean {
+    return limit == null || count < limit
 }

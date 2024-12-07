@@ -513,3 +513,55 @@ test('partition key film, select title and length, reduce to shortest 5' +
       ]
   );
 });
+
+test('partition key payment, request limit 2, aggregate length -> meta, 13442', async () => {
+  const output = await new ReadCommand()
+      .partitionKey('.entity = "payment"')
+      .requestLimit(2)
+      .aggregate('length')
+      .execute()
+      .parse();
+  assert.deepEqual(
+      output,
+      {
+        meta: {
+          requestType: 'Query',
+          consumedCapacity: 257,
+          requestCount: 2,
+          scannedCount: 13442,
+          hitCount: 13442,
+          lastEvaluatedKey: {
+            id: 30944,
+            entity: 'payment'
+          }
+        },
+        content: 13442
+      }
+  );
+});
+
+test('partition key payment, request limit 2, aggregate length -> meta, 13442', async () => {
+  const output = await new ReadCommand()
+      .partitionKey('.entity = "payment"')
+      .requestLimit(2)
+      .aggregate('length')
+      .execute()
+      .parse();
+  assert.deepEqual(
+      output,
+      {
+        meta: {
+          requestType: 'Query',
+          consumedCapacity: 257,
+          requestCount: 2,
+          scannedCount: 13442,
+          hitCount: 13442,
+          lastEvaluatedKey: {
+            id: 30944,
+            entity: 'payment'
+          }
+        },
+        content: 13442
+      }
+  );
+});

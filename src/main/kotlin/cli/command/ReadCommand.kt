@@ -175,6 +175,13 @@ interface ReadCommand : Command {
     @Positive
     fun requestLimit(): Int?
 
+    @CliOption(
+        long = ITEMS_PER_REQUEST,
+        short = 'I'
+    )
+    @Positive
+    fun itemsPerRequest(): Int?
+
 }
 
 private const val TABLE_NAME = "from"
@@ -202,3 +209,4 @@ private const val EXPAND = "expand"
 private const val STREAM = "stream"
 private const val REDUCE = "reduce"
 private const val REQUEST_LIMIT = "request-limit"
+private const val ITEMS_PER_REQUEST = "items-per-request"

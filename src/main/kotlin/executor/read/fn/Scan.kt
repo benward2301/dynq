@@ -27,11 +27,11 @@ suspend fun scan(
                 readChannel,
                 "Scan",
                 segment
-            ) { startKey, remaining ->
+            ) { startKey, limit ->
                 val request = buildScanBase(command)
                     .segment(segment)
                     .exclusiveStartKey(startKey)
-                    .limit(remaining)
+                    .limit(limit)
                     .build()
                 val response = ddb.scan(request)
                 scannedCount.addAndGet(response.scannedCount())

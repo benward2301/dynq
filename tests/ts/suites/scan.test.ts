@@ -324,3 +324,54 @@ test('request limit 1, aggregate length, concurrency 3 -> meta, 15903', async ()
       }
   );
 });
+
+test('items per request 10, request limit 2, aggregate length -> meta, 20', async () => {
+  const output = await new ReadCommand()
+      .itemsPerRequest(10)
+      .requestLimit(2)
+      .aggregate('length')
+      .execute()
+      .parse();
+  assert.deepEqual(
+      output,
+      {
+        meta: {
+          requestType: 'Scan',
+          consumedCapacity: 1,
+          requestCount: 2,
+          scannedCount: 20,
+          hitCount: 20,
+          lastEvaluatedKey: {
+            id: 20,
+            entity: 'film_category'
+          }
+        },
+        content: 20
+      }
+  );
+});
+
+test('scan limit 10000, aggregate length -> meta, 10000', async () => {
+  const output = await new ReadCommand()
+      .scanLimit(10000)
+      .aggregate('length')
+      .execute()
+      .parse();
+  assert.deepEqual(
+      output,
+      {
+        meta: {
+          requestType: 'Scan',
+          consumedCapacity: 227.5,
+          requestCount: 2,
+          scannedCount: 10000,
+          hitCount: 10000,
+          lastEvaluatedKey: {
+            id: 18820,
+            entity: 'payment'
+          }
+        },
+        content: 10000
+      }
+  );
+});

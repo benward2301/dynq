@@ -24,6 +24,7 @@ export class ReadCommand extends Command {
   readonly where = this.arg<string>('where');
   readonly expand = this.flag('expand');
   readonly requestLimit = this.arg<number>('request-limit');
+  readonly itemsPerRequest = this.arg<number>('items-per-request');
 
   constructor() {
     super();

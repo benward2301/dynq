@@ -9,6 +9,7 @@ import dynq.executor.read.model.ReadMetadata
 import dynq.jq.jq
 import kotlinx.coroutines.channels.Channel
 import software.amazon.awssdk.enhanced.dynamodb.document.EnhancedDocument
+import kotlin.math.min
 
 suspend fun autoPaginate(
     command: ReadCommand,
@@ -17,11 +18,12 @@ suspend fun autoPaginate(
     coroutineNumber: Int = 0,
     read: (
         startKey: DynamoDbItem?,
-        remaining: Int?
+        limit: Int?
     ) -> PaginatedResponse
 ) {
     val scanLimit = command.scanLimit()
     val requestLimit = command.requestLimit()
+    val itemsPerRequest = command.itemsPerRequest()
 
     var scannedCount = 0
     var requestCount = 0
@@ -34,7 +36,7 @@ suspend fun autoPaginate(
         if (startKey != null) {
             whisper(coroutineNumber) { "Scanning from $startKey" }
         }
-        val response = read(startKey, scanLimit)
+        val response = read(startKey, calculateNextScanLimit(scannedCount, scanLimit, itemsPerRequest))
         channel.send(
             buildReadOutput(requestType, response)
         )
@@ -64,6 +66,15 @@ private fun buildReadOutput(
             lastEvaluatedKey = response.lastEvaluatedKey
         )
     )
+}
+
+private fun calculateNextScanLimit(scannedCount: Int, scanLimit: Int?, itemsPerRequest: Int?): Int? {
+    if (scanLimit == null) {
+        return itemsPerRequest
+    }
+    return (scanLimit - scannedCount).also {
+        if (itemsPerRequest != null) min(it, itemsPerRequest)
+    }
 }
 
 private fun isCountWithinLimit(count: Int, limit: Int?): Boolean {

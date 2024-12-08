@@ -35,9 +35,9 @@ suspend fun query(
             readChannel,
             "Query",
             coroutineNumber
-        ) { startKey, remaining ->
+        ) { startKey, limit ->
             val request = builder.exclusiveStartKey(startKey)
-                .limit(remaining)
+                .limit(limit)
                 .build()
             whisper(coroutineNumber) {
                 "Scanning partition #(${request.expressionAttributeValues()[PARTITION_KEY_VALUE_TOKEN]

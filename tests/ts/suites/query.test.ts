@@ -565,3 +565,30 @@ test('partition key payment, request limit 2, aggregate length -> meta, 13442', 
       }
   );
 });
+
+test('partition key film, items per request 10, request limit 2, aggregate length -> meta, 25', async () => {
+  const output = await new ReadCommand()
+      .partitionKey('.entity = "film"')
+      .itemsPerRequest(10)
+      .requestLimit(2)
+      .aggregate('length')
+      .execute()
+      .parse();
+  assert.deepEqual(
+      output,
+      {
+        meta: {
+          requestType: 'Query',
+          consumedCapacity: 2,
+          requestCount: 2,
+          scannedCount: 20,
+          hitCount: 20,
+          lastEvaluatedKey: {
+            id: 20,
+            entity: 'film'
+          }
+        },
+        content: 20
+      }
+  );
+});

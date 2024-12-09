@@ -36,12 +36,10 @@ suspend fun present(
         jq(
             it,
             filter = buildAggregationFilter(command),
-            sortKeys = command.rearrangeAttributes()
+            sortKeys = command.rearrangeAttributes(),
+            label = "aggregate"
         )
     }.let {
-        if (it == null) {
-            throw Error("bad aggregation filter")
-        }
         jq(
             it,
             filter = buildPresentationFilter(command, filterOutputs),

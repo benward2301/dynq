@@ -1,9 +1,6 @@
 package dynq.jq
 
-import com.arakelian.jq.ImmutableJqLibrary
-import com.arakelian.jq.ImmutableJqRequest
-import com.arakelian.jq.JqLibrary
-import com.arakelian.jq.JqRequest
+import com.arakelian.jq.*
 import java.io.File
 
 fun jq(
@@ -11,12 +8,13 @@ fun jq(
     filter: String? = null,
     pretty: Boolean = false,
     colorize: Boolean = false,
-    sortKeys: Boolean = false
-): String? {
+    sortKeys: Boolean = false,
+    label: String? = null
+): String {
     if (listOf(filter != null, pretty, colorize, sortKeys).none { it }) {
         return input
     }
-    val output = PatchedJqRequest(
+    val response = PatchedJqRequest(
         ImmutableJqRequest.builder()
             .lib(lib)
             .input(input)
@@ -26,11 +24,17 @@ fun jq(
             .sortKeys(sortKeys)
             .build(),
         colorize
-    ).execute().output
-    if (output.isEmpty()) {
-        return null
+    ).execute()
+    if (response.hasErrors()) {
+        throw Error(buildErrorMessage(response, label))
     }
-    return output
+    return response.output
+}
+
+private fun buildErrorMessage(response: JqResponse, label: String?): String {
+    val nl = "\n  "
+    return listOfNotNull("bad", label, "filter").joinToString(" ") +
+            response.errors.map { it.replace("\n", " ") }.joinToString(nl, prefix = nl)
 }
 
 private val lib = ImmutableJqLibrary.of()

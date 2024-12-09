@@ -2,6 +2,7 @@ package dynq.executor.read.fn
 
 import dynq.executor.read.model.KeyMatcher
 import dynq.jq.jqn
+import dynq.jq.pipe
 import software.amazon.awssdk.enhanced.dynamodb.internal.converter.attribute.JsonItemAttributeConverter
 
 fun buildPartitionKeyMatcher(filter: String?): KeyMatcher.Discrete? {
@@ -18,18 +19,17 @@ private fun buildKeyMatcher(filter: String?): KeyMatcher? {
     if (filter == null) {
         return null
     }
-
+    val label = "key"
     val name = jqn(
         input = "{}",
-        filter = "$filter | keys[0]"
-    )?.asString()
+        filter = filter.pipe("keys[0]"),
+        label = label
+    ).asString()
     val node = jqn(
         input = "{}",
-        filter = "$filter | [.[]][0]"
+        filter = filter.pipe("[.[]][0]"),
+        label = label
     )
-    if (name == null || node == null) {
-        throw Error("bad key filter")
-    }
     val converter = JsonItemAttributeConverter.create()
 
     if (node.isObject) {

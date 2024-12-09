@@ -70,11 +70,8 @@ private fun filterBatch(
             .map(EnhancedDocument::toJson)
             .toString(),
         expression,
-    )?.asArray()
-
-    if (items == null) {
-        throw Error("bad item filter")
-    }
+        label = "item"
+    ).asArray()
 
     return FilterOutput(
         items,
@@ -106,11 +103,9 @@ private fun reduceBatch(
     val node = jqn(
         batch.items.toString(),
         "reduce .[] as \$item ($initialValue; ${reducer[1]})"
-            .pipe(reducer.getOrNull(2))
+            .pipe(reducer.getOrNull(2)),
+        label = "reduce"
     )
-    if (node == null) {
-        throw Error("bad reduce filter")
-    }
     return batch.copy(
         items = listOf(node),
         meta = meta
@@ -121,7 +116,7 @@ private fun buildSelectionFilter(command: ReadCommand): String {
     return "[.[]"
         .pipe(command.pretransform())
         .pipe(command.where()?.let { "select($it)" })
-        .pipe(command.transform()) + "]"
+        .pipe(command.transform()) + "\n]"
 }
 
 private fun isMaxHeapSizeExceeded(command: ReadCommand): Boolean {

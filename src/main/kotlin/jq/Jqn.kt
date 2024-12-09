@@ -4,14 +4,14 @@ import software.amazon.awssdk.protocols.jsoncore.JsonNode
 
 fun jqn(
     input: String,
-    filter: String
-): JsonNode? {
-    val str = jq(
-        input = input,
-        filter = filter
+    filter: String,
+    label: String? = null
+): JsonNode {
+    return JsonNode.parser().parse(
+        jq(
+            input = input,
+            filter = filter,
+            label = label
+        )
     )
-    if (str == null) {
-        return null
-    }
-    return JsonNode.parser().parse(str)
 }

@@ -375,3 +375,22 @@ test('scan limit 10000, aggregate length -> meta, 10000', async () => {
       }
   );
 });
+
+test('metadata only, where id is 1, concurrency 3 -> meta', async () => {
+  const output = await new ReadCommand()
+      .metadataOnly()
+      .where('.id == 1')
+      .concurrency(3)
+      .execute()
+      .parse();
+  assert.deepEqual(
+      output,
+      {
+        requestType: 'Scan',
+        consumedCapacity: 955,
+        requestCount: 9,
+        scannedCount: 44820,
+        hitCount: 14
+      }
+  );
+});

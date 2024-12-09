@@ -182,6 +182,13 @@ interface ReadCommand : Command {
     @Positive
     fun itemsPerRequest(): Int?
 
+    @CliOption(
+        long = METADATA_ONLY,
+        short = 'M',
+        precludes = [CONTENT_ONLY, TRANSFORM, AGGREGATE, REDUCE, REARRANGE_ATTRIBUTES, STREAM]
+    )
+    fun metadataOnly(): Boolean
+
 }
 
 private const val TABLE_NAME = "from"
@@ -210,3 +217,4 @@ private const val STREAM = "stream"
 private const val REDUCE = "reduce"
 private const val REQUEST_LIMIT = "request-limit"
 private const val ITEMS_PER_REQUEST = "items-per-request"
+private const val METADATA_ONLY = "meta-only"

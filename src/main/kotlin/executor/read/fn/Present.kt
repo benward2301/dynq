@@ -8,6 +8,7 @@ import dynq.executor.read.model.FilterOutput
 import dynq.jq.jq
 import dynq.jq.pipe
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.channels.toList
 
 private const val METADATA_PROP = "meta"
@@ -24,7 +25,7 @@ suspend fun present(
         return
     }
 
-    val filterOutputs = outputChannel.toList()
+    val filterOutputs = collectFilterOutputs(command, outputChannel)
     cleanup()
 
     CharMatcher.anyOf("\r\n\t").removeFrom(
@@ -77,6 +78,21 @@ private suspend fun streamOutput(
     }
 }
 
+private suspend fun collectFilterOutputs(
+    command: ReadCommand,
+    outputChannel: Channel<FilterOutput>
+): List<FilterOutput> {
+    val filterOutputs = mutableListOf<FilterOutput>()
+
+    outputChannel.consumeEach {
+        filterOutputs.add(
+            if (command.metadataOnly()) it.copy(items = listOf())
+            else it
+        )
+    }
+    return filterOutputs
+}
+
 private fun buildAggregationFilter(command: ReadCommand): String {
     return (if (command.reduce() == null) "flatten" else ".[0]")
         .pipe(command.aggregate())
@@ -86,13 +102,17 @@ private fun buildPresentationFilter(
     command: ReadCommand,
     filterOutputs: List<FilterOutput>
 ): String? {
-    return if (command.contentOnly()) null else
-        "{$METADATA_PROP: ${
-            jacksonObjectMapper().writer().writeValueAsString(
-                aggregateMetadata(
-                    filterOutputs.map { it.meta },
-                    command.limit() == null && command.concurrency() == 1
-                )
-            )
-        }, $CONTENT_PROP: .} | del(..|nulls)"
+    if (command.contentOnly()) {
+        return null
+    }
+    val metadata = jacksonObjectMapper().writer().writeValueAsString(
+        aggregateMetadata(
+            filterOutputs.map { it.meta },
+            command.limit() == null && command.concurrency() == 1
+        )
+    ).pipe("del(..|nulls)")
+    if (command.metadataOnly()) {
+        return metadata
+    }
+    return "{$METADATA_PROP: ($metadata), $CONTENT_PROP: .}"
 }

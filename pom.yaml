@@ -8,25 +8,17 @@ version: 0.1.0-SNAPSHOT
 properties:
   kotlin.code.style: official
   project.build.sourceEncoding: UTF-8
-  kotlin.compiler.jvmTarget: 1.8
+  kotlin.compiler.jvmTarget: 22
   native.skip: false
   native.outputFile: ${project.artifactId}-${project.version}-${os.name}-${os.arch}
   test.env.exists: false
-  
+
 repositories:
   - id: mavenCentral
     layout: default
     url: https://repo1.maven.org/maven2/
 
 dependencies:
-  - groupId: org.jetbrains.kotlin
-    artifactId: kotlin-test-junit5
-    version: 2.0.0
-    scope: test
-  - groupId: org.junit.jupiter
-    artifactId: junit-jupiter
-    version: 5.10.0
-    scope: test
   - groupId: org.jetbrains.kotlin
     artifactId: kotlin-stdlib
     version: 2.0.0
@@ -39,9 +31,6 @@ dependencies:
   - groupId: com.arakelian
     artifactId: java-jq
     version: 2.0.0
-  - groupId: com.google.guava
-    artifactId: guava
-    version: 33.2.1-jre
   - groupId: software.amazon.awssdk
     artifactId: dynamodb-enhanced
     version: 2.27.19

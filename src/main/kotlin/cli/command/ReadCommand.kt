@@ -165,7 +165,7 @@ interface ReadCommand : Command {
         long = REDUCE,
         short = 'r'
     )
-    @Size(min = 2, max = 3)
+    @Size(min = 2, max = 2)
     fun reduce(): Array<String>?
 
     @CliOption(
@@ -188,6 +188,13 @@ interface ReadCommand : Command {
         precludes = [CONTENT_ONLY, TRANSFORM, AGGREGATE, REDUCE, REARRANGE_ATTRIBUTES, STREAM]
     )
     fun metadataOnly(): Boolean
+
+    @CliOption(
+        long = PRUNE,
+        short = 'u',
+        precludes = [REDUCE, STREAM]
+    )
+    fun prune(): String?
 
 }
 
@@ -218,3 +225,4 @@ private const val REDUCE = "reduce"
 private const val REQUEST_LIMIT = "request-limit"
 private const val ITEMS_PER_REQUEST = "items-per-request"
 private const val METADATA_ONLY = "meta-only"
+private const val PRUNE = "prune"

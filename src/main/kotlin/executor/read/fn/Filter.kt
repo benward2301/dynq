@@ -102,8 +102,7 @@ private fun reduceBatch(
 
     val node = jqn(
         batch.items.toString(),
-        "reduce .[] as \$item ($initialValue; ${reducer[1]})"
-            .pipe(reducer.getOrNull(2)),
+        "reduce .[] as \$item ($initialValue; ${reducer[1]})",
         label = "reduce"
     )
     return batch.copy(

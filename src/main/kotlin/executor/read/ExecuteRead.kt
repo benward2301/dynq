@@ -2,7 +2,6 @@ package dynq.executor.read
 
 import dynq.cli.command.ReadCommand
 import dynq.cli.route.CommandExecutor
-import dynq.cli.whisper
 import dynq.ddb.createDynamoDbClient
 import dynq.executor.read.fn.*
 import dynq.executor.read.model.FilterOutput
@@ -41,7 +40,7 @@ val executeRead = CommandExecutor<ReadCommand> { command ->
             filter(ddb, command, readChannel, outputChannel)
         }
         launch {
-            present(command, outputChannel) {
+            collate(command, outputChannel) {
                 reading.cancelAndJoin()
                 filtering.cancelAndJoin()
             }

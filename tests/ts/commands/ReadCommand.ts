@@ -26,6 +26,7 @@ export class ReadCommand extends Command {
   readonly requestLimit = this.arg<number>('request-limit');
   readonly itemsPerRequest = this.arg<number>('items-per-request');
   readonly metadataOnly = this.flag('meta-only');
+  readonly prune = this.arg<string>('prune');
 
   constructor() {
     super();

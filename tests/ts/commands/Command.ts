@@ -3,6 +3,8 @@ import { AssertionError } from 'chai';
 
 export abstract class Command {
 
+  readonly quiet = this.flag('quiet');
+
   private readonly options = new Map<string, unknown>();
 
   execute(): CommandOutput {

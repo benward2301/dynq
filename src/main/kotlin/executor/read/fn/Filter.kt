@@ -1,7 +1,8 @@
 package dynq.executor.read.fn
 
 import dynq.cli.command.ReadCommand
-import dynq.cli.whisper
+import dynq.cli.logging.LogLine
+import dynq.cli.logging.log
 import dynq.executor.read.model.FilterOutput
 import dynq.executor.read.model.RawReadOutput
 import dynq.executor.read.model.ReadMetadata
@@ -10,6 +11,7 @@ import dynq.jq.pipe
 import kotlinx.coroutines.channels.Channel
 import software.amazon.awssdk.enhanced.dynamodb.document.EnhancedDocument
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient
+import kotlin.math.max
 
 suspend fun filter(
     ddb: DynamoDbClient,
@@ -25,6 +27,9 @@ suspend fun filter(
     var hitCount = 0
     var reduction: FilterOutput? = null
 
+    val ll = LogLine.new(pos = 2)
+    logFilterProgress(ll, hitCount, scannedCount)
+
     for (batch in readChannel) {
         val output = filterBatch(
             batch.let {
@@ -34,10 +39,8 @@ suspend fun filter(
             filter.pipe(command.limit()?.let { ".[0:$it]" })
         )
         hitCount += output.items.size
-        output.meta.scannedCount?.let {
-            scannedCount += it
-            whisper { "$hitCount of $scannedCount total items retained" }
-        }
+        output.meta.scannedCount?.let { scannedCount += it }
+        logFilterProgress(ll, hitCount, scannedCount)
 
         if (reducer == null) {
             outputChannel.send(output)
@@ -45,11 +48,11 @@ suspend fun filter(
             reduction = reduceBatch(output, reducer, reduction)
         }
         if (limit != null && limit <= hitCount) {
-            whisper { "Item limit reached" }
+            log { "Item limit reached" }
             break
         }
         if (isMaxHeapSizeExceeded(command)) {
-            whisper { "Max heap size exceeded" }
+            log { "Max heap size exceeded" }
             break
         }
     }
@@ -126,4 +129,8 @@ private fun isMaxHeapSizeExceeded(command: ReadCommand): Boolean {
         ?.coerceAtMost(defaultMax)
         ?: defaultMax
     return effectiveMax <= runtime.totalMemory() - runtime.freeMemory()
+}
+
+private fun logFilterProgress(ll: LogLine, hitCount: Int, scannedCount: Int) {
+    ll.log { "$hitCount of ${max(scannedCount, hitCount)} total item(s) retained" }
 }

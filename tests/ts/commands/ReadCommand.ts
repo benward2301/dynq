@@ -32,6 +32,7 @@ export class ReadCommand extends Command {
     super();
     this.endpointUrl('http://localhost:8000');
     this.from(TABLE_NAME);
+    this.quiet();
   }
 
 }

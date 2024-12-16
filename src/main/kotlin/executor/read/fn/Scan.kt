@@ -1,7 +1,8 @@
 package dynq.executor.read.fn
 
 import dynq.cli.command.ReadCommand
-import dynq.cli.whisper
+import dynq.cli.logging.*
+import cli.logging.fmt.formatRequestOp
 import dynq.ddb.model.PaginatedResponse
 import dynq.executor.read.model.RawReadOutput
 import kotlinx.coroutines.channels.Channel
@@ -17,16 +18,16 @@ suspend fun scan(
     readChannel: Channel<RawReadOutput>,
     ddb: DynamoDbClient,
 ) = coroutineScope {
-    whisper { "Scanning table: ${command.tableName()}" }
+    log { "${formatRequestOp("SCAN")} ${command.tableName()}" }
+
     val scannedCount = AtomicInteger()
 
-    for (segment in 0..<command.concurrency()) {
+    parallelize(command.concurrency()) { segment ->
         launch {
             autoPaginate(
                 command,
                 readChannel,
-                "Scan",
-                segment
+                LogLine.new(indent = 1, pos = 1)
             ) { startKey, limit ->
                 val request = buildScanBase(command)
                     .segment(segment)
@@ -37,7 +38,6 @@ suspend fun scan(
                 scannedCount.addAndGet(response.scannedCount())
                 PaginatedResponse.from(response)
             }
-            whisper(segment) { "Segment scan complete" }
         }
     }
 }

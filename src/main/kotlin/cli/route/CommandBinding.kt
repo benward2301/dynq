@@ -2,6 +2,7 @@ package dynq.cli.route
 
 import dynq.cli.anno.CliOption
 import dynq.cli.command.Command
+import dynq.cli.command.OptionValidator
 import jakarta.validation.constraints.Size
 import org.apache.commons.cli.CommandLine
 import org.apache.commons.cli.DefaultParser
@@ -25,7 +26,7 @@ class CommandBinding<T : Command>(
     companion object {
 
         var global: Command = object : Command {
-            override fun verbose(): Boolean = false
+            override fun quiet(): Boolean = true
             override fun colorize(): Boolean = false
             override fun monochrome(): Boolean = false
         }

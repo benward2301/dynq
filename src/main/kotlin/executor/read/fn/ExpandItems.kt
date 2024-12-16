@@ -50,10 +50,7 @@ fun expandItems(
         expanded.add(
             RawReadOutput(
                 response.responses()[command.tableName()] as List<DynamoDbItem>,
-                ReadMetadata(
-                    readOutput.meta.requestType,
-                    response.consumedCapacity().sumOf { it.capacityUnits() },
-                )
+                ReadMetadata(response.consumedCapacity().sumOf { it.capacityUnits() })
             )
         )
     } while (unprocessedKeys != null)

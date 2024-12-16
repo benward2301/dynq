@@ -5,10 +5,10 @@ import dynq.cli.anno.CliOption
 interface Command {
 
     @CliOption(
-        long = VERBOSE,
-        short = 'v'
+        long = QUIET,
+        short = 'q'
     )
-    fun verbose(): Boolean
+    fun quiet(): Boolean
 
     @CliOption(
         long = COLORIZE,
@@ -23,6 +23,6 @@ interface Command {
 
 }
 
-private const val VERBOSE = "verbose"
+private const val QUIET = "quiet"
 private const val COLORIZE = "colorize"
 private const val MONOCHROME = "monochrome"

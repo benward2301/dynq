@@ -1,7 +1,8 @@
 package dynq.executor.read.fn
 
 import dynq.cli.command.ReadCommand
-import dynq.cli.whisper
+import dynq.cli.logging.*
+import cli.logging.fmt.formatProgressMessage
 import dynq.ddb.model.DynamoDbItem
 import dynq.ddb.model.PaginatedResponse
 import dynq.executor.read.model.RawReadOutput
@@ -14,8 +15,7 @@ import kotlin.math.min
 suspend fun autoPaginate(
     command: ReadCommand,
     channel: Channel<RawReadOutput>,
-    requestType: String,
-    coroutineNumber: Int = 0,
+    ll: LogLine,
     read: (
         startKey: DynamoDbItem?,
         limit: Int?
@@ -32,16 +32,17 @@ suspend fun autoPaginate(
             jq(input = it)
         ).toMap()
     }
+    logScanProgress(ll, scannedCount)
+
     do {
-        if (startKey != null) {
-            whisper(coroutineNumber) { "Scanning from $startKey" }
-        }
-        val response = read(startKey, calculateNextScanLimit(scannedCount, scanLimit, itemsPerRequest))
-        channel.send(
-            buildReadOutput(requestType, response)
+        val response = read(
+            startKey,
+            calculateNextScanLimit(scannedCount, scanLimit, itemsPerRequest)
         )
         scannedCount += response.scannedCount
-        whisper(coroutineNumber) { "${response.scannedCount} item(s) scanned" }
+        logScanProgress(ll, scannedCount)
+
+        channel.send(buildReadOutput(response))
 
         startKey = response.lastEvaluatedKey
         requestCount++
@@ -49,18 +50,16 @@ suspend fun autoPaginate(
         startKey != null &&
         isCountWithinLimit(scannedCount, scanLimit) &&
         isCountWithinLimit(requestCount, requestLimit)
-            .also { if (!it) whisper(coroutineNumber) { "Request limit reached" } }
     )
+    logScanResult(ll, scannedCount)
 }
 
 private fun buildReadOutput(
-    requestType: String,
     response: PaginatedResponse
 ): RawReadOutput {
     return RawReadOutput(
         response.items,
         ReadMetadata(
-            requestType,
             response.consumedCapacity,
             scannedCount = response.scannedCount,
             lastEvaluatedKey = response.lastEvaluatedKey
@@ -80,3 +79,24 @@ private fun calculateNextScanLimit(scannedCount: Int, scanLimit: Int?, itemsPerR
 private fun isCountWithinLimit(count: Int, limit: Int?): Boolean {
     return limit == null || count < limit
 }
+
+private fun logScanProgress(ll: LogLine, scannedCount: Int) {
+    ll.log { formatProgressMessage(style(RED)("$SPINNER"), ll.label, describeScannedCount(scannedCount)) }
+}
+
+private fun logScanResult(ll: LogLine, scannedCount: Int) {
+    ll.log {
+        val icon: String
+        val message: String
+        if (scannedCount == 0) {
+            icon = style(BOLD, YELLOW)("-")
+            message = "Empty segment"
+        } else {
+            icon = style(GREEN)("$CHECK_MARK")
+            message = describeScannedCount(scannedCount)
+        }
+        formatProgressMessage(icon, ll.label, message)
+    }
+}
+
+private fun describeScannedCount(scannedCount: Int) = "$scannedCount item(s) scanned"

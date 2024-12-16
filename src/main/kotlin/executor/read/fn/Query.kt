@@ -1,8 +1,12 @@
 package dynq.executor.read.fn
 
 import dynq.cli.command.ReadCommand
-import dynq.cli.whisper
+import dynq.cli.logging.*
+import cli.logging.fmt.formatKey
+import cli.logging.fmt.formatRequestOp
+import dynq.ddb.model.KeyMember
 import dynq.ddb.model.PaginatedResponse
+import dynq.ddb.model.QueryKey
 import dynq.executor.read.model.KeyMatcher
 import dynq.executor.read.model.RawReadOutput
 import kotlinx.coroutines.channels.Channel
@@ -21,62 +25,82 @@ suspend fun query(
     command: ReadCommand,
     readChannel: Channel<RawReadOutput>,
     ddb: DynamoDbClient,
-    partitionKey: KeyMatcher.Discrete,
-    sortKey: KeyMatcher?
+    partitionMatcher: KeyMatcher.Discrete,
+    sortMatcher: KeyMatcher?
 ) {
-    whisper { "Querying table: ${command.tableName()}${command.globalIndexName()?.let { ".$it" } ?: ""}" }
+    log { "${formatRequestOp("QUERY")} ${command.tableName()}${command.globalIndexName()?.let { ".$it" } ?: ""}" }
 
     parallelize(
-        command,
-        buildQueries(command, partitionKey, sortKey),
-    ) { builder, coroutineNumber ->
+        command.concurrency(),
+        buildKeys(partitionMatcher, sortMatcher),
+    ) { key ->
+        val ll = LogLine.new(indent = 1, pos = 1)
+
+        val builder = buildQueryBase(
+            command,
+            key,
+            sortMatcher
+        )
         autoPaginate(
             command,
             readChannel,
-            "Query",
-            coroutineNumber
+            ll
         ) { startKey, limit ->
             val request = builder.exclusiveStartKey(startKey)
                 .limit(limit)
                 .build()
-            whisper(coroutineNumber) {
-                "Scanning partition #(${request.expressionAttributeValues()[PARTITION_KEY_VALUE_TOKEN]
-                    .let { it?.s() ?: it?.n() } })"
-            }
+            ll.label = { formatKey(key) }
+
             PaginatedResponse.from(ddb.query(request))
         }
     }
 }
 
-private fun buildQueries(
-    command: ReadCommand,
-    partitionKey: KeyMatcher.Discrete,
-    sortKey: KeyMatcher?
-): List<QueryRequest.Builder> {
-    return partitionKey.values.flatMap { partitionKeyValue ->
-        if (sortKey is KeyMatcher.Discrete) {
-            sortKey.values.map { sortKeyValue ->
-                buildSingleItemQuery(
-                    command,
-                    partitionKey.name,
-                    partitionKeyValue,
-                    sortKey.name,
-                    sortKeyValue
+private fun buildKeys(
+    partitionMatcher: KeyMatcher.Discrete,
+    sortMatcher: KeyMatcher?
+): List<QueryKey> {
+    return partitionMatcher.values.flatMap { partitionKeyValue ->
+        val partitionKey = KeyMember(partitionMatcher.name, partitionKeyValue)
+        if (sortMatcher is KeyMatcher.Discrete) {
+            sortMatcher.values.map { sortKeyValue ->
+                QueryKey(
+                    partitionKey,
+                    KeyMember(sortMatcher.name, sortKeyValue)
                 )
             }
         } else {
             listOf(
-                buildMultiItemQuery(
-                    command,
-                    partitionKey.name,
-                    partitionKeyValue,
-                    sortKey as KeyMatcher.Continuous?
-                )
+                QueryKey(partitionKey, null)
             )
         }
     }
 }
 
+private fun buildQueryBase(
+    command: ReadCommand,
+    key: QueryKey,
+    sortMatcher: KeyMatcher?
+): QueryRequest.Builder {
+    if (key.sort == null) {
+        return buildMultiItemQuery(
+            command,
+            key.partition.name,
+            key.partition.value,
+            sortMatcher as KeyMatcher.Continuous?
+        )
+    } else {
+        return buildSingleItemQuery(
+            command,
+            key.partition.name,
+            key.partition.value,
+            key.sort.name,
+            key.sort.value
+        )
+    }
+}
+
+// TODO use src/main/kotlin/ddb/model/Key.kt
 private fun buildSingleItemQuery(
     command: ReadCommand,
     partitionKeyName: String,
@@ -96,6 +120,7 @@ private fun buildSingleItemQuery(
         )
 }
 
+// TODO use src/main/kotlin/ddb/model/Key.kt
 private fun buildMultiItemQuery(
     command: ReadCommand,
     partitionKeyName: String,

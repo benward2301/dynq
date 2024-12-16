@@ -3,7 +3,8 @@ package dynq.executor.read.fn
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.google.common.base.CharMatcher
 import dynq.cli.command.ReadCommand
-import dynq.cli.whisper
+import dynq.cli.logging.LogLine
+import dynq.cli.logging.log
 import dynq.executor.read.model.FilterOutput
 import dynq.executor.read.model.ReadMetadata
 import dynq.jq.jq
@@ -33,7 +34,7 @@ suspend fun collate(
     CharMatcher.anyOf("\r\n\t").removeFrom(
         output.items.toString()
     ).let {
-        whisper { "Aggregating results" }
+        log { "Aggregating results" }
         jq(
             it,
             filter = buildAggregationFilter(command),
@@ -47,7 +48,8 @@ suspend fun collate(
             pretty = !command.compact(),
             colorize = command.colorize()
         )
-    }.let(::println)
+    }.also { LogLine.enabled = false }
+        .let(::println)
 }
 
 private suspend fun streamOutput(

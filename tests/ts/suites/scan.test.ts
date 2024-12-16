@@ -34,7 +34,6 @@ test('scan limit 1 -> meta, film_category#1', async () => {
       output,
       {
         meta: {
-          requestType: 'Scan',
           consumedCapacity: 0.5,
           requestCount: 1,
           scannedCount: 1,
@@ -233,7 +232,6 @@ test('transform to uuid, sort and take 5, concurrency 3 -> meta, 5 smallest uuid
       output,
       {
         meta: {
-          requestType: 'Scan',
           consumedCapacity: 955,
           requestCount: 9,
           scannedCount: 44820,
@@ -261,7 +259,6 @@ test('transform to uuid, prune to smallest 5, concurrency 3 -> meta, 5 smallest 
       output,
       {
         meta: {
-          requestType: 'Scan',
           consumedCapacity: 955,
           requestCount: 9,
           scannedCount: 44820,
@@ -288,7 +285,6 @@ test('request limit 2, aggregate length -> meta, 11545', async () => {
       output,
       {
         meta: {
-          requestType: 'Scan',
           consumedCapacity: 257,
           requestCount: 2,
           scannedCount: 11545,
@@ -314,7 +310,6 @@ test('request limit 1, aggregate length, concurrency 3 -> meta, 15903', async ()
       output,
       {
         meta: {
-          requestType: 'Scan',
           consumedCapacity: 365,
           requestCount: 3,
           scannedCount: 15903,
@@ -336,7 +331,6 @@ test('items per request 10, request limit 2, aggregate length -> meta, 20', asyn
       output,
       {
         meta: {
-          requestType: 'Scan',
           consumedCapacity: 1,
           requestCount: 2,
           scannedCount: 20,
@@ -361,7 +355,6 @@ test('scan limit 10000, aggregate length -> meta, 10000', async () => {
       output,
       {
         meta: {
-          requestType: 'Scan',
           consumedCapacity: 227.5,
           requestCount: 2,
           scannedCount: 10000,
@@ -386,7 +379,6 @@ test('metadata only, where id is 1, concurrency 3 -> meta', async () => {
   assert.deepEqual(
       output,
       {
-        requestType: 'Scan',
         consumedCapacity: 955,
         requestCount: 9,
         scannedCount: 44820,

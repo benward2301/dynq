@@ -51,7 +51,6 @@ test('partition key [store, inventory], sort key 1, concurrency 2 -> meta, store
   assert.deepEqual(
       meta,
       {
-        requestType: 'GetItem',
         consumedCapacity: 1,
         requestCount: 2,
         hitCount: 2

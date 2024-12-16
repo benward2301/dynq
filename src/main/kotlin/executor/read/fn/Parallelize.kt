@@ -1,24 +1,33 @@
 package dynq.executor.read.fn
 
-import dynq.cli.command.ReadCommand
+import dynq.cli.logging.LogLine
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 suspend fun <T> parallelize(
-    command: ReadCommand,
+    concurrency: Int,
     inputs: Collection<T>,
-    consume: suspend (item: T, coroutineNumber: Int) -> Unit
+    consume: suspend (item: T) -> Unit
 ) = coroutineScope {
     val channel = Channel<T>(Channel.UNLIMITED)
     inputs.forEach { channel.send(it) }
     channel.close()
 
-    repeat(command.concurrency().coerceAtMost(inputs.size)) { coroutineNumber ->
+    parallelize(concurrency.coerceAtMost(inputs.size)) {
+        for (input in channel) {
+            consume(input)
+        }
+    }
+}
+
+suspend fun parallelize(
+    concurrency: Int,
+    run: suspend (n: Int) -> Unit
+) = coroutineScope {
+    for (n in 0..<concurrency) {
         launch {
-            for (input in channel) {
-                consume(input, coroutineNumber)
-            }
+            run(n)
         }
     }
 }

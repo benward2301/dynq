@@ -18,11 +18,7 @@ fun main(args: Array<String>) {
     try {
         dispatchCommandLine(args)
     } catch (err: Error) {
-        if (CommandBinding.global.verbose()) {
-            err.printStackTrace()
-        } else {
-            System.err.println("Error: ${err.message}")
-        }
+        err.printStackTrace()
         exitProcess(1)
     }
 }

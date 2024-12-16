@@ -1,4 +1,4 @@
-package dynq.cli.route
+package dynq.cli.command
 
 import dynq.cli.anno.CliOption
 import jakarta.validation.constraints.*

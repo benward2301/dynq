@@ -14,7 +14,7 @@ test('partition key category, where name is "Comedy" -> meta, category#5', async
       output,
       {
         meta: {
-          requestType: 'Query',
+
           consumedCapacity: 0.5,
           requestCount: 1,
           scannedCount: 16,
@@ -129,7 +129,6 @@ test('partition key country, scan limit 1, start key country#2 -> meta, country#
       output,
       {
         meta: {
-          requestType: 'Query',
           consumedCapacity: 0.5,
           requestCount: 1,
           scannedCount: 1,
@@ -162,7 +161,6 @@ test('partition key staff, consistent read -> meta', async () => {
   assert.deepEqual(
       meta,
       {
-        requestType: 'Query',
         consumedCapacity: 39,
         requestCount: 1,
         scannedCount: 2,
@@ -285,7 +283,6 @@ test('global index payment_id, partition key 32098, sort key 5c5e42d6 -> meta, p
           output,
           {
             meta: {
-              requestType: 'Query',
               consumedCapacity: 0.5,
               requestCount: 1,
               scannedCount: 1,
@@ -407,7 +404,6 @@ test('partition key 20, global index country_id, expand index, where is city, tr
           output,
           {
             meta: {
-              requestType: 'Query',
               consumedCapacity: 4.5,
               requestCount: 2,
               scannedCount: 8,
@@ -468,7 +464,6 @@ test('partition key film, reduce to total film length -> meta, total film length
       output,
       {
         meta: {
-          requestType: 'Query',
           consumedCapacity: 62,
           requestCount: 1,
           scannedCount: 1000,
@@ -525,7 +520,6 @@ test('partition key payment, request limit 2, aggregate length -> meta, 13442', 
       output,
       {
         meta: {
-          requestType: 'Query',
           consumedCapacity: 257,
           requestCount: 2,
           scannedCount: 13442,
@@ -551,7 +545,6 @@ test('partition key payment, request limit 2, aggregate length -> meta, 13442', 
       output,
       {
         meta: {
-          requestType: 'Query',
           consumedCapacity: 257,
           requestCount: 2,
           scannedCount: 13442,
@@ -578,7 +571,6 @@ test('partition key film, items per request 10, request limit 2, aggregate lengt
       output,
       {
         meta: {
-          requestType: 'Query',
           consumedCapacity: 2,
           requestCount: 2,
           scannedCount: 20,

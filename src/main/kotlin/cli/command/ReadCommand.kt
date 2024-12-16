@@ -170,7 +170,7 @@ interface ReadCommand : Command {
 
     @CliOption(
         long = REQUEST_LIMIT,
-        short = 'q'
+        short = 'Q'
     )
     @Positive
     fun requestLimit(): Int?

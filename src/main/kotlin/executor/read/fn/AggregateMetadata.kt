@@ -25,7 +25,6 @@ fun aggregateMetadata(
     val last = entries.last()
 
     return ReadMetadata(
-        last.requestType,
         consumedCapacity,
         requestCount = requestCount,
         scannedCount = scannedCount,

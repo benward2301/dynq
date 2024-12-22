@@ -12,6 +12,7 @@ const val PROGRAM_VERSION = "0.1"
 const val JQ_VERSION = "1.6"
 
 fun main(args: Array<String>) {
+    disableLibLogging()
     registerCommand(
         CommandBinding(ReadCommand::class, executeRead)
     )
@@ -21,4 +22,8 @@ fun main(args: Array<String>) {
         err.printStackTrace()
         exitProcess(1)
     }
+}
+
+private fun disableLibLogging() {
+    System.setProperty("java.util.logging.config.file", "")
 }

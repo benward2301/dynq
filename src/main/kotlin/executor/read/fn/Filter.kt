@@ -3,11 +3,11 @@ package dynq.executor.read.fn
 import dynq.cli.command.ReadCommand
 import dynq.cli.logging.LogLine
 import dynq.cli.logging.log
+import dynq.cli.logging.warn
 import dynq.executor.read.model.FilterOutput
 import dynq.executor.read.model.RawReadOutput
 import dynq.executor.read.model.ReadMetadata
-import dynq.jq.jqn
-import dynq.jq.pipe
+import dynq.jq.*
 import kotlinx.coroutines.channels.Channel
 import software.amazon.awssdk.enhanced.dynamodb.document.EnhancedDocument
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient
@@ -30,22 +30,23 @@ suspend fun filter(
     val ll = LogLine.new(pos = 2)
     logFilterProgress(ll, hitCount, scannedCount)
 
-    for (batch in readChannel) {
-        val output = filterBatch(
-            batch.let {
+    for (readOutput in readChannel) {
+        val filterOutput = filterBatch(
+            readOutput.let {
                 if (command.expand()) expandItems(ddb, command, it)
                 else it
             },
             filter.pipe(command.limit()?.let { ".[0:$it]" })
         )
-        hitCount += output.items.size
-        output.meta.scannedCount?.let { scannedCount += it }
+
+        hitCount += filterOutput.items.size
+        filterOutput.meta.scannedCount?.let { scannedCount += it }
         logFilterProgress(ll, hitCount, scannedCount)
 
         if (reducer == null) {
-            outputChannel.send(output)
+            outputChannel.send(filterOutput)
         } else {
-            reduction = reduceBatch(output, reducer, reduction)
+            reduction = reduceBatch(filterOutput, reducer, reduction)
         }
         if (limit != null && limit <= hitCount) {
             log { "Item limit reached" }
@@ -73,7 +74,7 @@ private fun filterBatch(
             .map(EnhancedDocument::toJson)
             .toString(),
         expression,
-        label = "item"
+        onError = throwJqError("bad item filter")
     ).asArray()
 
     return FilterOutput(
@@ -106,7 +107,9 @@ private fun reduceBatch(
     val node = jqn(
         batch.items.toString(),
         "reduce .[] as \$item ($initialValue; ${reducer[1]})",
-        label = "reduce"
+        onError = { message ->
+            throw Error("bad reduce filter$message")
+        }
     )
     return batch.copy(
         items = listOf(node),

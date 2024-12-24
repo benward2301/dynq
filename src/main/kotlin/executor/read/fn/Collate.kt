@@ -5,11 +5,10 @@ import com.google.common.base.CharMatcher
 import dynq.cli.command.ReadCommand
 import dynq.cli.logging.LogLine
 import dynq.cli.logging.log
+import dynq.cli.logging.warn
 import dynq.executor.read.model.FilterOutput
 import dynq.executor.read.model.ReadMetadata
-import dynq.jq.jq
-import dynq.jq.jqn
-import dynq.jq.pipe
+import dynq.jq.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
 import software.amazon.awssdk.protocols.jsoncore.JsonNode
@@ -39,7 +38,7 @@ suspend fun collate(
             it,
             filter = buildAggregationFilter(command),
             sortKeys = command.rearrangeAttributes(),
-            label = "aggregate"
+            onError = throwJqError("bad aggregate filter")
         )
     }.let {
         jq(
@@ -87,14 +86,19 @@ private suspend fun collectOutput(
     val prune = command.prune()
     val metas = mutableListOf<ReadMetadata>()
     var items = mutableListOf<JsonNode>()
+    var aggregatorTested = false
 
     outputChannel.consumeEach { output ->
+        if (!aggregatorTested && items.isNotEmpty()) {
+            testAggregationFilter(command, output)
+            aggregatorTested = true
+        }
         items.addAll(output.items)
         if (prune != null) {
             items = jqn(
                 items.toString(),
                 prune,
-                label = "prune"
+                onError = throwJqError("bad prune filter")
             ).also {
                 if (!it.isArray) {
                     throw Error("the output of the prune filter must be an array")
@@ -113,8 +117,21 @@ private suspend fun collectOutput(
 }
 
 private fun buildAggregationFilter(command: ReadCommand): String {
-    return (if (command.reduce() == null) "flatten" else ".[0]")
+    return (if (command.reduce() == null) "." else ".[0]")
         .pipe(command.aggregate())
+}
+
+private fun testAggregationFilter(
+    command: ReadCommand,
+    batch: FilterOutput,
+) {
+    jq(
+        batch.items.toString(),
+        buildAggregationFilter(command),
+        onError = {
+            warn { wrapJqError("A dry aggregation run produced the following error(s):")(it).message!! }
+        }
+    )
 }
 
 private fun buildPresentationFilter(

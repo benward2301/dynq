@@ -8,6 +8,7 @@ import kotlinx.coroutines.launch
 import org.jline.terminal.TerminalBuilder
 import org.jline.utils.InfoCmp
 import java.util.*
+import kotlin.math.ceil
 
 class LogLine private constructor(
     val indent: Int,
@@ -50,36 +51,47 @@ class LogLine private constructor(
             label: (() -> String)? = null,
             pos: Int = nextPos
         ): LogLine {
-            InfoCmp.Capability.cursor_down
             return LogLine(indent, label, pos).also { lines.add(it) }
         }
 
-        private fun render() {
+        @Synchronized
+        fun render() {
             if (enabled) {
-                terminal.puts(InfoCmp.Capability.cursor_to_ll)
-                repeat(lines.filter { it.visible }.size) {
-                    terminal.puts(InfoCmp.Capability.cursor_up)
-                }
-                for (ll in lines) {
-                    terminal.puts(InfoCmp.Capability.clr_eol)
-                    val formatted = ll.format()
-                    ll.visible = formatted != null
-                    if (ll.visible) writer.println(formatted)
-                }
+                lines.forEach(LogLine::print)
                 writer.print(escape(RESET))
                 writer.flush()
+                clear()
                 ticks++
+            }
+        }
+
+        private fun clear() {
+            terminal.puts(InfoCmp.Capability.cursor_to_ll)
+            repeat(lines.sumOf { it.rows }) {
+                terminal.puts(InfoCmp.Capability.clr_eol)
+                terminal.puts(InfoCmp.Capability.cursor_up)
             }
         }
 
     }
 
     private var content: String? = null
-    private var visible: Boolean = false
+    private var rows: Int = 0
 
     fun log(message: () -> String) {
         if (enabled) {
             content = message()
+        }
+    }
+
+    private fun print() {
+        format()?.also { output ->
+            writer.println(output)
+            rows = output.replace(Regex("$ESCAPE\\[\\d*m"), "")
+                .split("\n")
+                .sumOf {
+                    ceil((indent + it.length.toDouble()) / terminal.width)
+                }.toInt()
         }
     }
 

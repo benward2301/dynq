@@ -474,6 +474,28 @@ test('partition key film, reduce to total film length -> meta, total film length
   );
 });
 
+test('partition key film, reduce to total film length, aggregate mean using $count' +
+    ' -> meta, mean film length', async () => {
+  const output = await new ReadCommand()
+      .partitionKey('.entity = "film"')
+      .reduce(['0', '. + $item.length'])
+      .aggregate('. / $count')
+      .execute()
+      .parse();
+  assert.deepEqual(
+      output,
+      {
+        meta: {
+          consumedCapacity: 62,
+          requestCount: 1,
+          scannedCount: 1000,
+          hitCount: 1000
+        },
+        content: 115.272
+      }
+  );
+});
+
 test('partition key film, select title and length, reduce to shortest 5' +
     ' -> title and length of 5 shortest films', async () => {
   const { content } = await new ReadCommand()

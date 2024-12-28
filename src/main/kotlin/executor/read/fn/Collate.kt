@@ -36,7 +36,7 @@ suspend fun collate(
         log { "Aggregating results" }
         jq(
             it,
-            filter = buildAggregationFilter(command),
+            filter = buildAggregationFilter(command, output.meta),
             sortKeys = command.rearrangeAttributes(),
             onError = throwJqError("bad aggregate filter")
         )
@@ -116,9 +116,14 @@ private suspend fun collectOutput(
     )
 }
 
-private fun buildAggregationFilter(command: ReadCommand): String {
-    return (if (command.reduce() == null) "." else ".[0]")
-        .pipe(command.aggregate())
+private fun buildAggregationFilter(
+    command: ReadCommand,
+    metadata: ReadMetadata
+): String {
+    return ".[0]".takeUnless { command.reduce() == null }
+        .pipeToNullable(metadata.hitCount?.let { "$it as \$count" })
+        .pipeToNullable(command.aggregate())
+        .pipeToNonNull(".")
 }
 
 private fun testAggregationFilter(
@@ -127,7 +132,7 @@ private fun testAggregationFilter(
 ) {
     jq(
         batch.items.toString(),
-        buildAggregationFilter(command),
+        buildAggregationFilter(command, batch.meta),
         onError = {
             warn { wrapJqError("A dry aggregation run produced the following error(s):")(it).message!! }
         }

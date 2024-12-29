@@ -2,7 +2,8 @@ package dynq.cli.route
 
 import dynq.cli.anno.CliOption
 import dynq.cli.command.Command
-import dynq.cli.command.OptionValidator
+import dynq.cli.command.option.INTEGER_ARG
+import dynq.cli.command.option.OptionValidator
 import jakarta.validation.constraints.Size
 import org.apache.commons.cli.CommandLine
 import org.apache.commons.cli.DefaultParser
@@ -82,9 +83,8 @@ class CommandBinding<T : Command>(
             return commandLine.hasOption(anno.long)
         }
 
-        val values: Array<String> =
-            commandLine.getOptionValues(anno.long)
-                ?: if (anno.default.isNotEmpty()) arrayOf(anno.default) else emptyArray()
+        val values: Array<String> = commandLine.getOptionValues(anno.long)
+            ?: if (anno.default.isNotEmpty()) arrayOf(anno.default) else emptyArray()
 
         return when {
             values.isEmpty() -> null
@@ -119,7 +119,13 @@ class CommandBinding<T : Command>(
                     .optionalArg(argCount?.min != argCount?.max)
                     .required(isRequired)
                     .desc(anno.desc)
-                    .build()
+                    .also { builder ->
+                        if (anno.args.isNotEmpty()) {
+                            anno.args.joinToString("> <")
+                        } else {
+                            mapTypeToArgName(type)
+                        }?.also { builder.argName(it) }
+                    }.build()
             )
         }
 
@@ -149,4 +155,11 @@ private fun verifyOptionDependencies(
 
 private inline fun <reified T> satisfies(type: KType): Boolean {
     return typeOf<T>().isSubtypeOf(type)
+}
+
+private fun mapTypeToArgName(type: KType): String? {
+    return when {
+        satisfies<Int>(type) -> INTEGER_ARG
+        else -> null
+    }
 }

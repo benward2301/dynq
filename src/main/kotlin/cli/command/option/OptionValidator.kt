@@ -1,4 +1,4 @@
-package dynq.cli.command
+package dynq.cli.command.option
 
 import dynq.cli.anno.CliOption
 import jakarta.validation.constraints.*

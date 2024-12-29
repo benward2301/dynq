@@ -8,5 +8,6 @@ annotation class CliOption(
     val desc: String = "",
     val default: String = "",
     val requires: Array<String> = [],
-    val precludes: Array<String> = []
+    val precludes: Array<String> = [],
+    val args: Array<String> = [],
 )

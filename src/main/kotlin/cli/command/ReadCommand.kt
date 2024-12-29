@@ -2,6 +2,7 @@ package dynq.cli.command
 
 import dynq.cli.anno.CliCommand
 import dynq.cli.anno.CliOption
+import dynq.cli.command.option.JQ_FILTER_ARG
 import jakarta.validation.constraints.*
 
 @CliCommand(root = true)
@@ -9,7 +10,8 @@ interface ReadCommand : Command {
 
     @CliOption(
         long = TABLE_NAME,
-        short = 'f'
+        short = 'f',
+        args = ["table name"]
     )
     @Pattern(regexp = "[a-zA-Z_\\-.]*")
     @Size(min = 3, max = 255)
@@ -17,32 +19,37 @@ interface ReadCommand : Command {
 
     @CliOption(
         long = TRANSFORM,
-        short = 't'
+        short = 't',
+        args = [JQ_FILTER_ARG]
     )
     fun transform(): String?
 
     @CliOption(
         long = WHERE,
-        short = 'w'
+        short = 'w',
+        args = [JQ_FILTER_ARG]
     )
     fun where(): String?
 
     @CliOption(
         long = PRETRANSFORM,
-        short = 'T'
+        short = 'T',
+        args = [JQ_FILTER_ARG]
     )
     fun pretransform(): String?
 
     @CliOption(
         long = PARTITION_KEY,
-        short = 'P'
+        short = 'P',
+        args = [JQ_FILTER_ARG]
     )
     fun partitionKey(): String?
 
     @CliOption(
         long = SORT_KEY,
         short = 'S',
-        requires = [PARTITION_KEY]
+        requires = [PARTITION_KEY],
+        args = [JQ_FILTER_ARG]
     )
     fun sortKey(): String?
 
@@ -50,7 +57,8 @@ interface ReadCommand : Command {
         long = GLOBAL_INDEX_NAME,
         short = 'i',
         requires = [PARTITION_KEY],
-        precludes = [CONSISTENT_READ]
+        precludes = [CONSISTENT_READ],
+        args = ["index name"]
     )
     @Pattern(regexp = "[a-zA-Z_\\-.]*")
     @Size(min = 3, max = 255)
@@ -65,13 +73,15 @@ interface ReadCommand : Command {
 
     @CliOption(
         long = PROFILE,
-        short = 'p'
+        short = 'p',
+        args = ["aws profile"]
     )
     fun profile(): String?
 
     @CliOption(
         long = REGION,
-        short = 'R'
+        short = 'R',
+        args = ["aws region"]
     )
     @Pattern(regexp = "[a-z0-9\\-]*")
     @Size(min = 3, max = 30)
@@ -79,7 +89,8 @@ interface ReadCommand : Command {
 
     @CliOption(
         long = ENDPOINT_URL,
-        short = 'e'
+        short = 'e',
+        args = ["url"]
     )
     fun endpointUrl(): String?
 
@@ -90,7 +101,8 @@ interface ReadCommand : Command {
 
     @CliOption(
         long = START_KEY,
-        short = 'k'
+        short = 'k',
+        args = [JQ_FILTER_ARG]
     )
     fun startKey(): String?
 
@@ -116,13 +128,15 @@ interface ReadCommand : Command {
 
     @CliOption(
         long = AGGREGATE,
-        short = 'a'
+        short = 'a',
+        args = [JQ_FILTER_ARG]
     )
     fun aggregate(): String?
 
     @CliOption(
         long = PROJECTION_EXPRESSION,
-        short = 's'
+        short = 's',
+        args = ["projection expression"]
     )
     fun projectionExpression(): String?
 
@@ -141,8 +155,7 @@ interface ReadCommand : Command {
     fun consistentRead(): Boolean
 
     @CliOption(
-        long = MAX_HEAP_SIZE,
-        short = 'h'
+        long = MAX_HEAP_SIZE
     )
     @Min(200)
     @Max(8000)
@@ -163,7 +176,8 @@ interface ReadCommand : Command {
 
     @CliOption(
         long = REDUCE,
-        short = 'r'
+        short = 'r',
+        args = ["initial value", JQ_FILTER_ARG]
     )
     @Size(min = 2, max = 2)
     fun reduce(): Array<String>?
@@ -192,7 +206,8 @@ interface ReadCommand : Command {
     @CliOption(
         long = PRUNE,
         short = 'u',
-        precludes = [REDUCE, STREAM]
+        precludes = [REDUCE, STREAM],
+        args = [JQ_FILTER_ARG]
     )
     fun prune(): String?
 

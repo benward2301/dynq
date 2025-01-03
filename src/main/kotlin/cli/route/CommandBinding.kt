@@ -118,13 +118,9 @@ class CommandBinding<T : Command>(
                     .numberOfArgs(argCount?.max ?: if (hasArg) 1 else 0)
                     .optionalArg(argCount?.min != argCount?.max)
                     .required(isRequired)
-                    .desc(anno.desc)
+                    .desc(buildDescription(anno))
                     .also { builder ->
-                        if (anno.args.isNotEmpty()) {
-                            anno.args.joinToString("> <")
-                        } else {
-                            mapTypeToArgName(type)
-                        }?.also { builder.argName(it) }
+                        buildArgName(anno, type)?.also { builder.argName(it) }
                     }.build()
             )
         }
@@ -161,5 +157,23 @@ private fun mapTypeToArgName(type: KType): String? {
     return when {
         satisfies<Int>(type) -> INTEGER_ARG
         else -> null
+    }
+}
+
+private fun buildDescription(anno: CliOption): String {
+    return anno.desc.let {
+        if (anno.default.isNotBlank()) {
+            "$it;\ndefault ${anno.default}"
+        } else {
+            it
+        }
+    }
+}
+
+private fun buildArgName(anno: CliOption, type: KType): String? {
+    return if (anno.args.isNotEmpty()) {
+        anno.args.joinToString("> <")
+    } else {
+        mapTypeToArgName(type)
     }
 }

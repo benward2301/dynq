@@ -3,6 +3,8 @@ package dynq.cli.command
 import dynq.cli.anno.CliCommand
 import dynq.cli.anno.CliOption
 import dynq.cli.command.option.JQ_FILTER_ARG
+import dynq.cli.command.option.JQ_REDUCE_INIT_ARG
+import dynq.cli.command.option.JQ_REDUCE_ITEM_VAR
 import jakarta.validation.constraints.*
 
 @CliCommand(root = true)
@@ -20,28 +22,32 @@ interface ReadCommand : Command {
     @CliOption(
         long = TRANSFORM,
         short = 't',
-        args = [JQ_FILTER_ARG]
+        args = [JQ_FILTER_ARG],
+        desc = "item transformation filter;\nequivalent to jq map(f) function"
     )
     fun transform(): String?
 
     @CliOption(
         long = WHERE,
         short = 'w',
-        args = [JQ_FILTER_ARG]
+        args = [JQ_FILTER_ARG],
+        desc = "item selection filter;\nequivalent to jq select(f) function"
     )
     fun where(): String?
 
     @CliOption(
         long = PRETRANSFORM,
         short = 'T',
-        args = [JQ_FILTER_ARG]
+        args = [JQ_FILTER_ARG],
+        desc = "same as --$TRANSFORM, but executed before --$WHERE"
     )
     fun pretransform(): String?
 
     @CliOption(
         long = PARTITION_KEY,
         short = 'P',
-        args = [JQ_FILTER_ARG]
+        args = [JQ_FILTER_ARG],
+        desc = "partition key filter;\ntakes {} as input"
     )
     fun partitionKey(): String?
 
@@ -49,7 +55,8 @@ interface ReadCommand : Command {
         long = SORT_KEY,
         short = 'S',
         requires = [PARTITION_KEY],
-        args = [JQ_FILTER_ARG]
+        args = [JQ_FILTER_ARG],
+        desc = "sort key filter;\ntakes {} as input"
     )
     fun sortKey(): String?
 
@@ -66,7 +73,8 @@ interface ReadCommand : Command {
 
     @CliOption(
         long = LIMIT,
-        short = 'l'
+        short = 'l',
+        desc = "maximum number of items to return"
     )
     @Positive
     fun limit(): Int?
@@ -95,20 +103,23 @@ interface ReadCommand : Command {
     fun endpointUrl(): String?
 
     @CliOption(
-        long = COMPACT
+        long = COMPACT,
+        desc = "compact instead of pretty-printed output"
     )
     fun compact(): Boolean
 
     @CliOption(
         long = START_KEY,
         short = 'k',
-        args = [JQ_FILTER_ARG]
+        args = [JQ_FILTER_ARG],
+        desc = "last evaluated key from a previous scan or query operation"
     )
     fun startKey(): String?
 
     @CliOption(
         long = REARRANGE_ATTRIBUTES,
-        short = 'g'
+        short = 'g',
+        desc = "sort keys of objects on output"
     )
     fun rearrangeAttributes(): Boolean
 
@@ -129,33 +140,38 @@ interface ReadCommand : Command {
     @CliOption(
         long = AGGREGATE,
         short = 'a',
-        args = [JQ_FILTER_ARG]
+        args = [JQ_FILTER_ARG],
+        desc = "aggregation filter;\ntakes complete result array as input"
     )
     fun aggregate(): String?
 
     @CliOption(
         long = PROJECTION_EXPRESSION,
         short = 's',
-        args = ["projection expression"]
+        args = ["projection expression"],
+        desc = "comma-separated set of attribute names to retrieve"
     )
     fun projectionExpression(): String?
 
     @CliOption(
         long = CONCURRENCY,
         short = 'c',
-        default = "1"
+        default = "1",
+        desc = "number of coroutines to launch"
     )
     @Min(1)
     @Max(999)
     fun concurrency(): Int
 
     @CliOption(
-        long = CONSISTENT_READ
+        long = CONSISTENT_READ,
+        desc = "strongly consistent instead of eventually consistent read"
     )
     fun consistentRead(): Boolean
 
     @CliOption(
-        long = MAX_HEAP_SIZE
+        long = MAX_HEAP_SIZE,
+        desc = "heap memory limit in MB;\nresult array will be returned when exceeded"
     )
     @Min(200)
     @Max(8000)
@@ -164,34 +180,41 @@ interface ReadCommand : Command {
     @CliOption(
         long = EXPAND,
         short = 'x',
-        requires = [GLOBAL_INDEX_NAME]
+        requires = [GLOBAL_INDEX_NAME],
+        desc = "retrieve non-projected attributes when --$GLOBAL_INDEX_NAME is given"
     )
     fun expand(): Boolean
 
     @CliOption(
         long = STREAM,
-        precludes = [AGGREGATE, REDUCE]
+        precludes = [AGGREGATE, REDUCE],
+        desc = "incrementally write items to stdout"
     )
     fun stream(): Boolean
 
     @CliOption(
         long = REDUCE,
         short = 'r',
-        args = ["initial value", JQ_FILTER_ARG]
+        args = [JQ_REDUCE_INIT_ARG, JQ_FILTER_ARG],
+        desc = "reduce items using starting value <$JQ_REDUCE_INIT_ARG> and update <$JQ_FILTER_ARG>, " +
+                "with items assigned to $JQ_REDUCE_ITEM_VAR;\n" +
+                "equivalent to jq reduce .[] as $JQ_REDUCE_ITEM_VAR (<$JQ_REDUCE_INIT_ARG>; <$JQ_FILTER_ARG>)"
     )
     @Size(min = 2, max = 2)
     fun reduce(): Array<String>?
 
     @CliOption(
         long = REQUEST_LIMIT,
-        short = 'Q'
+        short = 'Q',
+        desc = "maximum number of DynamoDB requests per coroutine"
     )
     @Positive
     fun requestLimit(): Int?
 
     @CliOption(
         long = ITEMS_PER_REQUEST,
-        short = 'I'
+        short = 'I',
+        desc = "maximum number of items per DynamoDB request"
     )
     @Positive
     fun itemsPerRequest(): Int?
@@ -207,7 +230,9 @@ interface ReadCommand : Command {
         long = PRUNE,
         short = 'u',
         precludes = [REDUCE, STREAM],
-        args = [JQ_FILTER_ARG]
+        args = [JQ_FILTER_ARG],
+        desc = "aggregation filter executed once per DynamoDB request;\n" +
+                "takes partial result array as input and must return an array"
     )
     fun prune(): String?
 

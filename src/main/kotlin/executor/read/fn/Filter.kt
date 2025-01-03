@@ -1,9 +1,9 @@
 package dynq.executor.read.fn
 
 import dynq.cli.command.ReadCommand
+import dynq.cli.command.option.JQ_REDUCE_ITEM_VAR
 import dynq.cli.logging.LogLine
 import dynq.cli.logging.log
-import dynq.cli.logging.warn
 import dynq.executor.read.model.FilterOutput
 import dynq.executor.read.model.RawReadOutput
 import dynq.executor.read.model.ReadMetadata
@@ -106,7 +106,7 @@ private fun reduceBatch(
 
     val node = jqn(
         batch.items.toString(),
-        "reduce .[] as \$item ($initialValue; ${reducer[1]})",
+        "reduce .[] as $JQ_REDUCE_ITEM_VAR ($initialValue; ${reducer[1]})",
         onError = { message ->
             throw Error("bad reduce filter$message")
         }

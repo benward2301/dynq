@@ -23,7 +23,7 @@ suspend fun getItems(
     partitionKey: KeyMatcher.Discrete,
     sortKey: KeyMatcher.Discrete
 ) {
-    log { "${formatRequestOp("GET")} ${command.tableName()}" }
+    LogEntry.new(pos = 0).log { "${formatRequestOp("GET")} ${command.tableName()}" }
 
     val keys = partitionKey.values.flatMap { partitionKeyValue ->
         sortKey.values.map { sortKeyValue ->
@@ -48,7 +48,7 @@ suspend fun getItems(
                 ReadMetadata(response.consumedCapacity().capacityUnits())
             )
         )
-        LogLine.new(indent = 1, pos = 1).log {
+        LogEntry.new(indent = 1, pos = 1).log {
             val icon = if (items.isEmpty())
                 style(BOLD, RED)("!") else
                 style(GREEN)("$CHECK_MARK")

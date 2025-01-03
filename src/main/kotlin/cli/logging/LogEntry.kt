@@ -10,15 +10,16 @@ import org.jline.utils.InfoCmp
 import java.util.*
 import kotlin.math.ceil
 
-class LogLine private constructor(
+class LogEntry private constructor(
     val indent: Int,
     var label: (() -> String)?,
-    val pos: Int
+    val pos: Int,
+    val override: Boolean
 ) {
 
     companion object {
 
-        var enabled: Boolean = true
+        private var enabled: Boolean = true
             get() = field && !CommandBinding.global.quiet()
 
         private val terminal = TerminalBuilder.builder()
@@ -26,12 +27,12 @@ class LogLine private constructor(
             .build()
         private val writer = terminal.writer()
 
-        private val lines = TreeSet(
-            Comparator.comparing<LogLine, Int> { ll -> ll.pos }
-                .thenComparing(LogLine::hashCode)
+        private val entries = TreeSet(
+            Comparator.comparing<LogEntry, Int> { le -> le.pos }
+                .thenComparing(LogEntry::hashCode)
         )
         private val nextPos
-            get() = lines.lastOrNull()?.let { it.pos + 1 } ?: 0
+            get() = entries.lastOrNull()?.let { it.pos + 1 } ?: 0
 
         private val spinners = arrayOf('⠹', '⠼', '⠶', '⠧', '⠏', '⠛')
         private var ticks = 0
@@ -49,25 +50,32 @@ class LogLine private constructor(
         fun new(
             indent: Int = 0,
             label: (() -> String)? = null,
-            pos: Int = nextPos
-        ): LogLine {
-            return LogLine(indent, label, pos).also { lines.add(it) }
+            pos: Int = nextPos,
+            override: Boolean = false
+        ): LogEntry {
+            return LogEntry(indent, label, pos, override).also { entries.add(it) }
         }
 
         @Synchronized
         fun render() {
-            if (enabled) {
-                lines.forEach(LogLine::print)
-                writer.print(escape(RESET))
-                writer.flush()
-                clear()
-                ticks++
-            }
+            entries.forEach(LogEntry::print)
+            writer.flush()
+            clear()
+            ticks++
+        }
+
+        fun transform(fn: (String?) -> String?) {
+            entries.forEach { it.content = fn(it.content) }
+        }
+
+        fun close() {
+            render()
+            enabled = false
         }
 
         private fun clear() {
             terminal.puts(InfoCmp.Capability.cursor_to_ll)
-            repeat(lines.sumOf { it.rows }) {
+            repeat(entries.sumOf { it.lines }) {
                 terminal.puts(InfoCmp.Capability.clr_eol)
                 terminal.puts(InfoCmp.Capability.cursor_up)
             }
@@ -76,7 +84,9 @@ class LogLine private constructor(
     }
 
     private var content: String? = null
-    private var rows: Int = 0
+    private var lines: Int = 0
+    private val enabled: Boolean
+        get() = LogEntry.enabled || override
 
     fun log(message: () -> String) {
         if (enabled) {
@@ -85,19 +95,21 @@ class LogLine private constructor(
     }
 
     private fun print() {
-        format()?.also { output ->
-            writer.println(output)
-            rows = output.replace(Regex("$ESCAPE\\[\\d*m"), "")
-                .split("\n")
-                .sumOf {
-                    ceil((indent + it.length.toDouble()) / terminal.width)
-                }.toInt()
+        if (enabled) {
+            format()?.also { output ->
+                writer.println(output)
+                lines = output.replace(Regex("$ESCAPE\\[\\d*m"), "")
+                    .split("\n")
+                    .sumOf {
+                        ceil((indent + it.length.toDouble()) / terminal.width)
+                    }.toInt()
+            }
         }
     }
 
     private fun format(): String? {
         return content?.let {
-            "${" ".repeat(indent)}${it.replace(SPINNER, spinners[ticks % spinners.size])}"
+            escape(DEFAULT) + " ".repeat(indent) + it.replace(SPINNER, spinners[ticks % spinners.size]) + escape(RESET)
         }
     }
 

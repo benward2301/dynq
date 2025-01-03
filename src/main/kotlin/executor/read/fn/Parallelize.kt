@@ -1,6 +1,5 @@
 package dynq.executor.read.fn
 
-import dynq.cli.logging.LogLine
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch

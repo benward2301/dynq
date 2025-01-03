@@ -1,6 +1,15 @@
 {
   "reflection": [
     {
+      "type": "software.amazon.awssdk.services.sts.internal.StsProfileCredentialsProviderFactory",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
       "type": "[Lcom.fasterxml.jackson.databind.deser.Deserializers;"
     },
     {
@@ -244,6 +253,10 @@
     {
       "type": "dynq.cli.anno.CliOption",
       "methods": [
+        {
+          "name": "args",
+          "parameterTypes": []
+        },
         {
           "name": "default",
           "parameterTypes": []
@@ -984,6 +997,10 @@
       "allDeclaredFields": true
     },
     {
+      "type": "org.jline.terminal.impl.jna.linux.CLibrary$winsize",
+      "allDeclaredFields": true
+    },
+    {
       "type": "org.slf4j.simple.SimpleServiceProvider"
     },
     {
@@ -1320,6 +1337,9 @@
     },
     {
       "glob": "software/amazon/awssdk/services/dynamodb/execution.interceptors"
+    },
+    {
+      "glob": "software/amazon/awssdk/services/sts/execution.interceptors"
     },
     {
       "module": "java.logging",

@@ -28,13 +28,15 @@ suspend fun query(
     partitionMatcher: KeyMatcher.Discrete,
     sortMatcher: KeyMatcher?
 ) {
-    log { "${formatRequestOp("QUERY")} ${command.tableName()}${command.globalIndexName()?.let { ".$it" } ?: ""}" }
+    LogEntry.new(pos = 0).log {
+        "${formatRequestOp("QUERY")} ${command.tableName()}${command.globalIndexName()?.let { ".$it" } ?: ""}"
+    }
 
     parallelize(
         command.concurrency(),
         buildKeys(partitionMatcher, sortMatcher),
     ) { key ->
-        val ll = LogLine.new(indent = 1, pos = 1)
+        val le = LogEntry.new(indent = 1, pos = 1)
 
         val builder = buildQueryBase(
             command,
@@ -44,12 +46,12 @@ suspend fun query(
         autoPaginate(
             command,
             readChannel,
-            ll
+            le
         ) { startKey, limit ->
             val request = builder.exclusiveStartKey(startKey)
                 .limit(limit)
                 .build()
-            ll.label = { formatKey(key) }
+            le.label = { formatKey(key) }
 
             PaginatedResponse.from(ddb.query(request))
         }
@@ -147,7 +149,7 @@ private fun buildMultiItemQuery(
                 sortExpr = "begins_with($SORT_KEY_NAME_TOKEN, $SORT_KEY_VALUE_TOKEN)"
                 sortOperand = sortKey.bw
             } else {
-                throw Error("beg operand must be a string")
+                throw Exception("beg operand must be a string")
             }
         } else {
             if (sortKey.gte != null) {
@@ -163,7 +165,7 @@ private fun buildMultiItemQuery(
                 sortOperator = "<="
                 sortOperand = sortKey.lte
             } else {
-                throw Error("missing sort key constraint")
+                throw Exception("missing sort key constraint")
             }
             sortExpr = "$SORT_KEY_NAME_TOKEN $sortOperator $SORT_KEY_VALUE_TOKEN"
         }

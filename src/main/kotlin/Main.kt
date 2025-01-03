@@ -1,7 +1,7 @@
 package dynq
 
 import dynq.cli.command.ReadCommand
-import dynq.cli.logging.LogLine
+import dynq.cli.logging.LogEntry
 import dynq.cli.logging.err
 import dynq.cli.route.CommandBinding
 import dynq.cli.route.dispatchCommandLine
@@ -20,9 +20,9 @@ fun main(args: Array<String>) {
     )
     try {
         dispatchCommandLine(args)
-    } catch (error: Error) {
-        err(error.message!!)
-        LogLine.render()
+    } catch (e: Exception) {
+        err(e.message!!)
+        LogEntry.close()
         exitProcess(1)
     }
 }

@@ -15,7 +15,7 @@ interface ReadCommand : Command {
         short = 'f',
         args = ["table name"]
     )
-    @Pattern(regexp = "[a-zA-Z_\\-.]*")
+    @Pattern(regexp = RESOURCE_NAME_PATTERN)
     @Size(min = 3, max = 255)
     fun tableName(): String
 
@@ -67,7 +67,7 @@ interface ReadCommand : Command {
         precludes = [CONSISTENT_READ],
         args = ["index name"]
     )
-    @Pattern(regexp = "[a-zA-Z_\\-.]*")
+    @Pattern(regexp = RESOURCE_NAME_PATTERN)
     @Size(min = 3, max = 255)
     fun globalIndexName(): String?
 
@@ -91,7 +91,7 @@ interface ReadCommand : Command {
         short = 'R',
         args = ["aws region"]
     )
-    @Pattern(regexp = "[a-z0-9\\-]*")
+    @Pattern(regexp = RESOURCE_NAME_PATTERN)
     @Size(min = 3, max = 30)
     fun region(): String?
 
@@ -112,7 +112,8 @@ interface ReadCommand : Command {
         long = START_KEY,
         short = 'k',
         args = [JQ_FILTER_ARG],
-        desc = "last evaluated key from a previous scan or query operation"
+        desc = "last evaluated key from a previous scan or query operation",
+        precludes = [CONCURRENCY]
     )
     fun startKey(): String?
 
@@ -132,7 +133,8 @@ interface ReadCommand : Command {
     @CliOption(
         long = SCAN_LIMIT,
         short = 'L',
-        precludes = [CONCURRENCY]
+        precludes = [CONCURRENCY],
+        desc = "maximum number of items to scan"
     )
     @Positive
     fun scanLimit(): Int?
@@ -171,7 +173,7 @@ interface ReadCommand : Command {
 
     @CliOption(
         long = MAX_HEAP_SIZE,
-        desc = "heap memory limit in MB;\nresult array will be returned when exceeded"
+        desc = "heap memory limit in MB;\nresult array will be returned when approached"
     )
     @Min(200)
     @Max(8000)
@@ -222,7 +224,7 @@ interface ReadCommand : Command {
     @CliOption(
         long = METADATA_ONLY,
         short = 'M',
-        precludes = [CONTENT_ONLY, TRANSFORM, AGGREGATE, REDUCE, REARRANGE_ATTRIBUTES, STREAM]
+        precludes = [CONTENT_ONLY, TRANSFORM, AGGREGATE, PRUNE, REDUCE, REARRANGE_ATTRIBUTES, STREAM]
     )
     fun metadataOnly(): Boolean
 
@@ -266,3 +268,5 @@ private const val REQUEST_LIMIT = "request-limit"
 private const val ITEMS_PER_REQUEST = "items-per-request"
 private const val METADATA_ONLY = "meta-only"
 private const val PRUNE = "prune"
+
+private const val RESOURCE_NAME_PATTERN = "[\\w\\-.]*"

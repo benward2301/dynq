@@ -2,7 +2,7 @@ package dynq.executor.read.fn
 
 import dynq.cli.command.ReadCommand
 import dynq.cli.command.option.JQ_REDUCE_ITEM_VAR
-import dynq.cli.logging.LogLine
+import dynq.cli.logging.LogEntry
 import dynq.cli.logging.log
 import dynq.executor.read.model.FilterOutput
 import dynq.executor.read.model.RawReadOutput
@@ -27,8 +27,8 @@ suspend fun filter(
     var hitCount = 0
     var reduction: FilterOutput? = null
 
-    val ll = LogLine.new(pos = 2)
-    logFilterProgress(ll, hitCount, scannedCount)
+    val le = LogEntry.new(pos = 2)
+    logFilterProgress(le, hitCount, scannedCount)
 
     for (readOutput in readChannel) {
         val filterOutput = filterBatch(
@@ -41,7 +41,7 @@ suspend fun filter(
 
         hitCount += filterOutput.items.size
         filterOutput.meta.scannedCount?.let { scannedCount += it }
-        logFilterProgress(ll, hitCount, scannedCount)
+        logFilterProgress(le, hitCount, scannedCount)
 
         if (reducer == null) {
             outputChannel.send(filterOutput)
@@ -49,7 +49,6 @@ suspend fun filter(
             reduction = reduceBatch(filterOutput, reducer, reduction)
         }
         if (limit != null && limit <= hitCount) {
-            log { "Item limit reached" }
             break
         }
         if (isMaxHeapSizeExceeded(command)) {
@@ -107,9 +106,7 @@ private fun reduceBatch(
     val node = jqn(
         batch.items.toString(),
         "reduce .[] as $JQ_REDUCE_ITEM_VAR ($initialValue; ${reducer[1]})",
-        onError = { message ->
-            throw Error("bad reduce filter$message")
-        }
+        onError = throwJqError("bad reduce filter")
     )
     return batch.copy(
         items = listOf(node),
@@ -134,6 +131,6 @@ private fun isMaxHeapSizeExceeded(command: ReadCommand): Boolean {
     return effectiveMax <= runtime.totalMemory() - runtime.freeMemory()
 }
 
-private fun logFilterProgress(ll: LogLine, hitCount: Int, scannedCount: Int) {
-    ll.log { "$hitCount of ${max(scannedCount, hitCount)} total item(s) retained" }
+private fun logFilterProgress(le: LogEntry, hitCount: Int, scannedCount: Int) {
+    le.log { "$hitCount of ${max(scannedCount, hitCount)} total item(s) retained" }
 }

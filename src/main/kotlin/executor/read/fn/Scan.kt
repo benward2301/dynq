@@ -18,7 +18,7 @@ suspend fun scan(
     readChannel: Channel<RawReadOutput>,
     ddb: DynamoDbClient,
 ) = coroutineScope {
-    log { "${formatRequestOp("SCAN")} ${command.tableName()}" }
+    LogEntry.new(pos = 0).log { "${formatRequestOp("SCAN")} ${command.tableName()}" }
 
     val scannedCount = AtomicInteger()
 
@@ -27,7 +27,7 @@ suspend fun scan(
             autoPaginate(
                 command,
                 readChannel,
-                LogLine.new(indent = 1, pos = 1)
+                LogEntry.new(indent = 1, pos = 1)
             ) { startKey, limit ->
                 val request = buildScanBase(command)
                     .segment(segment)

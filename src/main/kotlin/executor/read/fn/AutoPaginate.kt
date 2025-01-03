@@ -15,7 +15,7 @@ import kotlin.math.min
 suspend fun autoPaginate(
     command: ReadCommand,
     channel: Channel<RawReadOutput>,
-    ll: LogLine,
+    le: LogEntry,
     read: (
         startKey: DynamoDbItem?,
         limit: Int?
@@ -32,7 +32,7 @@ suspend fun autoPaginate(
             jq(input = it)
         ).toMap()
     }
-    logScanProgress(ll, scannedCount)
+    logScanProgress(le, scannedCount)
 
     do {
         val response = read(
@@ -40,7 +40,7 @@ suspend fun autoPaginate(
             calculateNextScanLimit(scannedCount, scanLimit, itemsPerRequest)
         )
         scannedCount += response.scannedCount
-        logScanProgress(ll, scannedCount)
+        logScanProgress(le, scannedCount)
 
         channel.send(buildReadOutput(response))
 
@@ -51,7 +51,7 @@ suspend fun autoPaginate(
         isCountWithinLimit(scannedCount, scanLimit) &&
         isCountWithinLimit(requestCount, requestLimit)
     )
-    logScanResult(ll, scannedCount)
+    logScanResult(le, scannedCount)
 }
 
 private fun buildReadOutput(
@@ -80,12 +80,12 @@ private fun isCountWithinLimit(count: Int, limit: Int?): Boolean {
     return limit == null || count < limit
 }
 
-private fun logScanProgress(ll: LogLine, scannedCount: Int) {
-    ll.log { formatProgressMessage(style(RED)("$SPINNER"), ll.label, describeScannedCount(scannedCount)) }
+private fun logScanProgress(le: LogEntry, scannedCount: Int) {
+    le.log { formatProgressMessage(style(RED)("$SPINNER"), le.label, describeScannedCount(scannedCount)) }
 }
 
-private fun logScanResult(ll: LogLine, scannedCount: Int) {
-    ll.log {
+private fun logScanResult(le: LogEntry, scannedCount: Int) {
+    le.log {
         val icon: String
         val message: String
         if (scannedCount == 0) {
@@ -95,7 +95,7 @@ private fun logScanResult(ll: LogLine, scannedCount: Int) {
             icon = style(GREEN)("$CHECK_MARK")
             message = describeScannedCount(scannedCount)
         }
-        formatProgressMessage(icon, ll.label, message)
+        formatProgressMessage(icon, le.label, message)
     }
 }
 

@@ -4,7 +4,6 @@ import dynq.cli.anno.CliOption
 import jakarta.validation.constraints.*
 import kotlin.reflect.KFunction
 import kotlin.reflect.full.findAnnotation
-import kotlin.reflect.full.hasAnnotation
 
 fun interface OptionValidator<T, R> {
 
@@ -20,13 +19,13 @@ fun interface OptionValidator<T, R> {
         ): OptionValidator<T, T> {
             return OptionValidator { producer, value ->
                 val option = producer.findAnnotation<CliOption>()
-                    ?: throw Error("$producer is not annotated with ${CliOption::class}")
+                    ?: throw Exception("$producer is not annotated with ${CliOption::class}")
 
                 validator.validate(producer, value)
                     .filterNotNull()
                     .takeUnless { it.isEmpty() }
                     ?.joinToString(", ")
-                    ?.let { throw Error("--${option.long} $it") }
+                    ?.let { throw IllegalArgumentException("--${option.long} $it") }
                     ?: value
             }
         }
@@ -41,8 +40,8 @@ fun interface OptionValidator<T, R> {
                     ?.takeUnless { value <= it.toInt() }
                     ?.let { "must be less than or equal to $it" },
 
-                producer.hasAnnotation<Positive>()
-                    .takeUnless { value > 0 }
+                producer.findAnnotation<Positive>()
+                    ?.takeUnless { value > 0 }
                     ?.let { "must be positive" }
             )
         }
@@ -56,7 +55,7 @@ fun interface OptionValidator<T, R> {
 
                 producer.findAnnotation<Pattern>()
                     ?.takeUnless { Regex(it.regexp).matches(value) }
-                    ?.let { "must match pattern /$it/" },
+                    ?.let { "must match pattern /${it.regexp}/" },
             )
         }
 

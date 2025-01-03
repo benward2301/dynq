@@ -3,9 +3,7 @@ package dynq.executor.read.fn
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.google.common.base.CharMatcher
 import dynq.cli.command.ReadCommand
-import dynq.cli.logging.LogLine
-import dynq.cli.logging.log
-import dynq.cli.logging.warn
+import dynq.cli.logging.*
 import dynq.executor.read.model.FilterOutput
 import dynq.executor.read.model.ReadMetadata
 import dynq.jq.*
@@ -30,6 +28,8 @@ suspend fun collate(
     val output = collectOutput(command, outputChannel)
     cleanup()
 
+    LogEntry.transform { it?.replace("$SPINNER", style(GREEN)("$CHECK_MARK")) }
+
     CharMatcher.anyOf("\r\n\t").removeFrom(
         output.items.toString()
     ).let {
@@ -47,7 +47,7 @@ suspend fun collate(
             pretty = !command.compact(),
             colorize = command.colorize()
         )
-    }.also { LogLine.enabled = false }
+    }.also { LogEntry.close() }
         .let(::println)
 }
 
@@ -101,7 +101,7 @@ private suspend fun collectOutput(
                 onError = throwJqError("bad prune filter")
             ).also {
                 if (!it.isArray) {
-                    throw Error("the output of the prune filter must be an array")
+                    throw Exception("the output of the prune filter must be an array")
                 }
             }.asArray()
         }

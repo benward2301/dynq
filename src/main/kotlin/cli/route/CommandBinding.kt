@@ -76,7 +76,7 @@ class CommandBinding<T : Command>(
         anno: CliOption
     ): Any? {
         val fn = cls.memberFunctions.find { fn -> fn.name == method.name }
-            ?: throw Error("Failed to infer ${KFunction::class.qualifiedName} from ${Method::class.qualifiedName}")
+            ?: throw Exception("Failed to infer ${KFunction::class.qualifiedName} from ${Method::class.qualifiedName}")
         val type = fn.returnType
 
         if (satisfies<Boolean>(type)) {
@@ -143,7 +143,7 @@ private fun verifyOptionDependencies(
         this.filter(predicate)
             .takeUnless { it.isEmpty() }
             ?.joinToString { "--$it" }
-            ?.let { throw Error("--${anno.long} $reason $it") }
+            ?.let { throw Exception("--${anno.long} $reason $it") }
     }
     anno.precludes.rejectIf("is incompatible with") { commandLine.hasOption(it) }
     anno.requires.rejectIf("requires") { !commandLine.hasOption(it) }

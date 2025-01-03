@@ -1,7 +1,6 @@
 package dynq.executor.read
 
 import dynq.cli.command.ReadCommand
-import dynq.cli.logging.LogLine
 import dynq.cli.route.CommandExecutor
 import dynq.ddb.createDynamoDbClient
 import dynq.executor.read.fn.*

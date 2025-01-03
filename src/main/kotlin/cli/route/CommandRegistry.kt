@@ -19,19 +19,19 @@ private val namedCommands: MutableMap<String, CommandBinding<*>> = HashMap()
 
 private fun registerCommand(binding: CommandBinding<*>) {
     val cls = binding.cls
-    val anno = cls.findAnnotation<CliCommand>() ?: throw Error()
+    val anno = cls.findAnnotation<CliCommand>() ?: throw Exception()
 
     if (anno.name.isBlank()) {
         if (anno.root) {
             registerRootCommand(binding)
         } else {
-            throw Error("No name specified for non-root command ${binding.cls}")
+            throw Exception("No name specified for non-root command ${binding.cls}")
         }
     } else {
         if (namedCommands[anno.name] == null) {
             namedCommands[anno.name] = binding
         } else {
-            throw Error(
+            throw Exception(
                 "Multiple commands found with name ${anno.name}: "
                         + "${binding.cls}, ${namedCommands[anno.name]!!.cls}"
             )
@@ -43,6 +43,6 @@ private fun registerRootCommand(binding: CommandBinding<*>) {
     if (rootCommand == null) {
         rootCommand = binding
     } else {
-        throw Error("Multiple root commands found: ${rootCommand!!.cls}, ${binding.cls}")
+        throw Exception("Multiple root commands found: ${rootCommand!!.cls}, ${binding.cls}")
     }
 }

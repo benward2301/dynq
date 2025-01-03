@@ -2,9 +2,9 @@ package dynq.jq
 
 import com.arakelian.jq.JqResponse
 
-fun wrapJqError(message: String) = fun(response: JqResponse): Error {
+fun wrapJqError(message: String) = fun(response: JqResponse): Exception {
     val nl = "\n  "
-    return Error(
+    return Exception(
         message + response.errors.map {
             it.replace("\n", " ")
         }.joinToString(nl, prefix = nl)

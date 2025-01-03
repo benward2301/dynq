@@ -8,7 +8,7 @@ import software.amazon.awssdk.enhanced.dynamodb.internal.converter.attribute.Jso
 
 fun buildPartitionKeyMatcher(filter: String?): KeyMatcher.Discrete? {
     return when (val key = buildKeyMatcher(filter)) {
-        is KeyMatcher.Continuous -> throw Error("partition key values must be discrete")
+        is KeyMatcher.Continuous -> throw Exception("partition key values must be discrete")
         is KeyMatcher.Discrete -> key
         else -> null
     }
@@ -51,7 +51,7 @@ private fun buildKeyMatcher(filter: String?): KeyMatcher? {
     } else if (node.isString || node.isNumber) {
         listOf(node)
     } else {
-        throw Error("key value must be string or number")
+        throw Exception("key value must be string or number")
     }
     return KeyMatcher.Discrete(name, nodes.map { converter.transformFrom(it) })
 }

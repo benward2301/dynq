@@ -17,7 +17,8 @@ suspend fun filter(
     ddb: DynamoDbClient,
     command: ReadCommand,
     readChannel: Channel<RawReadOutput>,
-    outputChannel: Channel<FilterOutput>
+    outputChannel: Channel<FilterOutput>,
+    terminate: suspend () -> Unit
 ) {
     val limit = command.limit()
     val reducer = command.reduce()
@@ -36,7 +37,7 @@ suspend fun filter(
                 if (command.expand()) expandItems(ddb, command, it)
                 else it
             },
-            filter.pipe(command.limit()?.let { ".[0:$it]" })
+            filter.pipe(command.limit()?.let { ".[0:${it - hitCount}]" })
         )
 
         hitCount += filterOutput.items.size
@@ -48,12 +49,11 @@ suspend fun filter(
         } else {
             reduction = reduceBatch(filterOutput, reducer, reduction)
         }
-        if (limit != null && limit <= hitCount) {
-            break
-        }
-        if (isMaxHeapSizeExceeded(command)) {
-            log { "Max heap size exceeded" }
-            break
+        if (
+            limit != null && limit <= hitCount ||
+            isMaxHeapSizeExceeded(command).also { if (it) log { "Max heap size exceeded" } }
+        ) {
+            terminate()
         }
     }
 

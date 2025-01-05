@@ -17,16 +17,13 @@ private const val CONTENT_PROP = "content"
 suspend fun collate(
     command: ReadCommand,
     outputChannel: Channel<FilterOutput>,
-    cleanup: suspend () -> Unit
 ) {
     if (command.stream()) {
         streamOutput(command, outputChannel)
-        cleanup()
         return
     }
 
     val output = collectOutput(command, outputChannel)
-    cleanup()
 
     LogEntry.transform { it?.replace("$SPINNER", style(GREEN)("$CHECK_MARK")) }
 

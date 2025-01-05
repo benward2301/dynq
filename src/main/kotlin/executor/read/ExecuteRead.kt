@@ -16,7 +16,7 @@ import kotlinx.coroutines.runBlocking
 val executeRead = CommandExecutor<ReadCommand> { command ->
     val ddb = createDynamoDbClient(command.endpointUrl(), command.profile(), command.region())
 
-    val readChannel = Channel<RawReadOutput>(command.concurrency())
+    val readChannel = Channel<RawReadOutput>(Channel.RENDEZVOUS)
     val outputChannel = Channel<FilterOutput>(Channel.UNLIMITED)
 
     val partitionKey = buildPartitionKeyMatcher(command.partitionKey())
@@ -34,16 +34,16 @@ val executeRead = CommandExecutor<ReadCommand> { command ->
                 else ->
                     query(command, readChannel, ddb, partitionKey, sortKey)
             }
-            readChannel.close()
         }
-        val filtering = launch {
-            filter(ddb, command, readChannel, outputChannel)
+        reading.invokeOnCompletion { readChannel.close() }
+
+        launch {
+            filter(ddb, command, readChannel, outputChannel) {
+                reading.cancelAndJoin()
+            }
         }
         launch {
-            collate(command, outputChannel) {
-                reading.cancelAndJoin()
-                filtering.cancelAndJoin()
-            }
+            collate(command, outputChannel)
         }
     }
 }

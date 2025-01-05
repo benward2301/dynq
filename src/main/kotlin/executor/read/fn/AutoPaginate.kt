@@ -40,9 +40,9 @@ suspend fun autoPaginate(
             calculateNextScanLimit(scannedCount, scanLimit, itemsPerRequest)
         )
         scannedCount += response.scannedCount
-        logScanProgress(le, scannedCount)
 
         channel.send(buildReadOutput(response))
+        logScanProgress(le, scannedCount)
 
         startKey = response.lastEvaluatedKey
         requestCount++

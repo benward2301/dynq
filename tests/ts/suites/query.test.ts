@@ -115,14 +115,45 @@ test('partition key country, limit 1, content only -> country#1', async () => {
   );
 });
 
-test('partition key country, scan limit 1, start key country#2 -> meta, country#3', async () => {
+test('partition key country (filter), scan limit 1, start key 2 (json) -> meta, country#3', async () => {
   const output = await new ReadCommand()
       .partitionKey('.entity = "country"')
       .scanLimit(1)
-      .startKey({
-        entity: 'country',
-        id: 2
-      })
+      .startKey({ id: 2 })
+      .execute()
+      .parse();
+  assert.deepEqual(
+      output,
+      {
+        meta: {
+          consumedCapacity: 0.5,
+          requestCount: 1,
+          scannedCount: 1,
+          hitCount: 1,
+          lastEvaluatedKey: {
+            id: 3,
+            entity: 'country'
+          }
+        },
+        content: [
+          {
+            country: 'American Samoa',
+            last_update: '2006-02-15T09:44:00',
+            id: 3,
+            uuid: '5b750652-9578-11ef-a2f7-ebcac583dc26',
+            country_id: 3,
+            entity: 'country'
+          }
+        ]
+      }
+  );
+});
+
+test('partition key country (json), scan limit 1, start key 2 (filter) -> meta, country#3', async () => {
+  const output = await new ReadCommand()
+      .partitionKey({ entity: 'country' })
+      .scanLimit(1)
+      .startKey('.id = 2')
       .execute()
       .parse();
   assert.deepEqual(

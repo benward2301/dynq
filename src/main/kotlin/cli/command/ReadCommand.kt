@@ -55,6 +55,7 @@ interface ReadCommand : Command {
         long = SORT_KEY,
         short = 'S',
         requires = [PARTITION_KEY],
+        precludes = [START_KEY],
         args = [JQ_FILTER_ARG],
         desc = "sort key filter;\ntakes {} as input"
     )

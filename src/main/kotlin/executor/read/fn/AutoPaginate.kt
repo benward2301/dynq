@@ -8,6 +8,9 @@ import dynq.ddb.model.PaginatedResponse
 import dynq.executor.read.model.RawReadOutput
 import dynq.executor.read.model.ReadMetadata
 import dynq.jq.jq
+import dynq.jq.pipe
+import dynq.jq.pipeToNonNull
+import dynq.jq.throwJqError
 import kotlinx.coroutines.channels.Channel
 import software.amazon.awssdk.enhanced.dynamodb.document.EnhancedDocument
 import kotlin.math.min
@@ -27,11 +30,7 @@ suspend fun autoPaginate(
 
     var scannedCount = 0
     var requestCount = 0
-    var startKey = command.startKey()?.let {
-        EnhancedDocument.fromJson(
-            jq(input = it)
-        ).toMap()
-    }
+    var startKey = buildInitialStartKey(command)
     logScanProgress(le, scannedCount)
 
     do {
@@ -65,6 +64,19 @@ private fun buildReadOutput(
             lastEvaluatedKey = response.lastEvaluatedKey
         )
     )
+}
+
+private fun buildInitialStartKey(command: ReadCommand): DynamoDbItem? {
+    return command.startKey()?.let {
+        EnhancedDocument.fromJson(
+            jq(
+                input = "{}",
+                filter = (command.partitionKey()?.pipe("map_values([.] | flatten | .[0])"))
+                    .pipeToNonNull(". + ($it)"),
+                onError = throwJqError("bad start key filter")
+            )
+        ).toMap()
+    }
 }
 
 private fun calculateNextScanLimit(scannedCount: Int, scanLimit: Int?, itemsPerRequest: Int?): Int? {

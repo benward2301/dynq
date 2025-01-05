@@ -171,12 +171,35 @@ test('where false, scan limit 1 -> no items', async () => {
   assert.deepEqual(content, []);
 });
 
-test('start key country#1, scan limit 1 -> country#2', async () => {
+test('start key country#1 (json), scan limit 1 -> country#2', async () => {
   const { meta, content } = await new ReadCommand()
       .startKey({
         entity: 'country',
         id: 1
       })
+      .scanLimit(1)
+      .execute()
+      .parse();
+  const lastEvaluatedKey = {
+    entity: 'country',
+    id: 2
+  };
+  assert.deepEqual(meta.lastEvaluatedKey, lastEvaluatedKey);
+  assert.deepEqual(
+      content[0],
+      {
+        ...lastEvaluatedKey,
+        country: 'Algeria',
+        last_update: '2006-02-15T09:44:00',
+        uuid: '5b2e9de8-9578-11ef-b97c-fb53082728e2',
+        country_id: 2
+      }
+  );
+});
+
+test('start key country#1 (filter), scan limit 1 -> country#2', async () => {
+  const { meta, content } = await new ReadCommand()
+      .startKey('.entity = "country" | .id = 1')
       .scanLimit(1)
       .execute()
       .parse();

@@ -28,6 +28,11 @@ suspend fun query(
     partitionMatcher: KeyMatcher.Discrete,
     sortMatcher: KeyMatcher?
 ) {
+    val keys = buildKeys(partitionMatcher, sortMatcher)
+    if (keys.size > 1 && command.startKey() != null) {
+        throw IllegalArgumentException("a start key cannot be passed with multiple partition keys")
+    }
+
     LogEntry.new(pos = 0).log {
         "${formatRequestOp("QUERY")} ${command.tableName()}${command.globalIndexName()?.let { ".$it" } ?: ""}"
     }

@@ -12,12 +12,12 @@ export class ReadCommand extends Command {
   readonly reduce = this.arg<string[]>('reduce');
   readonly rearrangeAttrs = this.flag('rearrange-attrs');
   readonly globalIndex = this.arg<string>('global-index');
-  readonly startKey = this.arg<Record<string, string | number>>('start-key');
+  readonly startKey = this.arg<string | object>('start-key');
   readonly limit = this.arg<number>('limit');
   readonly scanLimit = this.arg<number>('scan-limit');
-  readonly partitionKey = this.arg<string>('partition-key');
+  readonly partitionKey = this.arg<string | object>('partition-key');
   readonly select = this.arg<string>('select');
-  readonly sortKey = this.arg<string>('sort-key');
+  readonly sortKey = this.arg<string | object>('sort-key');
   readonly stream = this.flag('stream');
   readonly pretransform = this.arg<string>('pretransform');
   readonly transform = this.arg<string>('transform');

@@ -11,7 +11,7 @@ export class ReadCommand extends Command {
   readonly from = this.arg<string>('from');
   readonly reduce = this.arg<string[]>('reduce');
   readonly rearrangeAttrs = this.flag('rearrange-attrs');
-  readonly globalIndex = this.arg<string>('global-index');
+  readonly index = this.arg<string>('index');
   readonly startKey = this.arg<string | object>('start-key');
   readonly limit = this.arg<number>('limit');
   readonly scanLimit = this.arg<number>('scan-limit');

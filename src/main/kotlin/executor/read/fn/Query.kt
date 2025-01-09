@@ -34,7 +34,7 @@ suspend fun query(
     }
 
     LogEntry.new(pos = 0).log {
-        "${formatRequestOp("QUERY")} ${command.tableName()}${command.globalIndexName()?.let { ".$it" } ?: ""}"
+        "${formatRequestOp("QUERY")} ${command.tableName()}${command.indexName()?.let { ".$it" } ?: ""}"
     }
 
     parallelize(
@@ -198,7 +198,7 @@ private fun buildQueryBase(
     return QueryRequest.builder()
         .tableName(command.tableName())
         .returnConsumedCapacity(ReturnConsumedCapacity.TOTAL)
-        .indexName(command.globalIndexName())
+        .indexName(command.indexName())
         .consistentRead(command.consistentRead())
         .apply { sanitizeProjectionExpression(command.projectionExpression(), exprAttrNames).applyTo(this) }
 }

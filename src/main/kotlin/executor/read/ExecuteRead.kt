@@ -28,7 +28,7 @@ val executeRead = CommandExecutor<ReadCommand> { command ->
                 partitionKey == null ->
                     scan(command, readChannel, ddb)
 
-                sortKey is KeyMatcher.Discrete && command.globalIndexName() == null ->
+                sortKey is KeyMatcher.Discrete && command.indexName() == null ->
                     getItems(command, readChannel, ddb, partitionKey, sortKey)
 
                 else ->

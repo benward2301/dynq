@@ -62,7 +62,7 @@ interface ReadCommand : Command {
     fun sortKey(): String?
 
     @CliOption(
-        long = GLOBAL_INDEX_NAME,
+        long = INDEX_NAME,
         short = 'i',
         requires = [PARTITION_KEY],
         precludes = [CONSISTENT_READ],
@@ -70,7 +70,7 @@ interface ReadCommand : Command {
     )
     @Pattern(regexp = RESOURCE_NAME_PATTERN)
     @Size(min = 3, max = 255)
-    fun globalIndexName(): String?
+    fun indexName(): String?
 
     @CliOption(
         long = LIMIT,
@@ -183,8 +183,8 @@ interface ReadCommand : Command {
     @CliOption(
         long = EXPAND,
         short = 'x',
-        requires = [GLOBAL_INDEX_NAME],
-        desc = "retrieve non-projected attributes when --$GLOBAL_INDEX_NAME is given"
+        requires = [INDEX_NAME],
+        desc = "retrieve non-projected attributes when --$INDEX_NAME is given"
     )
     fun expand(): Boolean
 
@@ -247,7 +247,7 @@ private const val WHERE = "where"
 private const val PRETRANSFORM = "pretransform"
 private const val PARTITION_KEY = "partition-key"
 private const val SORT_KEY = "sort-key"
-private const val GLOBAL_INDEX_NAME = "global-index"
+private const val INDEX_NAME = "index"
 private const val LIMIT = "limit"
 private const val PROFILE = "profile"
 private const val REGION = "region"

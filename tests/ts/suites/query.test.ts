@@ -305,7 +305,7 @@ test('partition key category, sort key > 14 -> category#15:', async () => {
 
 test('global index payment_id, partition key 32098, sort key 5c5e42d6 -> meta, payment#32098', async () => {
       const output = await new ReadCommand()
-          .globalIndex('payment_id')
+          .index('payment_id')
           .partitionKey('.payment_id = 32098')
           .sortKey('.uuid = "5c5e42d6-6652-11ef-bb18-bf8c0bb842c0"')
           .execute()
@@ -334,7 +334,7 @@ test('global index payment_id, partition key 32098, sort key 5c5e42d6 -> meta, p
 
 test('global index address_id, partition key 10 -> address#10 keys, customer#6 keys', async () => {
   const { content } = await new ReadCommand()
-      .globalIndex('address_id')
+      .index('address_id')
       .partitionKey('.address_id = 10')
       .execute()
       .parse();
@@ -359,7 +359,7 @@ test('global index address_id, partition key 10 -> address#10 keys, customer#6 k
 
 test('global index film_id, partition key 604, sort key begins with "1" -> film_actor#1147 keys, film#604 keys', async () => {
   const { content } = await new ReadCommand()
-      .globalIndex('film_id')
+      .index('film_id')
       .partitionKey('.film_id = 604')
       .sortKey('.uuid.begins_with = "1"')
       .execute()
@@ -425,7 +425,7 @@ test('partition key 20, global index country_id, expand index, where is city, tr
     async () => {
       const output = await new ReadCommand()
           .partitionKey('.country_id = 20')
-          .globalIndex('country_id')
+          .index('country_id')
           .expand()
           .where('.entity == "city"')
           .transform('.city')
@@ -459,7 +459,7 @@ test('partition key 5, global index customer_id, expand, where is payment, sort 
     async () => {
       const { content } = await new ReadCommand()
           .partitionKey('.customer_id = 5')
-          .globalIndex('customer_id')
+          .index('customer_id')
           .expand()
           .where('.entity == "payment"')
           .aggregate('sort_by(.payment_date)')

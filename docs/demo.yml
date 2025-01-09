@@ -1,0 +1,356 @@
+# The configurations that used for the recording, feel free to edit them
+config:
+
+  # Specify a command to be executed
+  # like `/bin/bash -l`, `ls`, or any other commands
+  # the default is bash for Linux
+  # or powershell.exe for Windows
+  command: bash -l
+  
+  # Specify the current working directory path
+  # the default is the current working directory path
+  #  cwd:
+
+  # Export additional ENV variables
+  env:
+    recording: true
+  
+  # Explicitly set the number of columns
+  # or use `auto` to take the current
+  # number of columns of your shell
+  cols: 90
+  
+  # Explicitly set the number of rows
+  # or use `auto` to take the current
+  # number of rows of your shell
+  rows: 35
+  
+  # Amount of times to repeat GIF
+  # If value is -1, play once
+  # If value is 0, loop indefinitely
+  # If value is a positive number, loop n times
+  repeat: -1
+  
+  # Quality
+  # 1 - 100
+  quality: 100
+  
+  # Delay between frames in ms
+  # If the value is `auto` use the actual recording delays
+  frameDelay: auto
+  
+  # Maximum delay between frames in ms
+  # Ignored if the `frameDelay` isn't set to `auto`
+  # Set to `auto` to prevent limiting the max idle time
+  maxIdleTime: 2000
+  
+  # The surrounding frame box
+  # The `type` can be null, window, floating, or solid`
+  # To hide the title use the value null
+  # Don't forget to add a backgroundColor style with a null as type
+  frameBox:
+    type: solid
+    title: null
+    style:
+      backgroundColor: "#111113"
+
+  # Add a watermark image to the rendered gif
+  # You need to specify an absolute path for
+  # the image on your machine or a URL, and you can also
+  # add your own CSS styles
+  watermark:
+    imagePath: null
+    style:
+      position: absolute
+      right: 15px
+      bottom: 15px
+      width: 100px
+      opacity: 0.9
+
+  # Cursor style can be one of
+  # `block`, `underline`, or `bar`
+  cursorStyle: block
+  
+  # Font family
+  # You can use any font that is installed on your machine
+  # in CSS-like syntax
+  fontFamily: "JetBrains Mono"
+  
+  # The size of the font
+  fontSize: 16
+  
+  # The height of lines
+  lineHeight: 1.1
+  
+  # The spacing between letters
+  letterSpacing: 0
+  
+  # Theme
+  theme:
+    background: "transparent"
+    foreground: "#bbbbbb"
+    cursor: "#56a8f5"
+    black: '#666666'
+    blue: '#56a8f5'
+    cyan: '#42c3d4'
+    green: '#6aab73'
+    magenta: '#c77dbb'
+    red: '#da4a58'
+    white: '#a9b7c6'
+    yellow: '#b3ae60'
+    brightBlack: '#666666'
+    brightBlue: '#56a8f5'
+    brightCyan: '#42c3d4'
+    brightGreen: '#6aab73'
+    brightMagenta: '#c77dbb'
+    brightRed: '#da4a58'
+    brightWhite: '#a9b7c6'
+    brightYellow: '#b3ae60'
+
+# Records, feel free to edit them
+records:
+  - content: "\r\e[01;32mben@mint\e[00m:\e[01;34m~\e[00m$ "
+  - delay: 500
+    content: d
+  - delay: 25
+    content: 'y'
+  - delay: 25
+    content: 'n'
+  - delay: 26
+    content: q
+  - delay: 500
+    content: ' '
+  - delay: 25
+    content: '-'
+  - delay: 26
+    content: '-'
+  - delay: 25
+    content: f
+  - delay: 26
+    content: r
+  - delay: 25
+    content: o
+  - delay: 25
+    content: m
+  - delay: 25
+    content: ' '
+  - delay: 25
+    content: d
+  - delay: 26
+    content: v
+  - delay: 25
+    content: d
+  - delay: 27
+    content: _
+  - delay: 25
+    content: r
+  - delay: 26
+    content: e
+  - delay: 25
+    content: 'n'
+  - delay: 25
+    content: t
+  - delay: 26
+    content: a
+  - delay: 25
+    content: l
+  - delay: 500
+    content: ' '
+  - delay: 25
+    content: '-'
+  - delay: 25
+    content: '-'
+  - delay: 26
+    content: t
+  - delay: 25
+    content: r
+  - delay: 25
+    content: a
+  - delay: 26
+    content: 'n'
+  - delay: 25
+    content: s
+  - delay: 26
+    content: f
+  - delay: 25
+    content: o
+  - delay: 25
+    content: r
+  - delay: 26
+    content: m
+  - delay: 25
+    content: ' '
+  - delay: 26
+    content: .
+  - delay: 25
+    content: e
+  - delay: 26
+    content: 'n'
+  - delay: 25
+    content: t
+  - delay: 25
+    content: i
+  - delay: 26
+    content: t
+  - delay: 25
+    content: 'y'
+  - delay: 500
+    content: ' '
+  - delay: 25
+    content: '-'
+  - delay: 25
+    content: '-'
+  - delay: 26
+    content: p
+  - delay: 25
+    content: r
+  - delay: 25
+    content: u
+  - delay: 26
+    content: 'n'
+  - delay: 25
+    content: e
+  - delay: 26
+    content: ' '
+  - delay: 25
+    content: u
+  - delay: 25
+    content: 'n'
+  - delay: 26
+    content: i
+  - delay: 25
+    content: q
+  - delay: 26
+    content: u
+  - delay: 25
+    content: e
+  - delay: 500
+    content: ' '
+  - delay: 26
+    content: '-'
+  - delay: 25
+    content: '-'
+  - delay: 26
+    content: c
+  - delay: 25
+    content: o
+  - delay: 25
+    content: 'n'
+  - delay: 26
+    content: c
+  - delay: 25
+    content: u
+  - delay: 26
+    content: r
+  - delay: 25
+    content: r
+  - delay: 25
+    content: e
+  - delay: 26
+    content: 'n'
+  - delay: 25
+    content: c
+  - delay: 26
+    content: 'y'
+  - delay: 25
+    content: ' '
+  - delay: 26
+    content: '3'
+  - delay: 500
+    content: "\r\n\e[?2004l\r"
+  - delay: 65
+    content: "\e[2m\e[0m\e[37mSCAN\e[0m\e[2m dvd_rental\e[0m\r\n\e[2m \e[0m\e[31m⠹\e[0m\e[2m 0 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠹\e[0m\e[2m 0 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠹\e[0m\e[2m 0 items scanned\e[0m\r\n\e[2m0 of 0 total items retained\e[0m\r\n"
+  - delay: 30
+    content: "\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[2m\e[0m\e[37mSCAN\e[0m\e[2m dvd_rental\e[0m\r\n\e[2m \e[0m\e[31m⠼\e[0m\e[2m 0 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠼\e[0m\e[2m 0 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠼\e[0m\e[2m 0 items scanned\e[0m\r\n\e[2m0 of 0 total items retained\e[0m\r\n"
+  - delay: 31
+    content: "\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[2m\e[0m\e[37mSCAN\e[0m\e[2m dvd_rental\e[0m\r\n\e[2m \e[0m\e[31m⠶\e[0m\e[2m 0 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠶\e[0m\e[2m 0 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠶\e[0m\e[2m 0 items scanned\e[0m\r\n\e[2m0 of 0 total items retained\e[0m\r\n"
+  - delay: 30
+    content: "\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[2m\e[0m\e[37mSCAN\e[0m\e[2m dvd_rental\e[0m\r\n\e[2m \e[0m\e[31m⠧\e[0m\e[2m 0 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠧\e[0m\e[2m 0 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠧\e[0m\e[2m 0 items scanned\e[0m\r\n\e[2m0 of 0 total items retained\e[0m\r\n"
+  - delay: 30
+    content: "\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[2m\e[0m\e[37mSCAN\e[0m\e[2m dvd_rental\e[0m\r\n\e[2m \e[0m\e[31m⠏\e[0m\e[2m 0 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠏\e[0m\e[2m 0 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠏\e[0m\e[2m 0 items scanned\e[0m\r\n\e[2m0 of 0 total items retained\e[0m\r\n"
+  - delay: 42
+    content: "\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[2m\e[0m\e[37mSCAN\e[0m\e[2m dvd_rental\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 6464 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠛\e[0m\e[2m 0 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠛\e[0m\e[2m 0 items scanned\e[0m\r\n\e[2m0 of 0 total items retained\e[0m\r\n"
+  - delay: 30
+    content: "\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[2m\e[0m\e[37mSCAN\e[0m\e[2m dvd_rental\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 6464 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠹\e[0m\e[2m 0 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠹\e[0m\e[2m 0 items scanned\e[0m\r\n\e[2m0 of 0 total items retained\e[0m\r\n"
+  - delay: 30
+    content: "\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[2m\e[0m\e[37mSCAN\e[0m\e[2m dvd_rental\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 6464 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠼\e[0m\e[2m 0 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠼\e[0m\e[2m 0 items scanned\e[0m\r\n\e[2m0 of 0 total items retained\e[0m\r\n"
+  - delay: 31
+    content: "\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[2m\e[0m\e[37mSCAN\e[0m\e[2m dvd_rental\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 6464 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠶\e[0m\e[2m 0 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠶\e[0m\e[2m 0 items scanned\e[0m\r\n\e[2m6464 of 6464 total items retained\e[0m\r\n"
+  - delay: 30
+    content: "\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[2m\e[0m\e[37mSCAN\e[0m\e[2m dvd_rental\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 6464 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠧\e[0m\e[2m 0 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠧\e[0m\e[2m 0 items scanned\e[0m\r\n\e[2m6464 of 6464 total items retained\e[0m\r\n"
+  - delay: 30
+    content: "\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[2m\e[0m\e[37mSCAN\e[0m\e[2m dvd_rental\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 6464 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠏\e[0m\e[2m 0 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠏\e[0m\e[2m 0 items scanned\e[0m\r\n\e[2m6464 of 6464 total items retained\e[0m\r\n"
+  - delay: 82
+    content: "\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[2m\e[0m\e[37mSCAN\e[0m\e[2m dvd_rental\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 6464 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠛\e[0m\e[2m 0 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠛\e[0m\e[2m 0 items scanned\e[0m\r\n\e[2m6464 of 6464 total items retained\e[0m\r\n"
+  - delay: 30
+    content: "\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[2m\e[0m\e[37mSCAN\e[0m\e[2m dvd_rental\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 6464 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠹\e[0m\e[2m 0 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠹\e[0m\e[2m 0 items scanned\e[0m\r\n\e[2m6464 of 6464 total items retained\e[0m\r\n"
+  - delay: 30
+    content: "\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[2m\e[0m\e[37mSCAN\e[0m\e[2m dvd_rental\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 6464 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠼\e[0m\e[2m 5421 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠼\e[0m\e[2m 0 items scanned\e[0m\r\n\e[2m6464 of 6464 total items retained\e[0m\r\n"
+  - delay: 34
+    content: "\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[2m\e[0m\e[37mSCAN\e[0m\e[2m dvd_rental\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 6464 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠶\e[0m\e[2m 5421 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠶\e[0m\e[2m 0 items scanned\e[0m\r\n\e[2m6464 of 6464 total items retained\e[0m\r\n"
+  - delay: 30
+    content: "\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[2m\e[0m\e[37mSCAN\e[0m\e[2m dvd_rental\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 6464 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠧\e[0m\e[2m 5421 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠧\e[0m\e[2m 0 items scanned\e[0m\r\n\e[2m6464 of 6464 total items retained\e[0m\r\n"
+  - delay: 30
+    content: "\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[2m\e[0m\e[37mSCAN\e[0m\e[2m dvd_rental\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 6464 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠏\e[0m\e[2m 5421 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠏\e[0m\e[2m 0 items scanned\e[0m\r\n\e[2m11885 of 11885 total items retained\e[0m\r\n"
+  - delay: 31
+    content: "\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[2m\e[0m\e[37mSCAN\e[0m\e[2m dvd_rental\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 6464 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠛\e[0m\e[2m 5421 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠛\e[0m\e[2m 0 items scanned\e[0m\r\n\e[2m11885 of 11885 total items retained\e[0m\r\n"
+  - delay: 30
+    content: "\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[2m\e[0m\e[37mSCAN\e[0m\e[2m dvd_rental\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 6464 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠹\e[0m\e[2m 5421 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠹\e[0m\e[2m 0 items scanned\e[0m\r\n\e[2m11885 of 11885 total items retained\e[0m\r\n"
+  - delay: 30
+    content: "\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[2m\e[0m\e[37mSCAN\e[0m\e[2m dvd_rental\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 6464 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠼\e[0m\e[2m 5421 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠼\e[0m\e[2m 0 items scanned\e[0m\r\n\e[2m11885 of 11885 total items retained\e[0m\r\n"
+  - delay: 30
+    content: "\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[2m\e[0m\e[37mSCAN\e[0m\e[2m dvd_rental\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 6464 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠶\e[0m\e[2m 5421 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠶\e[0m\e[2m 0 items scanned\e[0m\r\n\e[2m11885 of 11885 total items retained\e[0m\r\n"
+  - delay: 58
+    content: "\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[2m\e[0m\e[37mSCAN\e[0m\e[2m dvd_rental\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 6464 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠧\e[0m\e[2m 5421 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠧\e[0m\e[2m 4018 items scanned\e[0m\r\n\e[2m11885 of 11885 total items retained\e[0m\r\n"
+  - delay: 30
+    content: "\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[2m\e[0m\e[37mSCAN\e[0m\e[2m dvd_rental\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 6464 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠏\e[0m\e[2m 5421 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠏\e[0m\e[2m 4018 items scanned\e[0m\r\n\e[2m11885 of 11885 total items retained\e[0m\r\n"
+  - delay: 31
+    content: "\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[2m\e[0m\e[37mSCAN\e[0m\e[2m dvd_rental\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 6464 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠛\e[0m\e[2m 5421 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠛\e[0m\e[2m 4018 items scanned\e[0m\r\n\e[2m15903 of 15903 total items retained\e[0m\r\n"
+  - delay: 30
+    content: "\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[2m\e[0m\e[37mSCAN\e[0m\e[2m dvd_rental\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 6464 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠹\e[0m\e[2m 5421 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠹\e[0m\e[2m 4018 items scanned\e[0m\r\n\e[2m15903 of 15903 total items retained\e[0m\r\n"
+  - delay: 30
+    content: "\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[2m\e[0m\e[37mSCAN\e[0m\e[2m dvd_rental\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 6464 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠼\e[0m\e[2m 10719 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠼\e[0m\e[2m 4018 items scanned\e[0m\r\n\e[2m15903 of 15903 total items retained\e[0m\r\n"
+  - delay: 82
+    content: "\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[2m\e[0m\e[37mSCAN\e[0m\e[2m dvd_rental\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 6464 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠶\e[0m\e[2m 10719 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠶\e[0m\e[2m 4018 items scanned\e[0m\r\n\e[2m15903 of 15903 total items retained\e[0m\r\n"
+  - delay: 30
+    content: "\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[2m\e[0m\e[37mSCAN\e[0m\e[2m dvd_rental\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 6464 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠧\e[0m\e[2m 10719 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠧\e[0m\e[2m 4018 items scanned\e[0m\r\n\e[2m15903 of 15903 total items retained\e[0m\r\n"
+  - delay: 30
+    content: "\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[2m\e[0m\e[37mSCAN\e[0m\e[2m dvd_rental\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 6464 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠏\e[0m\e[2m 10719 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠏\e[0m\e[2m 4018 items scanned\e[0m\r\n\e[2m21201 of 21201 total items retained\e[0m\r\n"
+  - delay: 31
+    content: "\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[2m\e[0m\e[37mSCAN\e[0m\e[2m dvd_rental\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 6464 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠛\e[0m\e[2m 10719 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠛\e[0m\e[2m 4018 items scanned\e[0m\r\n\e[2m21201 of 21201 total items retained\e[0m\r\n"
+  - delay: 30
+    content: "\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[2m\e[0m\e[37mSCAN\e[0m\e[2m dvd_rental\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 6464 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠹\e[0m\e[2m 10719 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠹\e[0m\e[2m 4018 items scanned\e[0m\r\n\e[2m21201 of 21201 total items retained\e[0m\r\n"
+  - delay: 30
+    content: "\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[2m\e[0m\e[37mSCAN\e[0m\e[2m dvd_rental\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 6464 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠼\e[0m\e[2m 10719 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠼\e[0m\e[2m 4018 items scanned\e[0m\r\n\e[2m21201 of 21201 total items retained\e[0m\r\n"
+  - delay: 30
+    content: "\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[2m\e[0m\e[37mSCAN\e[0m\e[2m dvd_rental\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 6464 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠶\e[0m\e[2m 10719 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠶\e[0m\e[2m 4018 items scanned\e[0m\r\n\e[2m21201 of 21201 total items retained\e[0m\r\n"
+  - delay: 79
+    content: "\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[2m\e[0m\e[37mSCAN\e[0m\e[2m dvd_rental\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 6464 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠧\e[0m\e[2m 10719 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠧\e[0m\e[2m 10719 items scanned\e[0m\r\n\e[2m21201 of 21201 total items retained\e[0m\r\n"
+  - delay: 30
+    content: "\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[2m\e[0m\e[37mSCAN\e[0m\e[2m dvd_rental\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 6464 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠏\e[0m\e[2m 10719 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠏\e[0m\e[2m 10719 items scanned\e[0m\r\n\e[2m21201 of 21201 total items retained\e[0m\r\n"
+  - delay: 57
+    content: "\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[2m\e[0m\e[37mSCAN\e[0m\e[2m dvd_rental\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 6464 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠛\e[0m\e[2m 15983 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠛\e[0m\e[2m 10719 items scanned\e[0m\r\n\e[2m27902 of 27902 total items retained\e[0m\r\n"
+  - delay: 31
+    content: "\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[2m\e[0m\e[37mSCAN\e[0m\e[2m dvd_rental\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 6464 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠹\e[0m\e[2m 15983 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠹\e[0m\e[2m 10719 items scanned\e[0m\r\n\e[2m27902 of 27902 total items retained\e[0m\r\n"
+  - delay: 30
+    content: "\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[2m\e[0m\e[37mSCAN\e[0m\e[2m dvd_rental\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 6464 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠼\e[0m\e[2m 15983 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠼\e[0m\e[2m 10719 items scanned\e[0m\r\n\e[2m27902 of 27902 total items retained\e[0m\r\n"
+  - delay: 71
+    content: "\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[2m\e[0m\e[37mSCAN\e[0m\e[2m dvd_rental\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 6464 items scanned\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 16361 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠶\e[0m\e[2m 10719 items scanned\e[0m\r\n\e[2m27902 of 27902 total items retained\e[0m\r\n"
+  - delay: 30
+    content: "\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[2m\e[0m\e[37mSCAN\e[0m\e[2m dvd_rental\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 6464 items scanned\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 16361 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠧\e[0m\e[2m 10719 items scanned\e[0m\r\n\e[2m33544 of 33544 total items retained\e[0m\r\n"
+  - delay: 30
+    content: "\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[2m\e[0m\e[37mSCAN\e[0m\e[2m dvd_rental\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 6464 items scanned\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 16361 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠏\e[0m\e[2m 17646 items scanned\e[0m\r\n\e[2m33544 of 33544 total items retained\e[0m\r\n"
+  - delay: 59
+    content: "\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[2m\e[0m\e[37mSCAN\e[0m\e[2m dvd_rental\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 6464 items scanned\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 16361 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠛\e[0m\e[2m 17646 items scanned\e[0m\r\n\e[2m33544 of 33544 total items retained\e[0m\r\n"
+  - delay: 31
+    content: "\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[2m\e[0m\e[37mSCAN\e[0m\e[2m dvd_rental\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 6464 items scanned\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 16361 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠹\e[0m\e[2m 17646 items scanned\e[0m\r\n\e[2m33544 of 33544 total items retained\e[0m\r\n"
+  - delay: 30
+    content: "\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[2m\e[0m\e[37mSCAN\e[0m\e[2m dvd_rental\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 6464 items scanned\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 16361 items scanned\e[0m\r\n\e[2m \e[0m\e[31m⠼\e[0m\e[2m 17646 items scanned\e[0m\r\n\e[2m40471 of 40471 total items retained\e[0m\r\n"
+  - delay: 55
+    content: "\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[2m\e[0m\e[37mSCAN\e[0m\e[2m dvd_rental\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 6464 items scanned\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 16361 items scanned\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 21995 items scanned\e[0m\r\n\e[2m40471 of 40471 total items retained\e[0m\r\n"
+  - delay: 30
+    content: "\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[2m\e[0m\e[37mSCAN\e[0m\e[2m dvd_rental\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 6464 items scanned\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 16361 items scanned\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 21995 items scanned\e[0m\r\n\e[2m44820 of 44820 total items retained\e[0m\r\n"
+  - delay: 31
+    content: "\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[2m\e[0m\e[37mSCAN\e[0m\e[2m dvd_rental\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 6464 items scanned\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 16361 items scanned\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 21995 items scanned\e[0m\r\n\e[2m44820 of 44820 total items retained\e[0m\r\n\e[2mAggregating results\e[0m\r\n"
+  - delay: 28
+    content: "\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[K\e[A\e[2m\e[0m\e[37mSCAN\e[0m\e[2m dvd_rental\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 6464 items scanned\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 16361 items scanned\e[0m\r\n\e[2m \e[0m\e[32m✓\e[0m\e[2m 21995 items scanned\e[0m\r\n\e[2m44820 of 44820 total items retained\e[0m\r\n\e[2mAggregating results\e[0m\r\n\e[1;39m{\r\n  \e[0m\e[34;1m\"meta\"\e[0m\e[1;39m: \e[0m\e[1;39m{\r\n    \e[0m\e[34;1m\"consumedCapacity\"\e[0m\e[1;39m: \e[0m\e[0;39m955\e[0m\e[1;39m,\r\n    \e[0m\e[34;1m\"requestCount\"\e[0m\e[1;39m: \e[0m\e[0;39m9\e[0m\e[1;39m,\r\n    \e[0m\e[34;1m\"scannedCount\"\e[0m\e[1;39m: \e[0m\e[0;39m44820\e[0m\e[1;39m,\r\n    \e[0m\e[34;1m\"hitCount\"\e[0m\e[1;39m: \e[0m\e[0;39m44820\e[0m\e[1;39m\r\n  \e[1;39m}\e[0m\e[1;39m,\r\n  \e[0m\e[34;1m\"content\"\e[0m\e[1;39m: \e[0m\e[1;39m[\r\n    \e[0;32m\"actor\"\e[0m\e[1;39m,\r\n    \e[0;32m\"address\"\e[0m\e[1;39m,\r\n    \e[0;32m\"category\"\e[0m\e[1;39m,\r\n    \e[0;32m\"city\"\e[0m\e[1;39m,\r\n    \e[0;32m\"country\"\e[0m\e[1;39m,\r\n    \e[0;32m\"customer\"\e[0m\e[1;39m,\r\n    \e[0;32m\"film\"\e[0m\e[1;39m,\r\n    \e[0;32m\"film_actor\"\e[0m\e[1;39m,\r\n    \e[0;32m\"film_category\"\e[0m\e[1;39m,\r\n    \e[0;32m\"inventory\"\e[0m\e[1;39m,\r\n    \e[0;32m\"language\"\e[0m\e[1;39m,\r\n    \e[0;32m\"payment\"\e[0m\e[1;39m,\r\n    \e[0;32m\"rental\"\e[0m\e[1;39m,\r\n    \e[0;32m\"staff\"\e[0m\e[1;39m,\r\n    \e[0;32m\"store\"\e[0m\e[1;39m\r\n  \e[1;39m]\e[0m\e[1;39m\r\n\e[1;39m}\e[0m\r\n"

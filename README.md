@@ -8,24 +8,18 @@ and index expansion.
 
 ## Options
 
-#### `-f, --from`(table name)
+####
+
+`-f, --from` (table name)
 
 *Required*
 
 The name of the table containing the requested items; or, if you provide `--index`, the name of the
 table to which that index belongs.
 
-#### `-a, --aggregate` (jq filter)
+####
 
-`jq` filter to transform the complete query result set, after all transformations and exclusions have been
-applied. The output of this filter is returned to the user via the `content` field.
-
-For example, passing `--aggregate length` will result in a `content` value equal to the total hit count of the
-query, assuming no other aggregation filters have been passed.
-
-Incompatible with `--stream` and `--meta-only`.
-
-#### `-c, --concurrency` (integer)
+`-c, --concurrency` (integer)
 
 The number of coroutines to launch when reading from DynamoDB. Defaults to `1`.
 
@@ -37,35 +31,9 @@ For non-scan operations, this option is only applicable if multiple keys have be
 
 Incompatible with `--scan-limit` and `--start-key`.
 
-#### `-C, --content-only`
+####
 
-Return the unwrapped content of the query output.
-
-Incompatible with `--meta-only`.
-
-#### `--colorize`
-
-Colorize JSON output. Enabled by default when destination is a TTY.
-
-#### `--compact`
-
-Compact instead of pretty-printed output.
-
-#### `--consistent-read`
-
-Guarantees that all writes completed before the query began will be processable.
-
-#### `-e, --endpoint-url` (url)
-
-Send DynamoDB requests to the given URL.
-
-#### `-g, --rearrange-attrs`
-
-Sort keys of objects on output.
-
-Incompatible with `--meta-only`.
-
-#### `-i, --index` (index name)
+`-i, --index` (index name)
 
 The name of a global secondary index to query.
 
@@ -73,87 +41,74 @@ Requires `--partition-key`.
 
 Incompatible with `--consitent-read`.
 
-#### `-I, --items-per-request` (integer)
+####
 
-The maximum number of items scanned per DynamoDB request.
+`-x, --expand`
 
-#### `-k, --start-key` (jq filter)
+Retrieve non-projected attributes from the primary table when querying a global index.
 
-`jq` filter producing the last evaluated key from a previous DynamoDB scan or query operation. When applicable,
-`dynq` will return the last evaluated key of any such operations via the `meta.lastEvaluatedKey` field.
+Requires `--partition-key` and `--index`.
 
-If a partition key has been passed via the `--partition-key` option, then this filter may only produce the sort key.
+####
 
-Incompatible with `--sort-key` and `--concurrency`.
+`-s, --select` (projection expression)
 
-#### `-l, --limit` (integer)
+A comma-separated set of attribute names to retrieve. Equivalent to the DynamoDB `--projection-expression` option.
 
-The maximum number of DynamoDB items to retain after selection.
+Can improve performance of queries.
 
-Note that `meta.lastEvaluatedKey` will not be returned when this option is given.
+####
 
-#### `-L, --scan-limit` (integer)
+`-s, --stream`
 
-The maximum number of DynamoDB items to scan across one or more requests.
+Incrementally write items to stdout.
 
-Unlike `--limit`, `meta.lastEvaluatedKey` may be returned when this option is given.
+Incompatible with `--aggregate`, `--reduce` and `--meta-only`.
 
-#### `-M, --meta-only`
+####
 
-Return the unwrapped metadata of the query output. Can be used when only the total number of hits is needed.
+`--consistent-read`
 
-Incompatible with `--content-only`, `--transform`, `--aggregate`, `--prune`, `--reduce`, `--rearrange-attrs`
-and `stream`.
+Guarantees that all writes completed before the query began will be processable.
 
-#### `--max-heap-size` (integer)
+####
 
-Heap memory limit in megabytes. The query will terminate and its results will be returned when this threshold is
-approached.
+`-e, --endpoint-url` (url)
 
-#### `--monochrome`
+Send DynamoDB requests to the given URL.
 
-Do not colorize JSON output. Enabled by default if destination is not a TTY.
+####
 
-Incompatible with `--colorize`.
+`-p, --profile` (aws profile)
 
-#### `--partition-key, -P` (jq filter)
+Profile to use from your AWS credentials file.
+
+####
+
+`-R, --region` (aws region)
+
+The AWS region to use. Overrides config/env settings.
+
+### Selection filters
+
+####
+
+`-w, --where` (jq filter)
+
+`jq` predicate filter to select/discard items. Equivalent to `jq` `select(f)` function.
+
+####
+
+`--partition-key, -P` (jq filter)
 
 `jq` filter producing one or more partition keys.
 
 The output must be an object containing a single key (the partition key attribute name), the value of which must be a
 string, number, or array of either. An array may be used to query multiple partition keys in a single operation.
 
-#### `-p, --profile` (aws profile)
+####
 
-Profile to use from your AWS credentials file.
-
-#### `-Q, --request-limit` (integer)
-
-The maximum number of requests to send to DynamoDB per coroutine.
-
-#### `q, --quiet`
-
-Only write to stderr when an error is encountered.
-
-#### `-r, --reduce` (starting value) (jq filter)
-
-Reduce items using the given starting value and `jq` filter, with items assigned to `$item`.
-
-Equivalent to `jq` `reduce .[] as $item (<starting value>; <jq filter>)`
-
-Incompatible with `--stream`, `--prune` and `--meta-only`.
-
-#### `-R, --region` (aws region)
-
-The AWS region to use. Overrides config/env settings.
-
-#### `-s, --select` (projection expression)
-
-A comma-separated set of attribute names to retrieve. Equivalent to the DynamoDB `--projection-expression` option.
-
-Can improve performance of queries.
-
-#### `-S, --sort-key` (jq filter)
+`-S, --sort-key` (jq filter)
 
 `jq` filter producing one or more discrete sort keys, or a sort key range.
 
@@ -177,24 +132,49 @@ Requires `--partition-key`.
 
 Incompatible with `--start-key`.
 
-#### `-s, --stream`
+####
 
-Incrementally write items to stdout.
+`-k, --start-key` (jq filter)
 
-Incompatible with `--aggregate`, `--reduce` and `--meta-only`.
+`jq` filter producing the last evaluated key from a previous DynamoDB scan or query operation. When applicable,
+`dynq` will return the last evaluated key of any such operations via the `meta.lastEvaluatedKey` field.
 
-#### `-T, --pretransform` (jq filter)
+If a partition key has already been passed via the `--partition-key` option, then this filter omit it from its output.
 
-`jq` filter to transform each individual item, as returned from DynamoDB. Executes before the `--where` selection
-filter.
+Incompatible with `--sort-key` and `--concurrency`.
 
-#### `-t, --transform` (jq filter)
+### Transformation filters
+
+####
+
+`-t, --transform` (jq filter)
 
 `jq` filter to transform individual items. Executes after the `--where` selection filter.
 
 Incompatible with `--meta-only`.
 
-#### `-u, --prune` (jq filter)
+####
+
+`-T, --pretransform` (jq filter)
+
+`jq` filter to transform each individual item, as returned from DynamoDB. Executes before the `--where` selection
+filter.
+
+####
+
+`-a, --aggregate` (jq filter)
+
+`jq` filter to transform the complete query result set, after all transformations and exclusions have been
+applied. The output of this filter is returned to the user via the `content` field.
+
+For example, passing `--aggregate length` will result in a `content` value equal to the total hit count of the
+query, assuming no other aggregation filters have been passed.
+
+Incompatible with `--stream` and `--meta-only`.
+
+####
+
+`-u, --prune` (jq filter)
 
 `jq` filter to transform the cumulative result set, executed after each request to DynamoDB. Must return an array.
 
@@ -204,12 +184,102 @@ Where possible, it should be used over `--aggregate` for high-volume queries to 
 
 Incompatible with `--meta-only`
 
-#### `-w, --where` (jq filter)
+####
 
-`jq` predicate filter to select/discard items. Equivalent to `jq` `select(f)` function.
+`-r, --reduce` (starting value) (jq filter)
 
-#### `-x, --expand`
+Reduce items using the given starting value and `jq` filter, with items assigned to `$item`.
 
-Retrieve non-projected attributes from the primary table when querying a global index.
+Equivalent to `jq` `reduce .[] as $item (<starting value>; <jq filter>)`
 
-Requires `--partition-key` and `--index`.
+Incompatible with `--stream`, `--prune` and `--meta-only`.
+
+### Limits
+
+####
+
+`-l, --limit` (integer)
+
+The maximum number of DynamoDB items to retain after selection.
+
+Note that `meta.lastEvaluatedKey` will not be returned when this option is given.
+
+####
+
+`-L, --scan-limit` (integer)
+
+The maximum number of DynamoDB items to scan across one or more requests.
+
+Unlike `--limit`, `meta.lastEvaluatedKey` may be returned when this option is given.
+
+####
+
+`-Q, --request-limit` (integer)
+
+The maximum number of requests to send to DynamoDB per coroutine.
+
+####
+
+`-I, --items-per-request` (integer)
+
+The maximum number of items scanned per DynamoDB request.
+
+####
+
+`--max-heap-size` (integer)
+
+Heap memory limit in megabytes. The query will terminate and its results will be returned when this threshold is
+approached.
+
+### Output flags
+
+####
+
+`-C, --content-only`
+
+Return only the content of the query output.
+
+Incompatible with `--meta-only`.
+
+####
+
+`-M, --meta-only`
+
+Return only the metadata of the query output.
+
+Incompatible with `--content-only`, `--transform`, `--aggregate`, `--prune`, `--reduce`, `--rearrange-attrs`
+and `stream`.
+
+####
+
+`-q, --quiet`
+
+Only write to stderr when an error is encountered.
+
+####
+
+`--colorize`
+
+Colorize JSON output. Enabled by default when destination is a TTY.
+
+####
+
+`--monochrome`
+
+Do not colorize JSON output. Enabled by default if destination is not a TTY.
+
+Incompatible with `--colorize`.
+
+####
+
+`--compact`
+
+Compact instead of pretty-printed output.
+
+####
+
+`-g, --rearrange-attrs`
+
+Sort keys of objects on output.
+
+Incompatible with `--meta-only`.

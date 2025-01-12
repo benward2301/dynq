@@ -17,16 +17,8 @@ sealed class KeyMatcher {
         val gte: AttributeValue?,
         val lt: AttributeValue?,
         val lte: AttributeValue?,
-        val bw: AttributeValue?
-    ) : KeyMatcher() {
-
-        fun between(): Pair<AttributeValue, AttributeValue>? {
-            if (gte == null || lte == null) {
-                return null
-            }
-            return Pair(gte, lte)
-        }
-
-    }
+        val beginsWith: AttributeValue?,
+        val between: Pair<AttributeValue, AttributeValue>?
+    ) : KeyMatcher()
 
 }

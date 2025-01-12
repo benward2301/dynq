@@ -142,17 +142,17 @@ private fun buildMultiItemQuery(
         val sortOperator: String
         val sortOperand: AttributeValue
 
-        val between = sortKey.between()
+        val between = sortKey.between
         if (between != null) {
             sortExpr = "$SORT_KEY_NAME_TOKEN BETWEEN $SORT_KEY_VALUE_TOKEN AND $SORT_KEY_AUX_VALUE_TOKEN"
             sortOperand = between.first
             exprAttrValues[SORT_KEY_AUX_VALUE_TOKEN] = between.second
-        } else if (sortKey.bw != null) {
-            if (sortKey.bw.type() == AttributeValue.Type.S) {
+        } else if (sortKey.beginsWith != null) {
+            if (sortKey.beginsWith.type() == AttributeValue.Type.S) {
                 sortExpr = "begins_with($SORT_KEY_NAME_TOKEN, $SORT_KEY_VALUE_TOKEN)"
-                sortOperand = sortKey.bw
+                sortOperand = sortKey.beginsWith
             } else {
-                throw Exception("beg operand must be a string")
+                throw Exception("bw operand must be a string")
             }
         } else {
             if (sortKey.gte != null) {

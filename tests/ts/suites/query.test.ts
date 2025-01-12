@@ -240,7 +240,7 @@ test('partition key category, sort key < 4 -> first three categories', async () 
 test('partition key category, 4 <= sort key <= 6 -> category#4:7', async () => {
   const { content } = await new ReadCommand()
       .partitionKey('.entity = "category"')
-      .sortKey('.id = { gte: 4, lte: 6 }')
+      .sortKey('.id.between = [4, 6]')
       .execute()
       .parse();
   assert.deepEqual(

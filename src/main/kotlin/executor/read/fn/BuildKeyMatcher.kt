@@ -42,7 +42,9 @@ private fun buildKeyMatcher(filter: String?): KeyMatcher? {
             gte = map["greater_than_or_equals"] ?: map["gte"],
             lt = map["less_than"] ?: map["lt"],
             lte = map["less_than_or_equals"] ?: map["lte"],
-            bw = map["begins_with"] ?: map["bw"]
+            beginsWith = map["begins_with"],
+            between = map["between"]?.l()
+                ?.let { Pair(it[0], it[1]) }
         )
     }
 

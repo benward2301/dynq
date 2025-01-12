@@ -7,6 +7,7 @@ import dynq.cli.route.CommandBinding
 import dynq.cli.route.dispatchCommandLine
 import dynq.cli.route.registerCommand
 import dynq.executor.read.executeRead
+import kotlinx.coroutines.runBlocking
 import kotlin.system.exitProcess
 
 const val PROGRAM_NAME = "dynq"
@@ -22,7 +23,7 @@ fun main(args: Array<String>) {
         dispatchCommandLine(args)
     } catch (e: Exception) {
         err(e.message!!)
-        LogEntry.close()
+        runBlocking { LogEntry.close() }
         exitProcess(1)
     }
 }

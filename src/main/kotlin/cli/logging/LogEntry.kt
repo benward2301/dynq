@@ -1,10 +1,7 @@
 package dynq.cli.logging
 
 import dynq.cli.route.CommandBinding
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import org.jline.terminal.TerminalBuilder
 import org.jline.utils.InfoCmp
 import java.util.*
@@ -37,12 +34,10 @@ class LogEntry private constructor(
         private val spinners = arrayOf('⠹', '⠼', '⠶', '⠧', '⠏', '⠛')
         private var ticks = 0
 
-        init {
-            CoroutineScope(Dispatchers.Default).launch {
-                while (true) {
-                    delay(30)
-                    render()
-                }
+        private val rendering = CoroutineScope(Dispatchers.Default).launch {
+            while (true) {
+                delay(30)
+                render()
             }
         }
 
@@ -68,9 +63,10 @@ class LogEntry private constructor(
             entries.forEach { it.content = fn(it.content) }
         }
 
-        fun close() {
+        suspend fun close() {
             render()
             enabled = false
+            rendering.cancelAndJoin()
         }
 
         private fun clear() {

@@ -5,7 +5,6 @@ import cli.logging.fmt.formatProgressMessage
 import dynq.cli.command.ReadCommand
 import cli.logging.fmt.formatRequestOp
 import dynq.cli.logging.*
-import dynq.ddb.model.GetItemKey
 import dynq.ddb.model.Key
 import dynq.ddb.model.KeyMember
 import dynq.executor.read.model.KeyMatcher
@@ -59,17 +58,21 @@ suspend fun getItems(
 
 private fun buildGetItemRequest(
     command: ReadCommand,
-    key: GetItemKey
+    key: Key
 ): GetItemRequest {
+
     return GetItemRequest.builder()
         .tableName(command.tableName())
         .returnConsumedCapacity(ReturnConsumedCapacity.TOTAL)
         .consistentRead(command.consistentRead())
         .key(
-            mapOf(
-                Pair(key.partition.name, key.partition.value),
-                Pair(key.sort.name, key.sort.value),
-            )
+            mutableMapOf(
+                Pair(key.partition.name, key.partition.value)
+            ).also {
+                if (key.sort != null) {
+                    it[key.sort.name] = key.sort.value
+                }
+            }
         ).apply { sanitizeProjectionExpression(command.projectionExpression()).applyTo(this) }
         .build()
 }

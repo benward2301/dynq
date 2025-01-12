@@ -4,9 +4,9 @@ import dynq.cli.command.ReadCommand
 import dynq.cli.logging.*
 import cli.logging.fmt.formatKey
 import cli.logging.fmt.formatRequestOp
+import dynq.ddb.model.Key
 import dynq.ddb.model.KeyMember
 import dynq.ddb.model.PaginatedResponse
-import dynq.ddb.model.QueryKey
 import dynq.executor.read.model.KeyMatcher
 import dynq.executor.read.model.RawReadOutput
 import kotlinx.coroutines.channels.Channel
@@ -66,19 +66,19 @@ suspend fun query(
 private fun buildKeys(
     partitionMatcher: KeyMatcher.Discrete,
     sortMatcher: KeyMatcher?
-): List<QueryKey> {
+): List<Key> {
     return partitionMatcher.values.flatMap { partitionKeyValue ->
         val partitionKey = KeyMember(partitionMatcher.name, partitionKeyValue)
         if (sortMatcher is KeyMatcher.Discrete) {
             sortMatcher.values.map { sortKeyValue ->
-                QueryKey(
+                Key(
                     partitionKey,
                     KeyMember(sortMatcher.name, sortKeyValue)
                 )
             }
         } else {
             listOf(
-                QueryKey(partitionKey, null)
+                Key(partitionKey, null)
             )
         }
     }
@@ -86,7 +86,7 @@ private fun buildKeys(
 
 private fun buildQueryBase(
     command: ReadCommand,
-    key: QueryKey,
+    key: Key,
     sortMatcher: KeyMatcher?
 ): QueryRequest.Builder {
     if (key.sort == null) {
@@ -107,7 +107,6 @@ private fun buildQueryBase(
     }
 }
 
-// TODO use src/main/kotlin/ddb/model/Key.kt
 private fun buildSingleItemQuery(
     command: ReadCommand,
     partitionKeyName: String,
@@ -127,7 +126,6 @@ private fun buildSingleItemQuery(
         )
 }
 
-// TODO use src/main/kotlin/ddb/model/Key.kt
 private fun buildMultiItemQuery(
     command: ReadCommand,
     partitionKeyName: String,

@@ -2,12 +2,9 @@ package dynq.ddb.model
 
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue
 
-typealias QueryKey = Key<KeyMember?>
-typealias GetItemKey = Key<KeyMember>
-
-data class Key<S : KeyMember?>(
+data class Key(
     val partition: KeyMember,
-    val sort: S
+    val sort: KeyMember?
 )
 
 data class KeyMember(

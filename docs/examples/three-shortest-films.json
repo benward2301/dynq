@@ -1,0 +1,74 @@
+{
+  "meta": {
+    "consumedCapacity": 62,
+    "requestCount": 1,
+    "scannedCount": 1000,
+    "hitCount": 1000
+  },
+  "content": [
+    {
+      "special_features": [
+        "Trailers",
+        "Commentaries",
+        "Behind the Scenes"
+      ],
+      "rental_duration": 5,
+      "rental_rate": 2.99,
+      "release_year": 2006,
+      "length": 46,
+      "replacement_cost": 10.99,
+      "rating": "NC-17",
+      "description": "A Brilliant Drama of a Cat And a Mad Scientist who must Battle a Feminist in A MySQL Convention",
+      "language_id": 1,
+      "title": "Alien Center",
+      "uuid": "7da6184c-64c2-11ef-95f8-bf0d91fc87a6",
+      "last_update": "2013-05-26T14:50:58.951",
+      "fulltext": "'alien':1 'battl':15 'brilliant':4 'cat':8 'center':2 'convent':21 'drama':5 'feminist':17 'mad':11 'must':14 'mysql':20 'scientist':12",
+      "film_id": 15,
+      "id": 15,
+      "entity": "film"
+    },
+    {
+      "special_features": [
+        "Commentaries",
+        "Behind the Scenes"
+      ],
+      "rental_duration": 7,
+      "rental_rate": 4.99,
+      "release_year": 2006,
+      "length": 46,
+      "replacement_cost": 27.99,
+      "rating": "PG",
+      "description": "A Fast-Paced Documentary of a Mad Cow And a Boy who must Pursue a Dentist in A Baloon",
+      "language_id": 1,
+      "title": "Iron Moon",
+      "uuid": "f6d25884-64c2-11ef-860f-af9fcf618606",
+      "last_update": "2013-05-26T14:50:58.951",
+      "fulltext": "'baloon':22 'boy':14 'cow':11 'dentist':19 'documentari':7 'fast':5 'fast-pac':4 'iron':1 'mad':10 'moon':2 'must':16 'pace':6 'pursu':17",
+      "film_id": 469,
+      "id": 469,
+      "entity": "film"
+    },
+    {
+      "special_features": [
+        "Trailers",
+        "Commentaries"
+      ],
+      "rental_duration": 5,
+      "rental_rate": 0.99,
+      "release_year": 2006,
+      "length": 46,
+      "replacement_cost": 25.99,
+      "rating": "PG-13",
+      "description": "A Amazing Drama of a Car And a Squirrel who must Pursue a Car in Soviet Georgia",
+      "language_id": 1,
+      "title": "Kwai Homeward",
+      "uuid": "0001075c-64c3-11ef-ab3e-27885bd0e4c0",
+      "last_update": "2013-05-26T14:50:58.951",
+      "fulltext": "'amaz':4 'car':8,16 'drama':5 'georgia':19 'homeward':2 'kwai':1 'must':13 'pursu':14 'soviet':18 'squirrel':11",
+      "film_id": 504,
+      "id": 504,
+      "entity": "film"
+    }
+  ]
+}

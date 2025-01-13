@@ -1,0 +1,31 @@
+{
+  "meta": {
+    "consumedCapacity": 62,
+    "requestCount": 1,
+    "scannedCount": 1000,
+    "hitCount": 1
+  },
+  "content": [
+    {
+      "special_features": [
+        "Trailers",
+        "Deleted Scenes"
+      ],
+      "rental_duration": 3,
+      "rental_rate": 4.99,
+      "release_year": 2006,
+      "length": 48,
+      "replacement_cost": 12.99,
+      "rating": "G",
+      "description": "A Astounding Epistle of a Database Administrator And a Explorer who must Find a Car in Ancient China",
+      "language_id": 1,
+      "title": "Ace Goldfinger",
+      "uuid": "7a27332c-64c2-11ef-b573-672142cf059e",
+      "last_update": "2013-05-26T14:50:58.951",
+      "fulltext": "'ace':1 'administr':9 'ancient':19 'astound':4 'car':17 'china':20 'databas':8 'epistl':5 'explor':12 'find':15 'goldfing':2 'must':14",
+      "film_id": 2,
+      "id": 2,
+      "entity": "film"
+    }
+  ]
+}

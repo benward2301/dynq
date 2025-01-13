@@ -8,18 +8,18 @@ and index expansion.
 
 ## Options
 
-####
+#### `-f, --from`
 
-`-f, --from` (table name)
+(table name)
 
 *Required*
 
 The name of the table containing the requested items; or, if you provide `--index`, the name of the
 table to which that index belongs.
 
-####
+#### `-c, --concurrency`
 
-`-c, --concurrency` (integer)
+(integer)
 
 The number of coroutines to launch when reading from DynamoDB. Defaults to `1`.
 
@@ -31,9 +31,9 @@ For non-scan operations, this option is only applicable if multiple keys have be
 
 Incompatible with `--scan-limit` and `--start-key`.
 
-####
+#### `-i, --index`
 
-`-i, --index` (index name)
+(index name)
 
 The name of a global secondary index to query.
 
@@ -41,74 +41,68 @@ Requires `--partition-key`.
 
 Incompatible with `--consitent-read`.
 
-####
-
-`-x, --expand`
+#### `-x, --expand`
 
 Retrieve non-projected attributes from the primary table when querying a global index.
 
 Requires `--partition-key` and `--index`.
 
-####
+#### `-s, --select`
 
-`-s, --select` (projection expression)
+(projection expression)
 
 A comma-separated set of attribute names to retrieve. Equivalent to the DynamoDB `--projection-expression` option.
 
 Can improve performance of queries.
 
-####
-
-`-s, --stream`
+#### `-s, --stream`
 
 Incrementally write items to stdout.
 
 Incompatible with `--aggregate`, `--reduce` and `--meta-only`.
 
-####
-
-`--consistent-read`
+#### `--consistent-read`
 
 Guarantees that all writes completed before the query began will be processable.
 
-####
+#### `-e, --endpoint-url`
 
-`-e, --endpoint-url` (url)
+(url)
 
 Send DynamoDB requests to the given URL.
 
-####
+#### `-p, --profile`
 
-`-p, --profile` (aws profile)
+(aws profile)
 
 Profile to use from your AWS credentials file.
 
-####
+#### `-R, --region`
 
-`-R, --region` (aws region)
+(aws region)
 
 The AWS region to use. Overrides config/env settings.
 
 ### Selection filters
 
-####
+#### `-w, --where`
 
-`-w, --where` (jq filter)
+(jq filter)
 
 `jq` predicate filter to select/discard items. Equivalent to `jq` `select(f)` function.
 
-####
+#### `--partition-key, -P`
 
-`--partition-key, -P` (jq filter)
+(jq filter)
 
 `jq` filter producing one or more partition keys.
 
 The output must be an object containing a single key (the partition key attribute name), the value of which must be a
 string, number, or array of either. An array may be used to query multiple partition keys in a single operation.
 
-####
+#### `-S, --sort-key`
 
-`-S, --sort-key` (jq filter)
+(jq filter)
 
 `jq` filter producing one or more discrete sort keys, or a sort key range.
 
@@ -117,24 +111,25 @@ The output must be an object containing a single key (the partition key attribut
 To target specific items, the value must be a string, number or array of either, as with the `--partition-key` option,
 or a nested object with a single key `eq` or `equals` and aforementioned value.
 
-To target a range of items, the value must be an object with one of the following keys:
+To target a range of items, the value must be an object with exactly one of the following operator keys:
 
 - `lt` or `less_than`
 - `lte` or `less_than_or_equals`
 - `gt` or `greater_than`
 - `gte` or `greater_than_or_equals`
-- `bw` or `begins_with`
+- `begins_with`
+- `between`
 
-The nested value must be a string or number. A lower bound `gt(e)` and upper bound `lt(e)` may both be
-passed.
+Operands must be a string or number. Each operator expects a single operand, except `between` which expects an array
+containing a lower and upper bound (both inclusive).
 
 Requires `--partition-key`.
 
 Incompatible with `--start-key`.
 
-####
+#### `-k, --start-key`
 
-`-k, --start-key` (jq filter)
+(jq filter)
 
 `jq` filter producing the last evaluated key from a previous DynamoDB scan or query operation. When applicable,
 `dynq` will return the last evaluated key of any such operations via the `meta.lastEvaluatedKey` field.
@@ -145,36 +140,33 @@ Incompatible with `--sort-key` and `--concurrency`.
 
 ### Transformation filters
 
-####
+#### `-t, --transform`
 
-`-t, --transform` (jq filter)
+(jq filter)
 
 `jq` filter to transform individual items. Executes after the `--where` selection filter.
 
 Incompatible with `--meta-only`.
 
-####
+#### `-T, --pretransform`
 
-`-T, --pretransform` (jq filter)
+(jq filter)
 
 `jq` filter to transform each individual item, as returned from DynamoDB. Executes before the `--where` selection
 filter.
 
-####
+#### `-a, --aggregate`
 
-`-a, --aggregate` (jq filter)
+(jq filter)
 
 `jq` filter to transform the complete query result set, after all transformations and exclusions have been
 applied. The output of this filter is returned to the user via the `content` field.
 
-For example, passing `--aggregate length` will result in a `content` value equal to the total hit count of the
-query, assuming no other aggregation filters have been passed.
-
 Incompatible with `--stream` and `--meta-only`.
 
-####
+#### `-u, --prune`
 
-`-u, --prune` (jq filter)
+(jq filter)
 
 `jq` filter to transform the cumulative result set, executed after each request to DynamoDB. Must return an array.
 
@@ -184,9 +176,9 @@ Where possible, it should be used over `--aggregate` for high-volume queries to 
 
 Incompatible with `--meta-only`
 
-####
+#### `-r, --reduce`
 
-`-r, --reduce` (starting value) (jq filter)
+(starting value) (jq filter)
 
 Reduce items using the given starting value and `jq` filter, with items assigned to `$item`.
 
@@ -196,90 +188,203 @@ Incompatible with `--stream`, `--prune` and `--meta-only`.
 
 ### Limits
 
-####
+#### `-l, --limit`
 
-`-l, --limit` (integer)
+(integer)
 
 The maximum number of DynamoDB items to retain after selection.
 
 Note that `meta.lastEvaluatedKey` will not be returned when this option is given.
 
-####
+#### `-L, --scan-limit`
 
-`-L, --scan-limit` (integer)
+(integer)
 
 The maximum number of DynamoDB items to scan across one or more requests.
 
 Unlike `--limit`, `meta.lastEvaluatedKey` may be returned when this option is given.
 
-####
+#### `-Q, --request-limit`
 
-`-Q, --request-limit` (integer)
+(integer)
 
 The maximum number of requests to send to DynamoDB per coroutine.
 
-####
+#### `-I, --items-per-request`
 
-`-I, --items-per-request` (integer)
+(integer)
 
 The maximum number of items scanned per DynamoDB request.
 
-####
+#### `--max-heap-size`
 
-`--max-heap-size` (integer)
+(integer)
 
 Heap memory limit in megabytes. The query will terminate and its results will be returned when this threshold is
 approached.
 
 ### Output flags
 
-####
-
-`-C, --content-only`
+#### `-C, --content-only`
 
 Return only the content of the query output.
 
 Incompatible with `--meta-only`.
 
-####
-
-`-M, --meta-only`
+#### `-M, --meta-only`
 
 Return only the metadata of the query output.
 
 Incompatible with `--content-only`, `--transform`, `--aggregate`, `--prune`, `--reduce`, `--rearrange-attrs`
 and `stream`.
 
-####
-
-`-q, --quiet`
+#### `-q, --quiet`
 
 Only write to stderr when an error is encountered.
 
-####
-
-`--colorize`
+#### `--colorize`
 
 Colorize JSON output. Enabled by default when destination is a TTY.
 
-####
-
-`--monochrome`
+#### `--monochrome`
 
 Do not colorize JSON output. Enabled by default if destination is not a TTY.
 
 Incompatible with `--colorize`.
 
-####
-
-`--compact`
+#### `--compact`
 
 Compact instead of pretty-printed output.
 
-####
-
-`-g, --rearrange-attrs`
+#### `-g, --rearrange-attrs`
 
 Sort keys of objects on output.
 
 Incompatible with `--meta-only`.
+
+## Examples
+
+The examples below are run against a single-table conversion of
+the [PostgreSQL DVD rental sample database](docs/dvdrental-er.pdf).
+
+#### Find a `film` with a `G rating`
+
+```shell
+dynq --from dvd_rental \
+  --partition-key '.entity = "film"' \
+  --where '.rating == "G"' \
+  --limit 1
+```
+
+[Output](docs/examples/g-rated-film.json)
+
+> [!TIP]  
+> The `--partition-key` filter above uses assignment to produce an object, however a JSON or JSON5 object
+> literal may be used instead:
+>
+> ```shell
+> --partition-key: '{ entity: "film" }'
+> ```
+
+#### Calculate total `amount` of `payments` in `2007-03`
+
+```shell
+dynq --from dvd_rental \
+  --partition-key '.entity = "payment"' \
+  --where '.payment_date | startswith("2007-03")' \
+  --transform '.amount' \
+  --aggregate 'add'
+```
+
+[Output](docs/examples/total-amount-paid-2007-03.json)
+
+#### Calculate average `payment amount`
+
+```shell
+dynq --from dvd_rental \
+  --partition-key '.entity = "payment"' \
+  --transform .amount \
+  --aggregate 'add / length'
+```
+
+[Output](docs/examples/average-payment-amount.json)
+
+> [!TIP]
+>
+> For large datasets, `--reduce` can be used in conjunction with `--aggregate`:
+>
+> ```shell
+> dynq --from dvd_rental \
+>   --partition-key '.entity = "payment"' \
+>   --reduce 0 '. + $item.amount' \
+>   --aggregate '. / $count'
+> ```
+
+#### Find the `film` with the longest `length`
+
+```shell
+dynq --from dvd_rental \
+  --partition-key '.entity = "film"' \
+  --prune '[max_by(.id)]'
+```
+
+[Output](docs/examples/longest-film.json)
+
+#### Find the three `films` with the shortest `length`
+
+```shell
+dynq --from dvd_rental \
+  --partition-key '.entity = "film"' \
+  --prune 'sort_by(.length)[:3]'
+```
+
+[Output](docs/examples/three-shortest-films.json)
+
+#### Count `films` by `rating`
+
+```shell
+dynq --from dvd_rental \
+  --partition-key '.entity = "film"' \
+  --reduce '{}' '.[$item.rating] += 1'
+```
+
+[Output](docs/examples/film-count-by-rating.json)
+
+#### Find `inventory` for `film_id 1` using the `film_id` index
+
+```shell
+dynq --from dvd_rental \
+  --partition-key '.film_id = 1' \
+  --where '.entity == "inventory"' \
+  --index 'film_id' \
+  --expand
+```
+
+[Output](docs/examples/film_1_inventory.json)
+
+####       
+
+#### Scan from `rental 1`
+
+```shell
+dynq --from dvd_rental \
+  --start-key '{ entity: "rental", id: 1 }'
+```
+
+#### Get `films` up to `film 100`
+
+```shell
+dynq --from dvd_rental \
+  --partition-key '.entity = "film"' \
+  --sort-key '.id.less_than = 100'
+```
+
+#### Find everyone named `Jon`
+
+```shell
+dynq --from dvd_rental \
+  --partition-key '.entity = ["staff", "customer", "actor"]' \
+  --where '.first_name == "Jon"'
+```
+
+[Output](docs/examples/jons.json)

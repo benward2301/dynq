@@ -1,0 +1,82 @@
+{
+  "meta": {
+    "consumedCapacity": 10.5,
+    "requestCount": 2,
+    "scannedCount": 20,
+    "hitCount": 8
+  },
+  "content": [
+    {
+      "store_id": 1,
+      "inventory_id": 3,
+      "last_update": "2006-02-15T10:09:17",
+      "film_id": 1,
+      "id": 3,
+      "uuid": "f2fe83c2-65a3-11ef-8733-3f5eb4fb8a75",
+      "entity": "inventory"
+    },
+    {
+      "store_id": 1,
+      "inventory_id": 2,
+      "last_update": "2006-02-15T10:09:17",
+      "film_id": 1,
+      "id": 2,
+      "uuid": "f2bc1e24-65a3-11ef-b70c-cfc79450f0af",
+      "entity": "inventory"
+    },
+    {
+      "store_id": 1,
+      "inventory_id": 4,
+      "last_update": "2006-02-15T10:09:17",
+      "film_id": 1,
+      "id": 4,
+      "uuid": "f3405e78-65a3-11ef-92f8-8b0c3335f57f",
+      "entity": "inventory"
+    },
+    {
+      "store_id": 2,
+      "inventory_id": 7,
+      "last_update": "2006-02-15T10:09:17",
+      "film_id": 1,
+      "id": 7,
+      "uuid": "f40983de-65a3-11ef-8394-eb4951a6a0fe",
+      "entity": "inventory"
+    },
+    {
+      "store_id": 1,
+      "inventory_id": 1,
+      "last_update": "2006-02-15T10:09:17",
+      "film_id": 1,
+      "id": 1,
+      "uuid": "f27a04f8-65a3-11ef-9f86-dbcc3aba1862",
+      "entity": "inventory"
+    },
+    {
+      "store_id": 2,
+      "inventory_id": 5,
+      "last_update": "2006-02-15T10:09:17",
+      "film_id": 1,
+      "id": 5,
+      "uuid": "f382ef4a-65a3-11ef-a89d-1ba73cbad458",
+      "entity": "inventory"
+    },
+    {
+      "store_id": 2,
+      "inventory_id": 8,
+      "last_update": "2006-02-15T10:09:17",
+      "film_id": 1,
+      "id": 8,
+      "uuid": "f44c9d72-65a3-11ef-bdd2-e71a72506cfa",
+      "entity": "inventory"
+    },
+    {
+      "store_id": 2,
+      "inventory_id": 6,
+      "last_update": "2006-02-15T10:09:17",
+      "film_id": 1,
+      "id": 6,
+      "uuid": "f3c54908-65a3-11ef-ba5f-2b3ab0cc6f09",
+      "entity": "inventory"
+    }
+  ]
+}

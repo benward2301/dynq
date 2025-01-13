@@ -1,0 +1,15 @@
+{
+  "meta": {
+    "consumedCapacity": 62,
+    "requestCount": 1,
+    "scannedCount": 1000,
+    "hitCount": 1000
+  },
+  "content": {
+    "PG": 194,
+    "G": 178,
+    "NC-17": 210,
+    "PG-13": 223,
+    "R": 195
+  }
+}

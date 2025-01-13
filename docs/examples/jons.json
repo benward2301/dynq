@@ -1,0 +1,50 @@
+{
+  "meta": {
+    "consumedCapacity": 40.5,
+    "requestCount": 3,
+    "scannedCount": 801,
+    "hitCount": 3
+  },
+  "content": [
+    {
+      "store_id": 2,
+      "address_id": 4,
+      "last_name": "Stephens",
+      "active": true,
+      "uuid": "17553126-6fcc-11ef-8f96-7fbd6625726a",
+      "picture": null,
+      "password": "8cb2237d0679ca88db6464eac60da96345513964",
+      "staff_id": 2,
+      "last_update": "2006-05-16T16:13:11.79328",
+      "id": 2,
+      "first_name": "Jon",
+      "email": "Jon.Stephens@sakilastaff.com",
+      "entity": "staff",
+      "username": "Jon"
+    },
+    {
+      "store_id": 2,
+      "address_id": 460,
+      "last_name": "Wiles",
+      "active": 1,
+      "activebool": true,
+      "uuid": "dfdf315a-65a4-11ef-b8b3-97873dfda389",
+      "last_update": "2013-05-26T14:49:45.738",
+      "id": 455,
+      "customer_id": 455,
+      "create_date": "2006-02-14",
+      "first_name": "Jon",
+      "email": "jon.wiles@sakilacustomer.org",
+      "entity": "customer"
+    },
+    {
+      "last_update": "2013-05-26T14:47:57.62",
+      "last_name": "Chase",
+      "actor_id": 176,
+      "id": 176,
+      "first_name": "Jon",
+      "uuid": "abe2fa36-64c2-11ef-b457-a71e96dc4efb",
+      "entity": "actor"
+    }
+  ]
+}

@@ -220,9 +220,9 @@ test('start key country#1 (filter), scan limit 1 -> country#2', async () => {
   );
 });
 
-test('rearrange attrs, scan limit 1 -> sorted keys', async () => {
+test('rearrange keys, scan limit 1 -> sorted keys', async () => {
   const { content } = await new ReadCommand()
-      .rearrangeAttrs()
+      .rearrangeKeys()
       .scanLimit(1)
       .execute()
       .parse();

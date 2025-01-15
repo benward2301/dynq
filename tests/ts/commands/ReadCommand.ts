@@ -10,7 +10,7 @@ export class ReadCommand extends Command {
   readonly endpointUrl = this.arg<string>('endpoint-url');
   readonly from = this.arg<string>('from');
   readonly reduce = this.arg<string[]>('reduce');
-  readonly rearrangeAttrs = this.flag('rearrange-attrs');
+  readonly rearrangeKeys = this.flag('rearrange-keys');
   readonly index = this.arg<string>('index');
   readonly startKey = this.arg<string | object>('start-key');
   readonly limit = this.arg<number>('limit');

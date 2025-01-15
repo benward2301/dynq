@@ -119,11 +119,11 @@ interface ReadCommand : Command {
     fun startKey(): String?
 
     @CliOption(
-        long = REARRANGE_ATTRIBUTES,
+        long = REARRANGE_KEYS,
         short = 'g',
         desc = "sort keys of objects on output"
     )
-    fun rearrangeAttributes(): Boolean
+    fun rearrangeKeys(): Boolean
 
     @CliOption(
         long = CONTENT_ONLY,
@@ -225,7 +225,7 @@ interface ReadCommand : Command {
     @CliOption(
         long = METADATA_ONLY,
         short = 'M',
-        precludes = [CONTENT_ONLY, TRANSFORM, AGGREGATE, PRUNE, REDUCE, REARRANGE_ATTRIBUTES, STREAM]
+        precludes = [CONTENT_ONLY, TRANSFORM, AGGREGATE, PRUNE, REDUCE, REARRANGE_KEYS, STREAM]
     )
     fun metadataOnly(): Boolean
 
@@ -254,7 +254,7 @@ private const val REGION = "region"
 private const val ENDPOINT_URL = "endpoint-url"
 private const val COMPACT = "compact"
 private const val START_KEY = "start-key"
-private const val REARRANGE_ATTRIBUTES = "rearrange-attrs"
+private const val REARRANGE_KEYS = "rearrange-keys"
 private const val CONTENT_ONLY = "content-only"
 private const val SCAN_LIMIT = "scan-limit"
 private const val AGGREGATE = "aggregate"

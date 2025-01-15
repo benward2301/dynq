@@ -235,7 +235,7 @@ Incompatible with `--meta-only`.
 
 Return only the metadata of the query output.
 
-Incompatible with `--content-only`, `--transform`, `--aggregate`, `--prune`, `--reduce`, `--rearrange-attrs`
+Incompatible with `--content-only`, `--transform`, `--aggregate`, `--prune`, `--reduce`, `--rearrange-keys`
 and `stream`.
 
 #### `-q, --quiet`
@@ -256,7 +256,7 @@ Incompatible with `--colorize`.
 
 Compact instead of pretty-printed output.
 
-#### `-g, --rearrange-attrs`
+#### `-g, --rearrange-keys`
 
 Sort keys of objects on output.
 
@@ -362,7 +362,7 @@ dynq --from dvd_rental \
 
 [Output](docs/examples/film_1_inventory.json)
 
-####       
+####        
 
 #### Scan from `rental 1`
 

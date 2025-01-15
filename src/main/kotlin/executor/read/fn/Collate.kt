@@ -34,7 +34,7 @@ suspend fun collate(
         jq(
             it,
             filter = buildAggregationFilter(command, output.meta),
-            sortKeys = command.rearrangeAttributes(),
+            sortKeys = command.rearrangeKeys(),
             onError = throwJqError("bad aggregate filter")
         )
     }.let {
@@ -63,7 +63,7 @@ private suspend fun streamOutput(
                         it.toString(),
                         filter = ".[0:${remaining ?: ""}] | .[]",
                         pretty = !command.compact(),
-                        sortKeys = command.rearrangeAttributes(),
+                        sortKeys = command.rearrangeKeys(),
                         colorize = command.colorize()
                     ).let(::println)
                 }

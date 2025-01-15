@@ -409,3 +409,63 @@ test('metadata only, where id is 1, concurrency 3 -> meta', async () => {
       }
   );
 });
+
+test('slurp aggregate output', async () => {
+  const output = await new ReadCommand()
+      .scanLimit(2)
+      .aggregate('.[]')
+      .contentOnly()
+      .execute()
+      .parse();
+  assert.deepEqual(
+      output,
+      [
+        {
+          category_id: 6,
+          last_update: '2006-02-15T10:07:09',
+          film_id: 1,
+          id: 1,
+          uuid: 'f4f644dc-64ca-11ef-ae4f-87ba04d99ac2',
+          entity: 'film_category'
+        },
+        {
+          category_id: 11,
+          last_update: '2006-02-15T10:07:09',
+          film_id: 2,
+          id: 2,
+          uuid: 'f53a486c-64ca-11ef-a890-3f95dc2cb52e',
+          entity: 'film_category'
+        }
+      ]
+  );
+});
+
+test('slurp prune output', async () => {
+  const output = await new ReadCommand()
+      .scanLimit(2)
+      .prune('.[]')
+      .contentOnly()
+      .execute()
+      .parse();
+  assert.deepEqual(
+      output,
+      [
+        {
+          category_id: 6,
+          last_update: '2006-02-15T10:07:09',
+          film_id: 1,
+          id: 1,
+          uuid: 'f4f644dc-64ca-11ef-ae4f-87ba04d99ac2',
+          entity: 'film_category'
+        },
+        {
+          category_id: 11,
+          last_update: '2006-02-15T10:07:09',
+          film_id: 2,
+          id: 2,
+          uuid: 'f53a486c-64ca-11ef-a890-3f95dc2cb52e',
+          entity: 'film_category'
+        }
+      ]
+  );
+});

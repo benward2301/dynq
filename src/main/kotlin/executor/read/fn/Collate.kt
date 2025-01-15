@@ -94,7 +94,7 @@ private suspend fun collectOutput(
         if (prune != null) {
             items = jqn(
                 items.toString(),
-                prune,
+                slurp(prune),
                 onError = throwJqError("bad prune filter")
             ).also {
                 if (!it.isArray) {
@@ -121,6 +121,7 @@ private fun buildAggregationFilter(
         .pipeToNullable(metadata.hitCount?.let { "$it as \$count" })
         .pipeToNullable(command.aggregate())
         .pipeToNonNull(".")
+        .let(::slurp)
 }
 
 private fun testAggregationFilter(

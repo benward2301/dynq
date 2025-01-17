@@ -173,14 +173,6 @@ interface ReadCommand : Command {
     fun consistentRead(): Boolean
 
     @CliOption(
-        long = MAX_HEAP_SIZE,
-        desc = "heap memory limit in MB;\nresult array will be returned when approached"
-    )
-    @Min(200)
-    @Max(8000)
-    fun maxHeapSize(): Int?
-
-    @CliOption(
         long = EXPAND,
         short = 'x',
         requires = [INDEX_NAME],
@@ -261,7 +253,6 @@ private const val AGGREGATE = "aggregate"
 private const val PROJECTION_EXPRESSION = "select"
 private const val CONCURRENCY = "concurrency"
 private const val CONSISTENT_READ = "consistent-read"
-private const val MAX_HEAP_SIZE = "max-heap-size"
 private const val EXPAND = "expand"
 private const val STREAM = "stream"
 private const val REDUCE = "reduce"

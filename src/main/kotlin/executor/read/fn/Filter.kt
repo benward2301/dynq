@@ -3,7 +3,7 @@ package dynq.executor.read.fn
 import dynq.cli.command.ReadCommand
 import dynq.cli.command.option.JQ_REDUCE_ITEM_VAR
 import dynq.cli.logging.LogEntry
-import dynq.cli.logging.log
+import dynq.cli.logging.warn
 import dynq.executor.read.model.FilterOutput
 import dynq.executor.read.model.RawReadOutput
 import dynq.executor.read.model.ReadMetadata
@@ -22,7 +22,7 @@ suspend fun filter(
 ) {
     val limit = command.limit()
     val reducer = command.reduce()
-    val filter = buildSelectionFilter(command)
+    val filter = buildItemFilter(command)
 
     var scannedCount = 0
     var hitCount = 0
@@ -30,6 +30,7 @@ suspend fun filter(
 
     val le = LogEntry.new(pos = 2)
     logFilterProgress(le, hitCount, scannedCount)
+    var warnedLowMemory = false
 
     for (readOutput in readChannel) {
         val filterOutput = filterBatch(
@@ -49,12 +50,11 @@ suspend fun filter(
         } else {
             reduction = reduceBatch(filterOutput, reducer, reduction)
         }
-        if (
-            limit != null && limit <= hitCount ||
-            isMaxHeapSizeExceeded(command).also { if (it) log { "Max heap size exceeded" } }
-        ) {
+        if (limit != null && limit <= hitCount) {
             terminate()
         }
+
+        warnedLowMemory = warnedLowMemory || warnIfLowMemory()
     }
 
     if (reduction != null) {
@@ -114,23 +114,26 @@ private fun reduceBatch(
     )
 }
 
-private fun buildSelectionFilter(command: ReadCommand): String {
+private fun buildItemFilter(command: ReadCommand): String {
     return "[.[]"
         .pipe(command.pretransform())
         .pipe(command.where()?.let { "select($it)" })
         .pipe(command.transform()) + "\n]"
 }
 
-private fun isMaxHeapSizeExceeded(command: ReadCommand): Boolean {
-    val runtime = Runtime.getRuntime()
-    val defaultMax = runtime.maxMemory() * 0.8
-    val effectiveMax = command.maxHeapSize()
-        ?.times(1e6)
-        ?.coerceAtMost(defaultMax)
-        ?: defaultMax
-    return effectiveMax <= runtime.totalMemory() - runtime.freeMemory()
-}
-
 private fun logFilterProgress(le: LogEntry, hitCount: Int, scannedCount: Int) {
     le.log { "$hitCount of ${max(scannedCount, hitCount)} total item(s) retained" }
+}
+
+private fun warnIfLowMemory(): Boolean {
+    val runtime = Runtime.getRuntime()
+    val usedMemory = runtime.totalMemory() - runtime.freeMemory()
+    val maxMemory = runtime.maxMemory()
+
+    return (usedMemory > maxMemory * 0.6).also {
+        if (it) {
+            fun describeMemory(memory: Long) = (memory / 1e6).toInt()
+            warn { "low memory (${describeMemory(usedMemory)} used, ${describeMemory(maxMemory)} max)" }
+        }
+    }
 }

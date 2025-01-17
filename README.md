@@ -216,13 +216,6 @@ The maximum number of requests to send to DynamoDB per coroutine.
 
 The maximum number of items scanned per DynamoDB request.
 
-#### `--max-heap-size`
-
-(integer)
-
-Heap memory limit in megabytes. The query will terminate and its results will be returned when this threshold is
-approached.
-
 ### Output flags
 
 #### `-C, --content-only`
@@ -362,7 +355,7 @@ dynq --from dvd_rental \
 
 [Output](docs/examples/film_1_inventory.json)
 
-####        
+####         
 
 #### Scan from `rental 1`
 

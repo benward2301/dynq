@@ -47,7 +47,7 @@ interface ReadCommand : Command {
         long = PARTITION_KEY,
         short = 'P',
         args = [JQ_FILTER_ARG],
-        desc = "partition key filter;\ntakes {} as input"
+        desc = "partition key filter"
     )
     fun partitionKey(): String?
 
@@ -57,7 +57,7 @@ interface ReadCommand : Command {
         requires = [PARTITION_KEY],
         precludes = [START_KEY],
         args = [JQ_FILTER_ARG],
-        desc = "sort key filter;\ntakes {} as input"
+        desc = "sort key filter"
     )
     fun sortKey(): String?
 
@@ -98,13 +98,14 @@ interface ReadCommand : Command {
 
     @CliOption(
         long = ENDPOINT_URL,
-        short = 'e',
+        short = 'E',
         args = ["url"]
     )
     fun endpointUrl(): String?
 
     @CliOption(
         long = COMPACT,
+        short = 'm',
         desc = "compact instead of pretty-printed output"
     )
     fun compact(): Boolean
@@ -182,6 +183,7 @@ interface ReadCommand : Command {
 
     @CliOption(
         long = STREAM,
+        short = 'e',
         precludes = [AGGREGATE, REDUCE],
         desc = "incrementally write items to stdout"
     )

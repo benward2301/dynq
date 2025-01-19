@@ -55,7 +55,7 @@ A comma-separated set of attribute names to retrieve. Equivalent to the DynamoDB
 
 Can improve performance of queries.
 
-#### `-s, --stream`
+#### `-e, --stream`
 
 Incrementally write items to stdout.
 
@@ -65,7 +65,7 @@ Incompatible with `--aggregate`, `--reduce` and `--meta-only`.
 
 Guarantees that all writes completed before the query began will be processable.
 
-#### `-e, --endpoint-url`
+#### `-E, --endpoint-url`
 
 (url)
 
@@ -245,7 +245,7 @@ Do not colorize JSON output. Enabled by default if destination is not a TTY.
 
 Incompatible with `--colorize`.
 
-#### `--compact`
+#### `-m, --compact`
 
 Compact instead of pretty-printed output.
 
@@ -355,7 +355,7 @@ dynq --from dvd_rental \
 
 [Output](docs/examples/film_1_inventory.json)
 
-####         
+####            
 
 #### Scan from `rental 1`
 

@@ -16,7 +16,7 @@ class LogEntry private constructor(
 
     companion object {
 
-        private var enabled: Boolean = true
+        var enabled: Boolean = true
             get() = field && !CommandBinding.global.quiet()
 
         private val terminal = TerminalBuilder.builder()

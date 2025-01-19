@@ -1,6 +1,7 @@
 package dynq.executor.read
 
 import dynq.cli.command.ReadCommand
+import dynq.cli.logging.LogEntry
 import dynq.cli.route.CommandExecutor
 import dynq.ddb.createDynamoDbClient
 import dynq.executor.read.fn.*
@@ -14,8 +15,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 val executeRead = CommandExecutor<ReadCommand> { command ->
+    if (command.stream()) {
+        LogEntry.enabled = false
+    }
     val ddb = createDynamoDbClient(command.endpointUrl(), command.profile(), command.region())
-
     val readChannel = Channel<RawReadOutput>(Channel.RENDEZVOUS)
     val outputChannel = Channel<FilterOutput>(Channel.UNLIMITED)
 

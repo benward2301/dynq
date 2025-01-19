@@ -9,6 +9,7 @@ import dynq.executor.read.model.ReadMetadata
 import dynq.jq.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
+import org.apache.commons.lang3.StringEscapeUtils
 import software.amazon.awssdk.protocols.jsoncore.JsonNode
 
 private const val METADATA_PROP = "meta"
@@ -27,24 +28,24 @@ suspend fun collate(
 
     LogEntry.transform { it?.replace("$SPINNER", style(GREEN)("$CHECK_MARK")) }
 
-    CharMatcher.anyOf("\r\n\t").removeFrom(
-        output.items.toString()
-    ).let {
-        log { "Aggregating results" }
-        jq(
-            it,
-            filter = buildAggregationFilter(command, output.meta),
-            sortKeys = command.rearrangeKeys(),
-            onError = throwJqError("bad aggregate filter")
-        )
-    }.let {
-        jq(
-            it,
-            filter = buildPresentationFilter(command, output),
-            pretty = !command.compact(),
-            colorize = command.colorize()
-        )
-    }.also { LogEntry.close() }
+    output.items.toString()
+        .let(::sanitizeControlChars)
+        .let {
+            log { "Aggregating results" }
+            jq(
+                it,
+                filter = buildAggregationFilter(command, output.meta),
+                sortKeys = command.rearrangeKeys(),
+                onError = throwJqError("bad aggregate filter")
+            )
+        }.let {
+            jq(
+                it,
+                filter = buildPresentationFilter(command, output),
+                pretty = !command.compact(),
+                colorize = command.colorize()
+            )
+        }.also { LogEntry.close() }
         .let(::println)
 }
 
@@ -152,3 +153,9 @@ private fun buildPresentationFilter(
     }
     return "{$METADATA_PROP: ($metadata), $CONTENT_PROP: .}"
 }
+
+private fun sanitizeControlChars(input: String) =
+    input.replace("\n", "\\n")
+        .replace("\r", "\\r")
+        .replace("\t", "\\t")
+        .replace(Regex("[\u0000-\u001F]"), "")

@@ -29,15 +29,18 @@ suspend fun collate(
     LogEntry.transform { it?.replace("$SPINNER", style(GREEN)("$CHECK_MARK")) }
 
     output.items.toString()
-        .let(::sanitizeControlChars)
         .let {
             log { "Aggregating results" }
-            jq(
-                it,
-                filter = buildAggregationFilter(command, output.meta),
-                sortKeys = command.rearrangeKeys(),
-                onError = throwJqError("bad aggregate filter")
-            )
+            if (command.metadataOnly()) {
+                "null"
+            } else {
+                jq(
+                    sanitizeControlChars(it),
+                    filter = buildAggregationFilter(command, output.meta),
+                    sortKeys = command.rearrangeKeys(),
+                    onError = throwJqError("bad aggregate filter")
+                )
+            }
         }.let {
             jq(
                 it,

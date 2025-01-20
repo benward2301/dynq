@@ -118,7 +118,7 @@ private fun buildItemFilter(command: ReadCommand): String {
     return "[.[]"
         .pipe(command.pretransform())
         .pipe(command.where()?.let { "select($it)" })
-        .pipe(command.transform()) + "\n]"
+        .pipe(if (command.metadataOnly()) "null" else command.transform()) + "\n]"
 }
 
 private fun logFilterProgress(le: LogEntry, hitCount: Int, scannedCount: Int) {

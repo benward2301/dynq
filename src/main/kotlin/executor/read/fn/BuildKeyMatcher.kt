@@ -6,21 +6,21 @@ import dynq.jq.pipe
 import dynq.jq.throwJqError
 import software.amazon.awssdk.enhanced.dynamodb.internal.converter.attribute.JsonItemAttributeConverter
 
-fun buildPartitionKeyMatcher(filter: String?): KeyMatcher.Discrete? {
-    return when (val key = buildKeyMatcher(filter)) {
-        is KeyMatcher.Continuous -> throw Exception("partition key values must be discrete")
-        is KeyMatcher.Discrete -> key
-        else -> null
+val buildPartitionKeyMatcher = fun(filter: String?): KeyMatcher.Discrete? {
+    val descriptor = "partition"
+    return buildKeyMatcher(descriptor)(filter).let {
+        if (it is KeyMatcher.Discrete?) it
+        else rejectKeyFilter(descriptor)
     }
 }
 
-val buildSortKeyMatcher = ::buildKeyMatcher
+val buildSortKeyMatcher = buildKeyMatcher("sort")
 
-private fun buildKeyMatcher(filter: String?): KeyMatcher? {
+private fun buildKeyMatcher(descriptor: String) = fun(filter: String?): KeyMatcher? {
     if (filter == null) {
         return null
     }
-    val onError = throwJqError("bad key filter")
+    val onError = throwJqError("bad $descriptor key filter")
 
     val name = jqn(
         input = "{}",
@@ -48,12 +48,23 @@ private fun buildKeyMatcher(filter: String?): KeyMatcher? {
         )
     }
 
-    val nodes = if (node.isArray) {
-        node.asArray()
-    } else if (node.isString || node.isNumber) {
-        listOf(node)
-    } else {
-        throw Exception("key value must be string or number")
+    val nodes = when {
+        node.isArray ->
+            node.asArray().takeUnless { list ->
+                list.all { !it.isNumber && !it.isString }
+            }
+
+        node.isString || node.isNumber ->
+            listOf(node)
+
+        else -> null
+    }
+    if (nodes == null) {
+        rejectKeyFilter(descriptor)
     }
     return KeyMatcher.Discrete(name, nodes.map { converter.transformFrom(it) })
+}
+
+private fun rejectKeyFilter(descriptor: String): Nothing {
+    throw IllegalArgumentException("$descriptor key filter produced an illegal value")
 }

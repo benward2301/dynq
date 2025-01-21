@@ -101,7 +101,7 @@ private fun logScanResult(le: LogEntry, scannedCount: Int) {
         val icon: String
         val message: String
         if (scannedCount == 0) {
-            icon = style(BOLD, YELLOW)("-")
+            icon = style(YELLOW)("$EM_DASH")
             message = "Empty segment"
         } else {
             icon = style(GREEN)("$CHECK_MARK")

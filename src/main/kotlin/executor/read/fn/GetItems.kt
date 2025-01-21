@@ -49,7 +49,7 @@ suspend fun getItems(
         )
         LogEntry.new(indent = 1, pos = 1).log {
             val icon = if (items.isEmpty())
-                style(BOLD, RED)("!") else
+                style(YELLOW)("$EM_DASH") else
                 style(GREEN)("$CHECK_MARK")
             formatProgressMessage(icon, null, formatKey(key))
         }

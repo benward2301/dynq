@@ -41,7 +41,7 @@ suspend fun query(
         command.concurrency(),
         buildKeys(partitionMatcher, sortMatcher),
     ) { key ->
-        val le = LogEntry.new(indent = 1, pos = 1)
+        val le = LogEntry.new(label = { formatKey(key) }, indent = 1, pos = 1)
 
         val builder = buildQueryBase(
             command,
@@ -56,7 +56,6 @@ suspend fun query(
             val request = builder.exclusiveStartKey(startKey)
                 .limit(limit)
                 .build()
-            le.label = { formatKey(key) }
 
             PaginatedResponse.from(ddb.query(request))
         }

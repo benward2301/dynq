@@ -38,6 +38,7 @@ class LogEntry private constructor(
             while (true) {
                 delay(30)
                 render()
+                clear()
             }
         }
 
@@ -55,7 +56,6 @@ class LogEntry private constructor(
         fun render() {
             entries.forEach(LogEntry::print)
             writer.flush()
-            clear()
             ticks++
         }
 

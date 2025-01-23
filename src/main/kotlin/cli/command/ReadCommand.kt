@@ -184,7 +184,7 @@ interface ReadCommand : Command {
     @CliOption(
         long = STREAM,
         short = 'e',
-        precludes = [AGGREGATE, REDUCE],
+        precludes = [AGGREGATE, REDUCE, PRUNE],
         desc = "incrementally write items to stdout"
     )
     fun stream(): Boolean

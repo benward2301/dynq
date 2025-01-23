@@ -1,8 +1,8 @@
 # dynq
 
-`dynq` is a command line analytic query tool for DynamoDB. It uses `jq` filters to target, transform and/or aggregate
-items in a given table, and has a number of QoL features including automatic pagination, segmented scans
-and index expansion.
+`dynq` is an analytic query and data processing CLI tool for DynamoDB. It uses [`jq`](https://jqlang.github.io/jq/)
+filters to target, transform and/or aggregate items in a given table, and has a number of QoL features including
+automatic pagination, segmentation and index expansion.
 
 ![](docs/demo.gif)
 
@@ -24,10 +24,9 @@ table to which that index belongs.
 The number of coroutines to launch when reading from DynamoDB. Defaults to `1`.
 
 For scan operations, this option is equivalent to the DynamoDB `--total-segments` option. The optimal number will
-depend on the size and composition of the table, and can be gleaned by monitoring the log output and how long each
-query takes. If no items are scanned from a segment, then this number should be lowered.
+depend on the size and composition of the table.
 
-For non-scan operations, this option is only applicable if multiple keys have been passed.
+For non-scan operations, this option is only applicable if multiple keys are passed.
 
 Incompatible with `--scan-limit` and `--start-key`.
 
@@ -43,7 +42,7 @@ Incompatible with `--consitent-read`.
 
 #### `-x, --expand`
 
-Retrieve non-projected attributes from the primary table when querying a global index.
+Retrieve non-projected attributes from the primary table when querying a global secondary index.
 
 Requires `--partition-key` and `--index`.
 
@@ -59,7 +58,7 @@ Can improve performance of queries.
 
 Incrementally write items to stdout.
 
-Incompatible with `--aggregate`, `--reduce` and `--meta-only`.
+Incompatible with `--aggregate`, `--reduce`, `--prune` and `--meta-only`.
 
 #### `--consistent-read`
 
@@ -89,27 +88,29 @@ The AWS region to use. Overrides config/env settings.
 
 (jq filter)
 
-`jq` predicate filter to select/discard items. Equivalent to `jq` `select(f)` function.
+`jq` predicate filter to select items. Equivalent to `jq` [`select(f)`](https://jqlang.github.io/jq/manual/v1.6/#select)
+function.
 
-#### `--partition-key, -P`
+#### `-P, --partition-key`
 
 (jq filter)
 
-`jq` filter producing one or more partition keys.
+`jq` filter producing one or more partition keys to query.
 
 The output must be an object containing a single key (the partition key attribute name), the value of which must be a
-string, number, or array of either. An array may be used to query multiple partition keys in a single operation.
+string, number, or array thereof.
+
+Binary keys are not currently supported.
 
 #### `-S, --sort-key`
 
 (jq filter)
 
-`jq` filter producing one or more discrete sort keys, or a sort key range.
+`jq` filter producing one or more sort keys or a sort key range to query.
 
-The output must be an object containing a single key (the partition key attribute name).
+The output must be an object containing a single key (the sort key attribute name).
 
-To target specific items, the value must be a string, number or array of either, as with the `--partition-key` option,
-or a nested object with a single key `eq` or `equals` and aforementioned value.
+To target specific items, the value must be a string, number, or array thereof.
 
 To target a range of items, the value must be an object with exactly one of the following operator keys:
 
@@ -120,8 +121,10 @@ To target a range of items, the value must be an object with exactly one of the 
 - `begins_with`
 - `between`
 
-Operands must be a string or number. Each operator expects a single operand, except `between` which expects an array
-containing a lower and upper bound (both inclusive).
+Operand values must be a string or number. Each operator expects a single operand, except `between` which expects an
+array containing a lower and upper bound (both inclusive).
+
+Binary keys are not currently supported.
 
 Requires `--partition-key`.
 
@@ -134,7 +137,10 @@ Incompatible with `--start-key`.
 `jq` filter producing the last evaluated key from a previous DynamoDB scan or query operation. When applicable,
 `dynq` will return the last evaluated key of any such operations via the `meta.lastEvaluatedKey` field.
 
-If a partition key has already been passed via the `--partition-key` option, then this filter omit it from its output.
+If a partition key has already been passed via the `--partition-key` option, then this filter does not need to output
+one.
+
+Binary keys are not currently supported.
 
 Incompatible with `--sort-key` and `--concurrency`.
 
@@ -152,15 +158,18 @@ Incompatible with `--meta-only`.
 
 (jq filter)
 
-`jq` filter to transform each individual item, as returned from DynamoDB. Executes before the `--where` selection
+`jq` filter to transform each individual item. Executes before the `--where` selection
 filter.
 
 #### `-a, --aggregate`
 
 (jq filter)
 
-`jq` filter to transform the complete query result set, after all transformations and exclusions have been
+`jq` filter to transform the complete query result set, after all other transformations and exclusions have been
 applied. The output of this filter is returned to the user via the `content` field.
+
+The total hit count of the query can be accessed in this filter using the `$count` variable. This is useful when the
+result set has been transformed by the `--reduce` filter.
 
 Incompatible with `--stream` and `--meta-only`.
 
@@ -174,7 +183,7 @@ This filter can be used to find the least/greatest *n* values according to some 
 
 Where possible, it should be used over `--aggregate` for high-volume queries to reduce memory usage.
 
-Incompatible with `--meta-only`
+Incompatible with `--meta-only`.
 
 #### `-r, --reduce`
 
@@ -182,7 +191,8 @@ Incompatible with `--meta-only`
 
 Reduce items using the given starting value and `jq` filter, with items assigned to `$item`.
 
-Equivalent to `jq` `reduce .[] as $item (<starting value>; <jq filter>)`
+Equivalent to `jq`
+[`reduce .[] as $item (<starting value>; <jq filter>)`](https://jqlang.github.io/jq/manual/v1.6/#reduce)
 
 Incompatible with `--stream`, `--prune` and `--meta-only`.
 
@@ -202,7 +212,7 @@ Note that `meta.lastEvaluatedKey` will not be returned when this option is given
 
 The maximum number of DynamoDB items to scan across one or more requests.
 
-Unlike `--limit`, `meta.lastEvaluatedKey` may be returned when this option is given.
+Unlike `--limit`, `meta.lastEvaluatedKey` will be returned when this option is given unless all items have been scanned.
 
 #### `-Q, --request-limit`
 
@@ -239,6 +249,8 @@ Only write to stderr when an error is encountered.
 
 Colorize JSON output. Enabled by default when destination is a TTY.
 
+Incompatible with `--monochrome`.
+
 #### `--monochrome`
 
 Do not colorize JSON output. Enabled by default if destination is not a TTY.
@@ -260,6 +272,10 @@ Incompatible with `--meta-only`.
 The examples below are run against a single-table conversion of
 the [PostgreSQL DVD rental sample database](docs/dvdrental-er.pdf).
 
+### Queries
+
+For brevity, these queries do not use the `--select` option, but its use is recommended for high-volume queries.
+
 #### Find a `film` with a `G rating`
 
 ```shell
@@ -272,14 +288,16 @@ dynq --from dvd_rental \
 [Output](docs/examples/g-rated-film.json)
 
 > [!TIP]  
-> The `--partition-key` filter above uses assignment to produce an object, however a JSON or JSON5 object
-> literal may be used instead:
+> The `--partition-key` filter above uses assignment to produce an object, however a JSON or JSON5 object literal may
+> be used instead:
 >
 > ```shell
 > --partition-key: '{ entity: "film" }'
 > ```
 
 #### Calculate total `amount` of `payments` in `2007-03`
+
+Using `--transform` and `--aggregate`
 
 ```shell
 dynq --from dvd_rental \
@@ -289,36 +307,45 @@ dynq --from dvd_rental \
   --aggregate 'add'
 ```
 
-[Output](docs/examples/total-amount-paid-2007-03.json)
-
-#### Calculate average `payment amount`
+Using `--reduce`
 
 ```shell
 dynq --from dvd_rental \
   --partition-key '.entity = "payment"' \
-  --transform .amount \
+  --where '.payment_date | startswith("2007-03")' \
+  --reduce 0 '. + $item.amount'
+```
+
+[Output](docs/examples/total-amount-paid-2007-03.json)
+
+#### Calculate average `payment amount`
+
+Using `--transform` and `--aggregate`
+
+```shell
+dynq --from dvd_rental \
+  --partition-key '.entity = "payment"' \
+  --transform '.amount' \
   --aggregate 'add / length'
 ```
 
-[Output](docs/examples/average-payment-amount.json)
+Using `--reduce` and `--aggregate`
 
-> [!TIP]
->
-> For large datasets, `--reduce` can be used in conjunction with `--aggregate`:
->
-> ```shell
-> dynq --from dvd_rental \
->   --partition-key '.entity = "payment"' \
->   --reduce 0 '. + $item.amount' \
->   --aggregate '. / $count'
-> ```
+```shell
+dynq --from dvd_rental \
+  --partition-key '.entity = "payment"' \
+  --reduce 0 '. + $item.amount' \
+  --aggregate '. / $count'
+```
+
+[Output](docs/examples/average-payment-amount.json)
 
 #### Find the `film` with the longest `length`
 
 ```shell
 dynq --from dvd_rental \
   --partition-key '.entity = "film"' \
-  --prune '[max_by(.id)]'
+  --prune '[max_by(.length)]'
 ```
 
 [Output](docs/examples/longest-film.json)
@@ -353,9 +380,7 @@ dynq --from dvd_rental \
   --expand
 ```
 
-[Output](docs/examples/film_1_inventory.json)
-
-####            
+[Output](docs/examples/film-1-inventory.json)
 
 #### Scan from `rental 1`
 
@@ -372,7 +397,7 @@ dynq --from dvd_rental \
   --sort-key '.id.less_than = 100'
 ```
 
-#### Find everyone named `Jon`
+#### Find all `staff`, `customers` and `actors` named `Jon`
 
 ```shell
 dynq --from dvd_rental \
@@ -381,3 +406,20 @@ dynq --from dvd_rental \
 ```
 
 [Output](docs/examples/jons.json)
+
+### Redirection
+
+#### Write each item to a file
+
+```shell
+dynq -em -f dvd_rental | while read item; do echo "$item" > $(uuid).json; done
+```
+
+#### Decode a binary attribute
+
+```shell
+dynq -e -f dvd_rental -P '.entity = "staff"' -S '.id = 1' -t '.picture' \
+  | jq -r \
+  | base64 -d \
+  > staff_1.png
+```

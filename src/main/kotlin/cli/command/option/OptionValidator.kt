@@ -1,7 +1,7 @@
 package dynq.cli.command.option
 
 import dynq.cli.anno.CliOption
-import jakarta.validation.constraints.*
+import dynq.cli.anno.constraints.*
 import kotlin.reflect.KFunction
 import kotlin.reflect.full.findAnnotation
 

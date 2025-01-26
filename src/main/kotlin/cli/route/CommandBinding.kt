@@ -1,10 +1,10 @@
 package dynq.cli.route
 
 import dynq.cli.anno.CliOption
+import dynq.cli.anno.constraints.Size
 import dynq.cli.command.Command
 import dynq.cli.command.option.INTEGER_ARG
 import dynq.cli.command.option.OptionValidator
-import jakarta.validation.constraints.Size
 import org.apache.commons.cli.CommandLine
 import org.apache.commons.cli.DefaultParser
 import org.apache.commons.cli.Option

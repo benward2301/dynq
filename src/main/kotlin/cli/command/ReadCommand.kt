@@ -2,10 +2,10 @@ package dynq.cli.command
 
 import dynq.cli.anno.CliCommand
 import dynq.cli.anno.CliOption
+import dynq.cli.anno.constraints.*
 import dynq.cli.command.option.JQ_FILTER_ARG
 import dynq.cli.command.option.JQ_REDUCE_INIT_ARG
 import dynq.cli.command.option.JQ_REDUCE_ITEM_VAR
-import jakarta.validation.constraints.*
 
 @CliCommand(root = true)
 interface ReadCommand : Command {

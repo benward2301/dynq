@@ -97,6 +97,7 @@ build:
         buildArgs:
           - -Djava.util.logging.config.file=
           - -o target/${native.outputFile}
+          - -Os
       executions:
         - id: build-native
           phase: package

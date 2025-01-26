@@ -1,8 +1,8 @@
 package dynq.executor.read.fn
 
+import cli.logging.fmt.formatProgressMessage
 import dynq.cli.command.ReadCommand
 import dynq.cli.logging.*
-import cli.logging.fmt.formatProgressMessage
 import dynq.ddb.model.DynamoDbItem
 import dynq.ddb.model.PaginatedResponse
 import dynq.executor.read.model.RawReadOutput

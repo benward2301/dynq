@@ -1,6 +1,9 @@
 package dynq.jq
 
-import com.arakelian.jq.*
+import com.arakelian.jq.ImmutableJqLibrary
+import com.arakelian.jq.ImmutableJqRequest
+import com.arakelian.jq.JqRequest
+import com.arakelian.jq.JqResponse
 
 fun jq(
     input: String,

@@ -2,8 +2,8 @@ package dynq.executor.read.fn
 
 import cli.logging.fmt.formatKey
 import cli.logging.fmt.formatProgressMessage
-import dynq.cli.command.ReadCommand
 import cli.logging.fmt.formatRequestOp
+import dynq.cli.command.ReadCommand
 import dynq.cli.logging.*
 import dynq.ddb.model.Key
 import dynq.ddb.model.KeyMember

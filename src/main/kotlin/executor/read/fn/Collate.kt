@@ -1,7 +1,6 @@
 package dynq.executor.read.fn
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.google.common.base.CharMatcher
 import dynq.cli.command.ReadCommand
 import dynq.cli.logging.*
 import dynq.executor.read.model.FilterOutput
@@ -9,7 +8,6 @@ import dynq.executor.read.model.ReadMetadata
 import dynq.jq.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
-import org.apache.commons.lang3.StringEscapeUtils
 import software.amazon.awssdk.protocols.jsoncore.JsonNode
 
 private const val METADATA_PROP = "meta"

@@ -10,7 +10,7 @@ properties:
   kotlin.compiler.jvmTarget: 22
   project.build.sourceEncoding: UTF-8
   native.skip: false
-  native.outputFile: ${project.artifactId}-${project.version}-${os.name}-${os.arch}
+  native.outputFile: ${project.artifactId}
 
 repositories:
   - id: mavenCentral

@@ -1,0 +1,8 @@
+#!/bin/bash
+set -e
+working_dir=$(pwd)
+project_dir=${working_dir/%\/dynq\/*/\/dynq\/}
+script_dir="$(dirname "$(realpath $0)")"
+
+docker exec -t dynq_build_1 bash -c "mvn $@"
+docker cp -q dynq_build_1:/dynq/target $project_dir

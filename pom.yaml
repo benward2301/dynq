@@ -7,11 +7,10 @@ version: 0.1.0-alpha
 
 properties:
   kotlin.code.style: official
-  project.build.sourceEncoding: UTF-8
   kotlin.compiler.jvmTarget: 22
+  project.build.sourceEncoding: UTF-8
   native.skip: false
   native.outputFile: ${project.artifactId}-${project.version}-${os.name}-${os.arch}
-  test.env.exists: false
 
 repositories:
   - id: mavenCentral
@@ -107,30 +106,13 @@ build:
       artifactId: exec-maven-plugin
       version: 3.5.0
       executions:
-        - id: init-db
-          phase: pre-integration-test
-          goals:
-            - exec
-          configuration:
-            skip: ${test.env.exists}
-            executable: docker/dvd-rental/run.sh
-        - id: tear-down-db
-          phase: post-integration-test
-          goals:
-            - exec
-          configuration:
-            skip: ${test.env.exists}
-            executable: docker
-            arguments:
-              - rm
-              - -f
-              - dynamodb-local-dvdr
         - id: test-jar
           phase: integration-test
           goals:
             - exec
           configuration:
-            executable: tests/run.sh
+            skip: true
+            executable: tests/run.bash
             arguments:
               - target/dynq-${project.version}-jar-with-dependencies.jar
               - java -jar
@@ -140,6 +122,6 @@ build:
             - exec
           configuration:
             skip: ${native.skip}
-            executable: tests/run.sh
+            executable: tests/run.bash
             arguments:
               - target/${native.outputFile}

@@ -30,7 +30,7 @@ export class ReadCommand extends Command {
 
   constructor() {
     super();
-    this.endpointUrl('http://localhost:8000');
+    this.endpointUrl(process.env.DYNAMODB_ENDPOINT_URL ?? 'http://localhost:8000');
     this.from(TABLE_NAME);
     this.quiet();
   }

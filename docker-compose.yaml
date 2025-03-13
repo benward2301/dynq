@@ -1,7 +1,6 @@
-version: '3.8'
-
 services:
   build:
+    container_name: dynq-build
     build:
       context: docker/dynq-build
     depends_on:
@@ -25,6 +24,7 @@ services:
     stdin_open: true
 
   dynamodb:
+    container_name: dynamodb-dvd-rental
     build:
       context: docker/dynamodb-dvd-rental
     ports:

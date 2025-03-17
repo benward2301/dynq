@@ -1,8 +1,8 @@
 package dynq.executor.read.fn
 
-import cli.logging.fmt.formatRequestOp
+import dynq.logging.fmt.formatRequestOp
 import dynq.cli.command.ReadCommand
-import dynq.cli.logging.LogEntry
+import dynq.logging.LogEntry
 import dynq.ddb.model.PaginatedResponse
 import dynq.executor.read.model.RawReadOutput
 import kotlinx.coroutines.channels.Channel

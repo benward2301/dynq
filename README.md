@@ -6,6 +6,14 @@ automatic pagination, segmentation and index expansion.
 
 ![](docs/demo.gif)
 
+## Build from source
+
+```shell
+docker compose up -d
+docker/dynq-build/mvn verify
+
+```
+
 ## Options
 
 #### `-f, --from`
@@ -228,13 +236,13 @@ The maximum number of items scanned per DynamoDB request.
 
 ### Output flags
 
-#### `-C, --content-only`
+#### `--content-only`
 
 Return only the content of the query output.
 
 Incompatible with `--meta-only`.
 
-#### `-M, --meta-only`
+#### `--meta-only`
 
 Return only the metadata of the query output.
 
@@ -245,13 +253,13 @@ and `stream`.
 
 Only write to stderr when an error is encountered.
 
-#### `--colorize`
+#### `-C, --colorize`
 
 Colorize JSON output. Enabled by default when destination is a TTY.
 
 Incompatible with `--monochrome`.
 
-#### `--monochrome`
+#### `-M, --monochrome`
 
 Do not colorize JSON output. Enabled by default if destination is not a TTY.
 

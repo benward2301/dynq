@@ -2,10 +2,10 @@ package dynq.executor.read.fn
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import dynq.cli.command.ReadCommand
-import dynq.cli.logging.*
 import dynq.executor.read.model.FilterOutput
 import dynq.executor.read.model.ReadMetadata
 import dynq.jq.*
+import dynq.logging.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
 import software.amazon.awssdk.protocols.jsoncore.JsonNode

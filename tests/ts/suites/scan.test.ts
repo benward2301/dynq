@@ -239,7 +239,7 @@ test('where id is 928, transform to id, concurrency 6, stream, -> 5 928s', async
       .execute()
       .raw();
   assert.deepEqual(
-      output,
+      output.replaceAll('\r\n', '\n'),
       new Array(5).fill(928).join('\n') + '\n'
   );
 });

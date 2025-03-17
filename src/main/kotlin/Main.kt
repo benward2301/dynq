@@ -1,8 +1,8 @@
 package dynq
 
 import dynq.cli.command.ReadCommand
-import dynq.cli.logging.LogEntry
-import dynq.cli.logging.err
+import dynq.logging.LogEntry
+import dynq.logging.err
 import dynq.cli.route.CommandBinding
 import dynq.cli.route.dispatchCommandLine
 import dynq.cli.route.registerCommand

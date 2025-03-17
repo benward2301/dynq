@@ -1,4 +1,4 @@
-package dynq.cli.logging
+package dynq.logging
 
 fun log(message: () -> String): LogEntry {
     return LogEntry.new().also { it.log(message) }

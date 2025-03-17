@@ -1,10 +1,13 @@
 package dynq.cli.route
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import dynq.cli.COMPATIBILITY_MODE
 import dynq.cli.anno.CliOption
 import dynq.cli.anno.constraints.Size
 import dynq.cli.command.Command
 import dynq.cli.command.option.INTEGER_ARG
 import dynq.cli.command.option.OptionValidator
+import dynq.cli.command.option.postprocess.OptionPostprocessor
 import org.apache.commons.cli.CommandLine
 import org.apache.commons.cli.DefaultParser
 import org.apache.commons.cli.Option
@@ -14,9 +17,8 @@ import java.lang.reflect.Proxy
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KType
-import kotlin.reflect.full.findAnnotation
-import kotlin.reflect.full.isSubtypeOf
-import kotlin.reflect.full.memberFunctions
+import kotlin.reflect.full.*
+import kotlin.reflect.jvm.jvmErasure
 import kotlin.reflect.typeOf
 import kotlin.system.exitProcess
 
@@ -27,9 +29,10 @@ class CommandBinding<T : Command>(
     companion object {
 
         var global: Command = object : Command {
-            override fun quiet(): Boolean = true
-            override fun colorize(): Boolean = false
-            override fun monochrome(): Boolean = false
+            override fun quiet() = true
+            override fun logMode() = null
+            override fun colorize() = false
+            override fun monochrome() = false
         }
             private set
 
@@ -61,7 +64,7 @@ class CommandBinding<T : Command>(
 
         // comparison over Boolean cast
         if (optionValues[Command::colorize.name] == false && optionValues[Command::monochrome.name] == false) {
-            val colorize = System.console()?.isTerminal ?: false
+            val colorize = System.getenv(COMPATIBILITY_MODE).isNullOrBlank() && System.console()?.isTerminal ?: false
             optionValues[Command::colorize.name] = colorize
             optionValues[Command::monochrome.name] = !colorize
         }
@@ -78,26 +81,31 @@ class CommandBinding<T : Command>(
         val fn = cls.memberFunctions.find { fn -> fn.name == method.name }
             ?: throw Exception("Failed to infer ${KFunction::class.qualifiedName} from ${Method::class.qualifiedName}")
         val type = fn.returnType
-
-        if (satisfies<Boolean>(type)) {
-            return commandLine.hasOption(anno.long)
-        }
-
         val values: Array<String> = commandLine.getOptionValues(anno.long)
             ?: if (anno.default.isNotEmpty()) arrayOf(anno.default) else emptyArray()
 
-        return when {
-            values.isEmpty() -> null
+        @Suppress("UNCHECKED_CAST")
+        return (anno.postprocessor.createInstance() as OptionPostprocessor<Any>).apply(
+            when {
+                satisfies<Boolean>(type) ->
+                    commandLine.hasOption(anno.long)
 
-            satisfies<Int>(type) ->
-                OptionValidator.Int.validate(fn, values[0].toInt())
+                isEnum(fn.returnType) ->
+                    ObjectMapper().readValue("\"${commandLine.getOptionValue(anno.long)}\"", type.jvmErasure.java)
 
-            satisfies<Array<String>>(type) ->
-                OptionValidator.StringArray.validate(fn, values)
+                values.isEmpty() ->
+                    null
 
-            else ->
-                OptionValidator.String.validate(fn, values[0])
-        }
+                satisfies<Int>(type) ->
+                    OptionValidator.Int.validate(fn, values[0].toInt())
+
+                satisfies<Array<String>>(type) ->
+                    OptionValidator.StringArray.validate(fn, values)
+
+                else ->
+                    OptionValidator.String.validate(fn, values[0])
+            }
+        )
     }
 
     private fun buildApacheOptions(): Options {
@@ -118,7 +126,7 @@ class CommandBinding<T : Command>(
                     .numberOfArgs(argCount?.max ?: if (hasArg) 1 else 0)
                     .optionalArg(argCount?.min != argCount?.max)
                     .required(isRequired)
-                    .desc(buildDescription(anno))
+                    .desc(buildDescription(anno, type))
                     .also { builder ->
                         buildArgName(anno, type)?.also { builder.argName(it) }
                     }.build()
@@ -153,6 +161,10 @@ private inline fun <reified T> satisfies(type: KType): Boolean {
     return typeOf<T>().isSubtypeOf(type)
 }
 
+private fun isEnum(type: KType): Boolean {
+    return type.jvmErasure.isSubclassOf(Enum::class)
+}
+
 private fun mapTypeToArgName(type: KType): String? {
     return when {
         satisfies<Int>(type) -> INTEGER_ARG
@@ -160,14 +172,18 @@ private fun mapTypeToArgName(type: KType): String? {
     }
 }
 
-private fun buildDescription(anno: CliOption): String {
-    return anno.desc.let {
-        if (anno.default.isNotBlank()) {
-            "$it;\ndefault ${anno.default}"
-        } else {
-            it
-        }
+private fun buildDescription(anno: CliOption, type: KType): String {
+    val lines = mutableListOf<String>()
+    if (anno.desc.isNotBlank()) {
+        lines.add(anno.desc)
     }
+    if (isEnum(type)) {
+        lines.add("one of ${type.jvmErasure.java.enumConstants.map { it.toString().lowercase() }}")
+    }
+    if (anno.default.isNotBlank()) {
+        lines.add("default ${anno.default}")
+    }
+    return lines.joinToString(separator = ";\n")
 }
 
 private fun buildArgName(anno: CliOption, type: KType): String? {

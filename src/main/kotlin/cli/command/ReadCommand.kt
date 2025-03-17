@@ -13,7 +13,7 @@ interface ReadCommand : Command {
     @CliOption(
         long = TABLE_NAME,
         short = 'f',
-        args = ["table name"]
+        args = ["table-name"]
     )
     @Pattern(regexp = RESOURCE_NAME_PATTERN)
     @Size(min = 3, max = 255)
@@ -66,7 +66,7 @@ interface ReadCommand : Command {
         short = 'i',
         requires = [PARTITION_KEY],
         precludes = [CONSISTENT_READ],
-        args = ["index name"]
+        args = ["index-name"]
     )
     @Pattern(regexp = RESOURCE_NAME_PATTERN)
     @Size(min = 3, max = 255)
@@ -83,14 +83,14 @@ interface ReadCommand : Command {
     @CliOption(
         long = PROFILE,
         short = 'p',
-        args = ["aws profile"]
+        args = ["aws-profile"]
     )
     fun profile(): String?
 
     @CliOption(
         long = REGION,
         short = 'R',
-        args = ["aws region"]
+        args = ["aws-region"]
     )
     @Pattern(regexp = RESOURCE_NAME_PATTERN)
     @Size(min = 3, max = 30)
@@ -127,8 +127,7 @@ interface ReadCommand : Command {
     fun rearrangeKeys(): Boolean
 
     @CliOption(
-        long = CONTENT_ONLY,
-        short = 'C'
+        long = CONTENT_ONLY
     )
     fun contentOnly(): Boolean
 
@@ -152,7 +151,7 @@ interface ReadCommand : Command {
     @CliOption(
         long = PROJECTION_EXPRESSION,
         short = 's',
-        args = ["projection expression"],
+        args = ["projection-expr"],
         desc = "comma-separated set of attribute names to retrieve"
     )
     fun projectionExpression(): String?
@@ -218,7 +217,6 @@ interface ReadCommand : Command {
 
     @CliOption(
         long = METADATA_ONLY,
-        short = 'M',
         precludes = [CONTENT_ONLY, TRANSFORM, AGGREGATE, PRUNE, REDUCE, REARRANGE_KEYS, STREAM]
     )
     fun metadataOnly(): Boolean

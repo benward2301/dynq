@@ -1,15 +1,15 @@
 package dynq.executor.read.fn
 
-import cli.logging.fmt.formatKey
-import cli.logging.fmt.formatProgressMessage
-import cli.logging.fmt.formatRequestOp
+import dynq.logging.fmt.formatKey
+import dynq.logging.fmt.formatProgressMessage
+import dynq.logging.fmt.formatRequestOp
 import dynq.cli.command.ReadCommand
-import dynq.cli.logging.*
 import dynq.ddb.model.Key
 import dynq.ddb.model.KeyMember
 import dynq.executor.read.model.KeyMatcher
 import dynq.executor.read.model.RawReadOutput
 import dynq.executor.read.model.ReadMetadata
+import dynq.logging.*
 import kotlinx.coroutines.channels.Channel
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient
 import software.amazon.awssdk.services.dynamodb.model.GetItemRequest

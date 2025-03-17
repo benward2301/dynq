@@ -2,18 +2,22 @@ package dynq.executor.read.fn
 
 import dynq.cli.command.ReadCommand
 import dynq.cli.command.option.JQ_REDUCE_ITEM_VAR
-import dynq.cli.logging.LogEntry
-import dynq.cli.logging.warn
 import dynq.executor.read.model.FilterOutput
 import dynq.executor.read.model.RawReadOutput
 import dynq.executor.read.model.ReadMetadata
 import dynq.jq.jqn
 import dynq.jq.pipe
 import dynq.jq.throwJqError
+import dynq.logging.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import software.amazon.awssdk.enhanced.dynamodb.document.EnhancedDocument
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient
 import kotlin.math.max
+import kotlin.math.pow
 
 suspend fun filter(
     ddb: DynamoDbClient,
@@ -26,13 +30,14 @@ suspend fun filter(
     val reducer = command.reduce()
     val filter = buildItemFilter(command)
 
-    var scannedCount = 0
-    var hitCount = 0
-    var reduction: FilterOutput? = null
+    val state = FilterState()
+    val le = createLogEntry()
 
-    val le = LogEntry.new(pos = 2)
-    logFilterProgress(le, hitCount, scannedCount)
-    var warnedLowMemory = false
+    if (command.logMode() == LogMode.APPEND) {
+        launchLogAppender(state)
+    } else {
+        logFilterProgress(le, state)
+    }
 
     for (readOutput in readChannel) {
         val filterOutput = filterBatch(
@@ -40,30 +45,40 @@ suspend fun filter(
                 if (command.expand()) expandItems(ddb, command, it)
                 else it
             },
-            filter.pipe(command.limit()?.let { ".[0:${it - hitCount}]" })
+            filter.pipe(command.limit()?.let { ".[0:${it - state.hitCount}]" })
         )
 
-        hitCount += filterOutput.items.size
-        filterOutput.meta.scannedCount?.let { scannedCount += it }
-        logFilterProgress(le, hitCount, scannedCount)
+        state.hitCount += filterOutput.items.size
+        filterOutput.meta.scannedCount?.let { state.scannedCount += it }
+        if (command.logMode() == LogMode.RENDER) {
+            logFilterProgress(le, state)
+        }
 
         if (reducer == null) {
             outputChannel.send(filterOutput)
         } else {
-            reduction = reduceBatch(filterOutput, reducer, reduction)
+            state.reduction = reduceBatch(filterOutput, reducer, state.reduction)
         }
-        if (limit != null && limit <= hitCount) {
+        if (limit != null && limit <= state.hitCount) {
             terminate()
         }
 
-        warnedLowMemory = warnedLowMemory || warnIfLowMemory()
+        state.warnedLowMemory = state.warnedLowMemory || warnIfLowMemory()
     }
 
-    if (reduction != null) {
-        outputChannel.send(reduction)
-    }
+    logFilterProgress(le, state)
+    state.done = true
+    state.reduction?.let { outputChannel.send(it) }
     outputChannel.close()
 }
+
+private data class FilterState(
+    var done: Boolean = false,
+    var reduction: FilterOutput? = null,
+    var scannedCount: Int = 0,
+    var hitCount: Int = 0,
+    var warnedLowMemory: Boolean = false
+)
 
 private fun filterBatch(
     batch: RawReadOutput,
@@ -123,8 +138,10 @@ private fun buildItemFilter(command: ReadCommand): String {
         .pipe(if (command.metadataOnly()) "null" else command.transform()) + "\n]"
 }
 
-private fun logFilterProgress(le: LogEntry, hitCount: Int, scannedCount: Int) {
-    le.log { "$hitCount of ${max(scannedCount, hitCount)} total item(s) retained" }
+private fun createLogEntry() = LogEntry.new(pos = 2)
+
+private fun logFilterProgress(le: LogEntry?, state: FilterState, prefix: String = "") {
+    le?.log { prefix + "${state.hitCount} of ${max(state.scannedCount, state.hitCount)} total item(s) retained" }
 }
 
 private fun warnIfLowMemory(): Boolean {
@@ -137,5 +154,13 @@ private fun warnIfLowMemory(): Boolean {
             fun describeMemory(memory: Long) = (memory / 1e6).toInt()
             warn { "low memory (${describeMemory(usedMemory)} used, ${describeMemory(maxMemory)} max)" }
         }
+    }
+}
+
+private fun launchLogAppender(state: FilterState) = CoroutineScope(Dispatchers.Default).launch {
+    var ticks = 0
+    while (!state.done) {
+        delay(2F.pow(++ticks).toLong().coerceAtMost(16) * 1000)
+        logFilterProgress(createLogEntry(), state, " ${style(CYAN)("$SPINNER")} Filtering... ")
     }
 }

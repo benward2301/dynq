@@ -17,7 +17,7 @@ fun interceptInfoArgs(commandName: String?, options: Options, args: Array<String
     }
     when (args[0]) {
         "--$HELP_OPT" -> {
-            HelpFormatter().printHelp(syntax, options)
+            HelpFormatter().also { it.width = 114 }.printHelp(syntax, options)
             exitProcess(0)
         }
 

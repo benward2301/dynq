@@ -1,4 +1,4 @@
-package cli.logging.fmt
+package dynq.logging.fmt
 
 import dynq.ddb.model.Key
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue

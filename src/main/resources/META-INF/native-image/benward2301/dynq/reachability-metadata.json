@@ -288,8 +288,29 @@
       "allDeclaredFields": true
     },
     {
+      "type": "dynq.cli.command.option.postprocess.LogModePostprocessor",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
       "type": "dynq.cli.command.ReadCommand",
       "allDeclaredFields": true
+    },
+    {
+      "type": "dynq.cli.command.option.postprocess.NoopOptionPostprocessor",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "dynq.cli.command.option.postprocess.OptionPostprocessor"
     },
     {
       "type": "dynq.ddb.model.DynamoDbItem"
@@ -330,6 +351,18 @@
       ]
     },
     {
+      "type": "dynq.logging.LogMode",
+      "allDeclaredFields": true,
+      "methods": [
+        {
+          "name": "forValue",
+          "parameterTypes": [
+            "java.lang.String"
+          ]
+        }
+      ]
+    },
+    {
       "type": "int",
       "fields": [
         {
@@ -345,6 +378,15 @@
           "name": "TYPE_MAPPER"
         }
       ]
+    },
+    {
+      "type": "java.io.Serializable"
+    },
+    {
+      "type": "java.lang.Boolean"
+    },
+    {
+      "type": "java.lang.CharSequence"
     },
     {
       "type": "java.lang.Class",
@@ -363,10 +405,22 @@
       "type": "java.lang.ClassValue"
     },
     {
+      "type": "java.lang.Cloneable"
+    },
+    {
+      "type": "java.lang.Comparable"
+    },
+    {
       "type": "java.lang.Double"
     },
     {
+      "type": "java.lang.Enum"
+    },
+    {
       "type": "java.lang.Integer"
+    },
+    {
+      "type": "java.lang.Number"
     },
     {
       "type": "java.lang.Object"
@@ -496,7 +550,19 @@
       "type": "kotlin.Char"
     },
     {
+      "type": "kotlin.CharSequence"
+    },
+    {
+      "type": "kotlin.Cloneable"
+    },
+    {
+      "type": "kotlin.Comparable"
+    },
+    {
       "type": "kotlin.Double"
+    },
+    {
+      "type": "kotlin.Enum"
     },
     {
       "type": "kotlin.Int"
@@ -540,6 +606,9 @@
           "parameterTypes": []
         }
       ]
+    },
+    {
+      "type": "kotlin.Number"
     },
     {
       "type": "kotlin.SafePublicationLazyImpl",

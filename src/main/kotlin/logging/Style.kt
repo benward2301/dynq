@@ -1,4 +1,4 @@
-package dynq.cli.logging
+package dynq.logging
 
 fun style(vararg codes: Int) = fun(text: String): String {
     return escape(RESET) +

@@ -1,4 +1,4 @@
-package dynq.cli.logging
+package dynq.logging
 
 import dynq.cli.route.CommandBinding
 import kotlinx.coroutines.*
@@ -54,7 +54,7 @@ class LogEntry private constructor(
 
         @Synchronized
         fun render() {
-            entries.forEach(LogEntry::print)
+            entries.removeIf { it.print() && CommandBinding.global.logMode() == LogMode.APPEND }
             writer.flush()
             ticks++
         }
@@ -70,10 +70,12 @@ class LogEntry private constructor(
         }
 
         private fun clear() {
-            terminal.puts(InfoCmp.Capability.cursor_to_ll)
-            repeat(entries.sumOf { it.lines }) {
-                terminal.puts(InfoCmp.Capability.clr_eol)
-                terminal.puts(InfoCmp.Capability.cursor_up)
+            if (CommandBinding.global.logMode() == LogMode.RENDER) {
+                terminal.puts(InfoCmp.Capability.cursor_to_ll)
+                repeat(entries.sumOf { it.lines }) {
+                    terminal.puts(InfoCmp.Capability.clr_eol)
+                    terminal.puts(InfoCmp.Capability.cursor_up)
+                }
             }
         }
 
@@ -90,7 +92,7 @@ class LogEntry private constructor(
         }
     }
 
-    private fun print() {
+    private fun print(): Boolean {
         if (enabled) {
             format()?.also { output ->
                 writer.println(output)
@@ -99,13 +101,19 @@ class LogEntry private constructor(
                     .sumOf {
                         ceil((indent + it.length.toDouble()) / terminal.width)
                     }.toInt()
+                return@print true
             }
         }
+        return false
     }
 
     private fun format(): String? {
         return content?.let {
-            escape(DEFAULT) + " ".repeat(indent) + it.replace(SPINNER, spinners[ticks % spinners.size]) + escape(RESET)
+            escape(DEFAULT) + " ".repeat(indent) + (
+                if (CommandBinding.global.logMode() == LogMode.RENDER)
+                    it.replace(SPINNER, spinners[ticks % spinners.size])
+                else it
+            ) + escape(RESET)
         }
     }
 

@@ -1,4 +1,4 @@
-package cli.logging.fmt
+package dynq.logging.fmt
 
 fun formatProgressMessage(
     icon: String,

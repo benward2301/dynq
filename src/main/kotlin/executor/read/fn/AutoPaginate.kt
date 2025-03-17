@@ -1,8 +1,8 @@
 package dynq.executor.read.fn
 
-import cli.logging.fmt.formatProgressMessage
+import dynq.logging.fmt.formatProgressMessage
 import dynq.cli.command.ReadCommand
-import dynq.cli.logging.*
+import dynq.cli.route.CommandBinding
 import dynq.ddb.model.DynamoDbItem
 import dynq.ddb.model.PaginatedResponse
 import dynq.executor.read.model.RawReadOutput
@@ -11,6 +11,7 @@ import dynq.jq.jq
 import dynq.jq.pipe
 import dynq.jq.pipeToNonNull
 import dynq.jq.throwJqError
+import dynq.logging.*
 import kotlinx.coroutines.channels.Channel
 import software.amazon.awssdk.enhanced.dynamodb.document.EnhancedDocument
 import kotlin.math.min
@@ -93,19 +94,24 @@ private fun isCountWithinLimit(count: Int, limit: Int?): Boolean {
 }
 
 private fun logScanProgress(le: LogEntry, scannedCount: Int) {
-    le.log { formatProgressMessage(style(RED)("$SPINNER"), le.label, describeScannedCount(scannedCount)) }
+    if (CommandBinding.global.logMode() == LogMode.RENDER) {
+        le.log { formatProgressMessage(style(RED)("$SPINNER"), le.label, describeScannedCount(scannedCount)) }
+    }
 }
 
 private fun logScanResult(le: LogEntry, scannedCount: Int) {
     le.log {
         val icon: String
-        val message: String
+        var message: String
         if (scannedCount == 0) {
             icon = style(YELLOW)("$EM_DASH")
             message = "Empty segment"
         } else {
             icon = style(GREEN)("$CHECK_MARK")
             message = describeScannedCount(scannedCount)
+            if (CommandBinding.global.logMode() == LogMode.APPEND) {
+                message = "Segment complete: $message"
+            }
         }
         formatProgressMessage(icon, le.label, message)
     }

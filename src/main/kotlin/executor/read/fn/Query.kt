@@ -1,9 +1,9 @@
 package dynq.executor.read.fn
 
-import cli.logging.fmt.formatKey
-import cli.logging.fmt.formatRequestOp
+import dynq.logging.fmt.formatKey
+import dynq.logging.fmt.formatRequestOp
 import dynq.cli.command.ReadCommand
-import dynq.cli.logging.LogEntry
+import dynq.logging.LogEntry
 import dynq.ddb.model.Key
 import dynq.ddb.model.KeyMember
 import dynq.ddb.model.PaginatedResponse

@@ -33,11 +33,11 @@ fun interface OptionValidator<T, R> {
         val Int = wrapValidator<Int> { producer, value ->
             listOf(
                 producer.findAnnotation<Min>()?.value
-                    ?.takeUnless { value >= it.toInt() }
+                    ?.takeUnless { value >= it }
                     ?.let { "must be greater than or equal to $it" },
 
                 producer.findAnnotation<Max>()?.value
-                    ?.takeUnless { value <= it.toInt() }
+                    ?.takeUnless { value <= it }
                     ?.let { "must be less than or equal to $it" },
 
                 producer.findAnnotation<Positive>()

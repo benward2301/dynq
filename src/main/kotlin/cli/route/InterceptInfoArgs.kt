@@ -11,6 +11,9 @@ private const val HELP_OPT = "help"
 private const val VERSION_OPT = "version"
 
 fun interceptInfoArgs(commandName: String?, options: Options, args: Array<String>) {
+    if (args.isEmpty()) {
+        return
+    }
     var syntax = "$PROGRAM_NAME [OPTION]..."
     if (commandName != null) {
         syntax += " $commandName"

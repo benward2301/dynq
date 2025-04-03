@@ -2,17 +2,59 @@
 
 `dynq` is an analytic query and data processing CLI tool for DynamoDB. It uses [`jq`](https://jqlang.github.io/jq/)
 filters to target, transform and/or aggregate items in a given table, and has a number of QoL features including
-automatic pagination, segmentation and index expansion.
+automatic pagination, table segmentation and index expansion.
 
 ![](docs/demo.gif)
 
-## Build from source
+## Installation
+
+Linux binaries can be downloaded from https://github.com/benward2301/dynq/releases.
+
+If you are on a non-Linux platform, you will need to build the `dynq` Docker runtime image:
+
+```shell
+# TODO download release binary
+docker build -t dynq .
+```
+
+The image can then be run as follows:
+
+```shell
+docker run -t --rm --network=host -v ~/.aws:/root/.aws:ro dynq --version
+```
+
+On macOS, you may wish to alias this command (omitting `--version`), or copy the [`docker/dynq`](docker/dynq) script to
+somewhere on your path (e.g. `/usr/bin/local`).
+
+### Building from source
+
+A Linux binary can be built at `target/dynq` using Docker:
 
 ```shell
 docker compose up -d
-docker/dynq-build/mvn verify
-
+docker/build/mvn verify
+docker compose down --rmi all
+target/dynq --version
 ```
+
+### Using the DVD rental database
+
+You can try `dynq` out using a local single-table conversion of the [PostgreSQL DVD rental sample database](docs/dvdrental-er.pdf):
+
+```shell
+docker build -t dynq-dynamodb docker/dynamodb
+docker run -d -p 8000:8000 dynq-dynamodb
+sleep 1
+dynq -E http://localhost:8000 -f dvd_rental -L 1
+```
+
+### Usage tips
+
+- Use `--partition-key` and `--sort-key` wherever possible
+- Use `--select` to improve performance of high-volume queries
+- Keep `jq` filters simple
+- Consider using [`jiq`](https://github.com/fiatjaf/jiq) or a similar interactive `jq` tool to model queries
+- Bear in mind memory usage when processing large datasets
 
 ## Options
 
@@ -277,8 +319,7 @@ Incompatible with `--meta-only`.
 
 ## Examples
 
-The examples below are run against a single-table conversion of
-the [PostgreSQL DVD rental sample database](docs/dvdrental-er.pdf).
+The examples below are run against a single-table conversion of the [PostgreSQL DVD rental sample database](docs/dvdrental-er.pdf).
 
 ### Queries
 
@@ -417,7 +458,7 @@ dynq --from dvd_rental \
 
 ### Redirection
 
-#### Write each item to a file
+#### Save each item locally
 
 ```shell
 dynq -em -f dvd_rental | while read item; do echo "$item" > $(uuid).json; done
@@ -427,7 +468,7 @@ dynq -em -f dvd_rental | while read item; do echo "$item" > $(uuid).json; done
 
 ```shell
 dynq -e -f dvd_rental -P '.entity = "staff"' -S '.id = 1' -t '.picture' \
-  | jq -r \
+  | tr -d \" \
   | base64 -d \
   > staff_1.png
 ```

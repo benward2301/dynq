@@ -2,30 +2,15 @@ services:
   build:
     container_name: dynq-build
     build:
-      context: docker/dynq-build
+      context: docker/build
     depends_on:
       - dynamodb
     environment:
       DYNAMODB_ENDPOINT_URL: http://dynamodb:8000
-    volumes:
-      - type: bind
-        source: ./src
-        target: /dynq/src
-      - type: bind
-        source: ./tests
-        target: /dynq/tests
-      - type: bind
-        source: ./pom.yaml
-        target: /dynq/pom.yaml
-      - type: bind
-        source: ./.mvn
-        target: /dynq/.mvn
     tty: true
     stdin_open: true
 
   dynamodb:
-    container_name: dynamodb-dvd-rental
+    container_name: dynq-dynamodb
     build:
-      context: docker/dynamodb-dvd-rental
-    ports:
-      - '8000:8000'
+      context: docker/dynamodb

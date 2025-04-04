@@ -3,7 +3,7 @@ modelVersion: 4.0.0
 
 groupId: benward2301
 artifactId: dynq
-version: 0.1.0-alpha
+version: 0.1.0
 
 properties:
   kotlin.code.style: official

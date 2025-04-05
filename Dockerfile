@@ -1,7 +1,12 @@
 FROM debian:bookworm-slim
 
-COPY target/dynq /usr/local/bin
+ARG TARGETARCH
+
+RUN apt update && apt install -y wget
+RUN wget -O dynq.gz https://github.com/benward2301/dynq/releases/download/v0.1.0/dynq-0.1.0-${TARGETARCH}.gz && \
+    gzip -d dynq.gz && \
+    chmod +x dynq
 
 ENV DYNQ_COMPATIBILITY_MODE=1
 
-ENTRYPOINT ["dynq"]
+ENTRYPOINT ["./dynq"]

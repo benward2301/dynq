@@ -10,17 +10,10 @@ automatic pagination, table segmentation and index expansion.
 
 Linux binaries can be downloaded from https://github.com/benward2301/dynq/releases.
 
-If you are on a non-Linux platform, you will need to build the `dynq` Docker runtime image:
+If you are on a non-Linux platform, Docker is required to run `dynq`:
 
 ```shell
-# TODO download release binary
-docker build -t dynq .
-```
-
-The image can then be run as follows:
-
-```shell
-docker run -t --rm --network=host -v ~/.aws:/root/.aws:ro dynq --version
+docker run -t --rm --network=host -v ~/.aws:/root/.aws:ro benward2301/dynq --version
 ```
 
 On macOS, you may wish to alias this command (omitting `--version`), or copy the [`docker/dynq`](docker/dynq) script to

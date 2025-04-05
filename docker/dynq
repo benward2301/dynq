@@ -1,2 +1,2 @@
 #!/bin/sh
-docker run -t --rm --network=host -v ~/.aws:/root/.aws:ro dynq "$@"
+docker run -t --rm --network=host -v ~/.aws:/root/.aws:ro benward2301/dynq "$@"

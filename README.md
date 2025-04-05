@@ -24,6 +24,8 @@ somewhere on your path (e.g. `/usr/bin/local`).
 A Linux binary can be built at `target/dynq` using Docker:
 
 ```shell
+git clone https://github.com/benward2301/dynq.git
+cd dynq
 docker compose up -d
 docker/build/mvn verify
 docker compose down --rmi all
@@ -35,8 +37,7 @@ target/dynq --version
 You can try `dynq` out using a local single-table conversion of the [PostgreSQL DVD rental sample database](docs/dvdrental-er.pdf):
 
 ```shell
-docker build -t dynq-dynamodb docker/dynamodb
-docker run -d -p 8000:8000 dynq-dynamodb
+docker run -d -p 8000:8000 benward2301/dynamodb-local-dvd-rental
 sleep 1
 dynq -E http://localhost:8000 -f dvd_rental -L 1
 ```

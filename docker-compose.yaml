@@ -12,5 +12,4 @@ services:
 
   dynamodb:
     container_name: dynq-dynamodb
-    build:
-      context: docker/dynamodb
+    image: benward2301/dynamodb-local-dvd-rental

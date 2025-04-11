@@ -17,7 +17,7 @@ docker run -i --rm --network=host -v ~/.aws:/root/.aws:ro benward2301/dynq --ver
 ```
 
 On macOS, you may wish to alias this command (omitting `--version`), or copy the [`docker/dynq`](docker/dynq) script to
-somewhere on your path (e.g. `/usr/bin/local`).
+somewhere on your path (e.g. `/usr/local/bin`).
 
 ### Building from source
 

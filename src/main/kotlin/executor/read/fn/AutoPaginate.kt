@@ -102,16 +102,13 @@ private fun logScanProgress(le: LogEntry, scannedCount: Int) {
 private fun logScanResult(le: LogEntry, scannedCount: Int) {
     le.log {
         val icon: String
-        var message: String
+        val message: String
         if (scannedCount == 0) {
             icon = style(YELLOW)("$EM_DASH")
             message = "Empty segment"
         } else {
             icon = style(GREEN)("$CHECK_MARK")
             message = describeScannedCount(scannedCount)
-            if (CommandBinding.global.logMode() == LogMode.APPEND) {
-                message = "Segment complete: $message"
-            }
         }
         formatProgressMessage(icon, le.label, message)
     }

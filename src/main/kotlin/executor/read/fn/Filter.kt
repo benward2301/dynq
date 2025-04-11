@@ -9,15 +9,10 @@ import dynq.jq.jqn
 import dynq.jq.pipe
 import dynq.jq.throwJqError
 import dynq.logging.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import software.amazon.awssdk.enhanced.dynamodb.document.EnhancedDocument
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient
 import kotlin.math.max
-import kotlin.math.pow
 
 suspend fun filter(
     ddb: DynamoDbClient,
@@ -33,9 +28,7 @@ suspend fun filter(
     val state = FilterState()
     val le = createLogEntry()
 
-    if (command.logMode() == LogMode.APPEND) {
-        launchLogAppender(state)
-    } else {
+    if (command.logMode() == LogMode.RENDER) {
         logFilterProgress(le, state)
     }
 
@@ -154,13 +147,5 @@ private fun warnIfLowMemory(): Boolean {
             fun describeMemory(memory: Long) = (memory / 1e6).toInt()
             warn { "low memory (${describeMemory(usedMemory)} used, ${describeMemory(maxMemory)} max)" }
         }
-    }
-}
-
-private fun launchLogAppender(state: FilterState) = CoroutineScope(Dispatchers.Default).launch {
-    var ticks = 0
-    while (!state.done) {
-        delay(2F.pow(++ticks).toLong().coerceAtMost(16) * 1000)
-        logFilterProgress(createLogEntry(), state, " ${style(CYAN)("$SPINNER")} Filtering... ")
     }
 }

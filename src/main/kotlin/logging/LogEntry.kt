@@ -20,7 +20,8 @@ class LogEntry private constructor(
             get() = field && !CommandBinding.global.quiet()
 
         private val terminal = TerminalBuilder.builder()
-            .system(true)
+            .system(false)
+            .streams(System.`in`, System.err)
             .build()
         private val writer = terminal.writer()
 

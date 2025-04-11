@@ -1,7 +1,6 @@
 package dynq.cli.route
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import dynq.cli.COMPATIBILITY_MODE
 import dynq.cli.anno.CliOption
 import dynq.cli.anno.constraints.Size
 import dynq.cli.command.Command
@@ -64,7 +63,7 @@ class CommandBinding<T : Command>(
 
         // comparison over Boolean cast
         if (optionValues[Command::colorize.name] == false && optionValues[Command::monochrome.name] == false) {
-            val colorize = System.getenv(COMPATIBILITY_MODE).isNullOrBlank() && System.console()?.isTerminal ?: false
+            val colorize = System.console()?.isTerminal ?: false
             optionValues[Command::colorize.name] = colorize
             optionValues[Command::monochrome.name] = !colorize
         }

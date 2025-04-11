@@ -1,3 +1,0 @@
-package dynq.cli
-
-val COMPATIBILITY_MODE = "DYNQ_COMPATIBILITY_MODE"

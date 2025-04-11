@@ -13,7 +13,7 @@ Linux binaries can be downloaded from https://github.com/benward2301/dynq/releas
 If you are on a non-Linux platform, Docker is required to run `dynq`:
 
 ```shell
-docker run -t --rm --network=host -v ~/.aws:/root/.aws:ro benward2301/dynq --version
+docker run -i --rm --network=host -v ~/.aws:/root/.aws:ro benward2301/dynq --version
 ```
 
 On macOS, you may wish to alias this command (omitting `--version`), or copy the [`docker/dynq`](docker/dynq) script to

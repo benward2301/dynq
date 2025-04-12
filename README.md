@@ -13,8 +13,16 @@ Linux binaries can be downloaded from https://github.com/benward2301/dynq/releas
 If you are on a non-Linux platform, Docker is required to run `dynq`:
 
 ```shell
-docker run -i --rm --network=host -v ~/.aws:/root/.aws:ro benward2301/dynq --version
+docker run -i --rm \
+    --network=host \
+    -v ~/.aws:/root/.aws:ro \
+    -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
+    -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
+    -e AWS_REGION=$AWS_REGION \
+  benward2301/dynq --version
 ```
+> [!NOTE]  
+> This command is for Unix-based platforms, and will need to be adapted for Windows.
 
 On macOS, you may wish to alias this command (omitting `--version`), or copy the [`docker/dynq`](docker/dynq) script to
 somewhere on your path (e.g. `/usr/local/bin`).
@@ -39,6 +47,12 @@ You can try `dynq` out using a local single-table conversion of the [PostgreSQL 
 ```shell
 docker run -d -p 8000:8000 benward2301/dynamodb-local-dvd-rental
 sleep 1
+
+# Can be omitted if you have AWS configured
+export AWS_ACCESS_KEY_ID=local
+export AWS_SECRET_ACCESS_KEY=local
+export AWS_REGION=eu-west-2
+
 dynq -E http://localhost:8000 -f dvd_rental -L 1
 ```
 
@@ -202,8 +216,7 @@ Incompatible with `--meta-only`.
 
 (jq filter)
 
-`jq` filter to transform each individual item. Executes before the `--where` selection
-filter.
+`jq` filter to transform individual items. Executes before the `--where` selection filter.
 
 #### `-a, --aggregate`
 

@@ -6,11 +6,70 @@ automatic pagination, table segmentation and index expansion.
 
 ![](docs/demo.gif)
 
+### Contents
+
+- [Installation](#installation)
+  - [Linux](#linux)
+  - [Docker](#docker)
+  - [Building from source](#building-from-source)
+- [Starting out](#starting-out)
+  - [The DVD rental database](#the-dvd-rental-database)
+  - [Tips](#tips)
+- [Options](#options)
+  - [General](#general)
+    - [-f, --from (table name)](#-f---from)
+    - [-c, --concurrency (integer)](#-c---concurrency)
+    - [-i, --index (index name)](#-i---index)
+    - [-x, --expand](#-x---expand)
+    - [-s, --select (projection expression)](#-s---select)
+    - [-e, --stream](#-e---stream)
+    - [--consistent-read](#--consistent-read)
+    - [-E, --endpoint-url](#-e---endpoint-url)
+    - [-p, --profile](#-p---profile)
+    - [-r, --region](#-r---region)
+  - [Selection filters](#selection-filters)
+    - [-w, --where (jq filter)](#-w---where)
+    - [-P, --partition-key (jq filter)](#-p---partition-key)
+    - [-S, --sort-key (jq filter)](#-s---sort-key)
+    - [-k, --start-key (jq filter)](#-k---start-key)
+  - [Transformation filters](#transformation-filters)
+    - [-t, --transform (jq filter)](#-t---transform)
+    - [-T, --pretransform (jq filter)](#-t---pretransform)
+    - [-a, --aggregate (jq filter)](#-a---aggregate)
+    - [-u, --prune (jq filter)](#-u---prune)
+  - [Limits](#limits)
+    - [-l, --limit (integer)](#-l---limit)
+    - [-L, --scan-limit (integer)](#-l---scan-limit)
+    - [-Q, --request-limit (integer)](#-q---request-limit)
+    - [-I, --items-per-request (integer)](#-i---items-per-request)
+  - [Output flags](#output-flags)
+    - [--content-only](#--content-only)
+    - [--meta-only](#--meta-only)
+    - [--quiet](#-q---quiet)
+    - [-C, --colorize](#-c---colorize)
+    - [-M, --monochrome](#-m---monochrome)
+    - [-m, --compact](#-m---compact)
+    - [-g, --rearrange-keys](#-g---rearrange-keys)
+- [Examples](#examples)
+  - [Find a film with a G rating](#find-a-film-with-a-g-rating)
+  - [Calculate total amount of payments in 2007-03](#calculate-total-amount-of-payments-in-2007-03)
+  - [Calculate average payment amount](#calculate-average-payment-amount)
+  - [Find the film with the longest length](#find-the-film-with-the-longest-length)
+  - [Find the three films with the shortest length](#find-the-three-films-with-the-shortest-length)
+  - [Count films by rating](#count-films-by-rating)
+  - [Scan from rental 1](#scan-from-rental-1)
+  - [Get films up to film 100](#get-films-up-to-film-100)
+  - [Find all staff, customers and actors named Jon](#find-all-staff-customers-and-actors-named-jon)
+  - [Save each item locally](#save-each-item-locally)
+  - [Decode a binary attribute](#decode-a-binary-attribute)
+
 ## Installation
+
+### Linux
 
 Linux binaries can be downloaded from https://github.com/benward2301/dynq/releases.
 
-If you are on a non-Linux platform, Docker is required to run `dynq`:
+### Docker
 
 ```shell
 docker run -i --rm \
@@ -21,10 +80,8 @@ docker run -i --rm \
     -e AWS_REGION=$AWS_REGION \
   benward2301/dynq --version
 ```
-> [!NOTE]  
-> This command is for Unix-based platforms, and will need to be adapted for Windows.
 
-On macOS, you may wish to alias this command (omitting `--version`), or copy the [`docker/dynq`](docker/dynq) script to
+On Linux or macOS, you may wish to alias this command (omitting `--version`), or copy the [`docker/dynq`](docker/dynq) script to
 somewhere on your path (e.g. `/usr/local/bin`).
 
 ### Building from source
@@ -40,7 +97,9 @@ docker compose down --rmi all
 target/dynq --version
 ```
 
-### Using the DVD rental database
+## Starting out
+
+### The DVD rental database
 
 You can try `dynq` out using a local single-table conversion of the [PostgreSQL DVD rental sample database](docs/dvdrental-er.pdf):
 
@@ -56,7 +115,13 @@ export AWS_REGION=eu-west-2
 dynq -E http://localhost:8000 -f dvd_rental -L 1
 ```
 
-### Usage tips
+You can view the database schema with the AWS CLI:
+
+```shell
+aws dynamodb --endpoint-url http://localhost:8000 describe-table --table-name dvd_rental
+```
+
+### Tips
 
 - Use `--partition-key` and `--sort-key` wherever possible
 - Use `--select` to improve performance of high-volume queries
@@ -65,6 +130,8 @@ dynq -E http://localhost:8000 -f dvd_rental -L 1
 - Bear in mind memory usage when processing large datasets
 
 ## Options
+
+### General
 
 #### `-f, --from`
 
@@ -96,7 +163,7 @@ The name of a global secondary index to query.
 
 Requires `--partition-key`.
 
-Incompatible with `--consitent-read`.
+Incompatible with `--consistent-read`.
 
 #### `-x, --expand`
 
@@ -108,7 +175,8 @@ Requires `--partition-key` and `--index`.
 
 (projection expression)
 
-A comma-separated set of attribute names to retrieve. Equivalent to the DynamoDB `--projection-expression` option.
+A comma-separated set of attribute names to retrieve. Equivalent to the DynamoDB [`--projection-expression`](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Expressions.ProjectionExpressions.html)
+option.
 
 Can improve performance of queries.
 
@@ -326,9 +394,7 @@ Incompatible with `--meta-only`.
 
 ## Examples
 
-The examples below are run against a single-table conversion of the [PostgreSQL DVD rental sample database](docs/dvdrental-er.pdf).
-
-### Queries
+The examples below are run against the [DVD rental sample database](#the-dvd-rental-database).
 
 For brevity, these queries do not use the `--select` option, but its use is recommended for high-volume queries.
 
@@ -462,8 +528,6 @@ dynq --from dvd_rental \
 ```
 
 [Output](docs/examples/jons.json)
-
-### Redirection
 
 #### Save each item locally
 

@@ -100,6 +100,7 @@ build:
           - -Djava.util.logging.config.file=
           - -o target/${native.outputFile}
           - -Os
+          - -march=compatibility
       executions:
         - id: build-native
           phase: package

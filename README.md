@@ -81,8 +81,20 @@ docker run -i --rm \
   benward2301/dynq --version
 ```
 
-On Linux or macOS, you may wish to alias this command (omitting `--version`), or copy the [`docker/dynq`](docker/dynq) script to
+You may wish to alias this command (omitting `--version`), or copy the [`docker/dynq`](docker/dynq) script to
 somewhere on your path (e.g. `/usr/local/bin`).
+
+###### PowerShell
+
+```shell
+docker run -i --rm `
+    --network=host `
+    -v $Env:USERPROFILE\.aws:/root/.aws:ro `
+    -e AWS_ACCESS_KEY_ID=$Env:AWS_ACCESS_KEY_ID `
+    -e AWS_SECRET_ACCESS_KEY=$Env:AWS_SECRET_ACCESS_KEY `
+    -e AWS_REGION=$Env:AWS_REGION `
+  benward2301/dynq --version
+```
 
 ### Building from source
 
@@ -105,7 +117,7 @@ You can try `dynq` out using a local single-table conversion of the [PostgreSQL 
 
 ```shell
 docker run -d -p 8000:8000 benward2301/dynamodb-local-dvd-rental
-sleep 1
+sleep 2
 
 # Can be omitted if you have AWS configured
 export AWS_ACCESS_KEY_ID=local

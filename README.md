@@ -109,6 +109,12 @@ docker compose down --rmi all
 target/dynq --version
 ```
 
+Then a Docker image can be built:
+
+```shell
+docker build -t benward2301/dynq -f docker/local/Dockerfile .
+```
+
 ## Starting out
 
 ### The DVD rental database

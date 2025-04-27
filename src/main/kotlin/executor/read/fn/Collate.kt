@@ -33,7 +33,7 @@ suspend fun collate(
                 "null"
             } else {
                 jq(
-                    sanitizeControlChars(it),
+                    it,
                     filter = buildAggregationFilter(command, output.meta),
                     sortKeys = command.rearrangeKeys(),
                     onError = throwJqError("bad aggregate filter")
@@ -154,9 +154,3 @@ private fun buildPresentationFilter(
     }
     return "{$METADATA_PROP: ($metadata), $CONTENT_PROP: .}"
 }
-
-private fun sanitizeControlChars(input: String) =
-    input.replace("\n", "\\n")
-        .replace("\r", "\\r")
-        .replace("\t", "\\t")
-        .replace(Regex("[\u0000-\u001F]"), "")

@@ -4,7 +4,7 @@ working_dir=$(pwd)
 project_dir=${working_dir/%\/dynq\/*/\/dynq\/}
 script_dir="$(dirname "$(realpath $0)")"
 
-for source in src tests pom.yaml .mvn; do
+for source in src tests pom.xml; do
   docker cp -q $source dynq-build:/dynq/$source
 done
 docker exec -t dynq-build bash -c "mvn $@"

@@ -27,6 +27,7 @@ export class ReadCommand extends Command {
   readonly itemsPerRequest = this.arg<number>('items-per-request');
   readonly metadataOnly = this.flag('meta-only');
   readonly prune = this.arg<string>('prune');
+  readonly key = this.arg<string | object>('key');
 
   constructor() {
     super();

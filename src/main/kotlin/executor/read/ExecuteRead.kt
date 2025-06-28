@@ -22,15 +22,19 @@ val executeRead = CommandExecutor<ReadCommand> { command ->
     val readChannel = Channel<RawReadOutput>(Channel.RENDEZVOUS)
     val outputChannel = Channel<FilterOutput>(Channel.UNLIMITED)
 
-    val partitionKey = buildPartitionKeyMatcher(command.partitionKey())
-    val sortKey = buildSortKeyMatcher(command.sortKey())
+    val keyMatchers = buildKeyMatchers(command)
+    val partitionKey = keyMatchers.first
+    val sortKey = keyMatchers.second
 
     runBlocking {
         val reading = launch(Dispatchers.IO) {
             when {
-                partitionKey == null ->
+                partitionKey == null -> {
+                    if (command.indexName() != null) {
+                        throw IllegalArgumentException("a partition key must be provided with a global secondary index")
+                    }
                     scan(command, readChannel, ddb)
-
+                }
                 sortKey is KeyMatcher.Discrete && command.indexName() == null ->
                     getItems(command, readChannel, ddb, partitionKey, sortKey)
 

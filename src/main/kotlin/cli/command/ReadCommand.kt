@@ -44,6 +44,15 @@ interface ReadCommand : Command {
     fun pretransform(): String?
 
     @CliOption(
+        long = KEY,
+        short = 'K',
+        precludes = [START_KEY, PARTITION_KEY, SORT_KEY],
+        args = [JQ_FILTER_ARG],
+        desc = "(composite) key filter"
+    )
+    fun key(): String?
+
+    @CliOption(
         long = PARTITION_KEY,
         short = 'P',
         args = [JQ_FILTER_ARG],
@@ -64,7 +73,6 @@ interface ReadCommand : Command {
     @CliOption(
         long = INDEX_NAME,
         short = 'i',
-        requires = [PARTITION_KEY],
         precludes = [CONSISTENT_READ],
         args = ["index-name"]
     )
@@ -237,6 +245,7 @@ private const val TABLE_NAME = "from"
 private const val TRANSFORM = "transform"
 private const val WHERE = "where"
 private const val PRETRANSFORM = "pretransform"
+private const val KEY = "key"
 private const val PARTITION_KEY = "partition-key"
 private const val SORT_KEY = "sort-key"
 private const val INDEX_NAME = "index"

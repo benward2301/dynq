@@ -10,7 +10,6 @@
     <kotlin.code.style>official</kotlin.code.style>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <kotlin.compiler.jvmTarget>22</kotlin.compiler.jvmTarget>
-    <native.skip>false</native.skip>
   </properties>
   <dependencies>
     <dependency>
@@ -153,7 +152,6 @@
           </execution>
         </executions>
         <configuration>
-          <skip>${native.skip}</skip>
           <buildArgs>
             <buildArg>-Djava.util.logging.config.file=</buildArg>
             <buildArg>-o target/${native.outputFile}</buildArg>
@@ -189,7 +187,6 @@
               <goal>exec</goal>
             </goals>
             <configuration>
-              <skip>${native.skip}</skip>
               <executable>tests/run.bash</executable>
               <arguments>
                 <argument>target/${native.outputFile}</argument>

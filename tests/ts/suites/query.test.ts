@@ -34,6 +34,36 @@ test('partition key category, where name is "Comedy" -> meta, category#5', async
   );
 });
 
+test('key category, where name is "Comedy" -> meta, category#5', async () => {
+  const output = await new ReadCommand()
+      .key('.entity = "category"')
+      .where('.name == "Comedy"')
+      .execute()
+      .parse();
+  assert.deepEqual(
+      output,
+      {
+        meta: {
+
+          consumedCapacity: 0.5,
+          requestCount: 1,
+          scannedCount: 16,
+          hitCount: 1
+        },
+        content: [
+          {
+            category_id: 5,
+            last_update: '2006-02-15T09:46:27',
+            name: 'Comedy',
+            id: 5,
+            uuid: 'add29b12-9578-11ef-8ef0-473a18243738',
+            entity: 'category'
+          }
+        ]
+      }
+  );
+});
+
 test('partition keys [actor, staff, customer], pretransform to first name, where begins with "Mi"' +
     ' -> all first names beginning with "Mi"',
     async () => {
@@ -332,10 +362,63 @@ test('global index payment_id, partition key 32098, sort key 5c5e42d6 -> meta, p
     }
 );
 
+test('global index payment_id, key 32098 5c5e42d6 -> meta, payment#32098', async () => {
+      const output = await new ReadCommand()
+          .index('payment_id')
+          .key('.payment_id = 32098')
+          .execute()
+          .parse();
+      assert.deepEqual(
+          output,
+          {
+            meta: {
+              consumedCapacity: 0.5,
+              requestCount: 1,
+              scannedCount: 1,
+              hitCount: 1
+            },
+            content: [
+              {
+                payment_id: 32098,
+                id: 32098,
+                uuid: '5c5e42d6-6652-11ef-bb18-bf8c0bb842c0',
+                entity: 'payment'
+              }
+            ]
+          }
+      );
+    }
+);
+
 test('global index address_id, partition key 10 -> address#10 keys, customer#6 keys', async () => {
   const { content } = await new ReadCommand()
       .index('address_id')
       .partitionKey('.address_id = 10')
+      .execute()
+      .parse();
+  assert.sameDeepMembers(
+      content,
+      [
+        {
+          address_id: 10,
+          id: 6,
+          uuid: '5bed555c-65a4-11ef-9824-ffafc9f9b914',
+          entity: 'customer'
+        },
+        {
+          address_id: 10,
+          id: 10,
+          uuid: 'a9c678be-9577-11ef-abc7-d34ae2d17f44',
+          entity: 'address'
+        }
+      ]
+  );
+});
+
+test('global index address_id, key 10 -> address#10 keys, customer#6 keys', async () => {
+  const { content } = await new ReadCommand()
+      .index('address_id')
+      .key('.address_id = 10')
       .execute()
       .parse();
   assert.sameDeepMembers(

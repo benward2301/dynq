@@ -235,13 +235,24 @@ The AWS region to use. Overrides config/env settings.
 `jq` predicate filter to select items. Equivalent to `jq` [`select(f)`](https://jqlang.github.io/jq/manual/v1.6/#select)
 function.
 
+#### `-K, --key`
+
+(jq filter)
+
+`jq` filter producing a partition key or composite key.
+
+The output must be an object with one or two properties (the partition key attribute name and optionally the sort key attribute name),
+the values of which must be a string or number.
+
+Binary keys are not currently supported.
+
 #### `-P, --partition-key`
 
 (jq filter)
 
 `jq` filter producing one or more partition keys to query.
 
-The output must be an object containing a single key (the partition key attribute name), the value of which must be a
+The output must be an object with a single property (the partition key attribute name), the value of which must be a
 string, number, or array thereof.
 
 Binary keys are not currently supported.
@@ -252,11 +263,11 @@ Binary keys are not currently supported.
 
 `jq` filter producing one or more sort keys or a sort key range to query.
 
-The output must be an object containing a single key (the sort key attribute name).
+The output must be an object with a single property (the sort key attribute name).
 
 To target specific items, the value must be a string, number, or array thereof.
 
-To target a range of items, the value must be an object with exactly one of the following operator keys:
+To target a range of items, the value must be an object with exactly one of the following operator properties:
 
 - `lt` or `less_than`
 - `lte` or `less_than_or_equals`
@@ -416,6 +427,23 @@ The examples below are run against the [DVD rental sample database](#the-dvd-ren
 
 For brevity, these queries do not use the `--select` option, but its use is recommended for high-volume queries.
 
+#### Get `film 1`
+
+```shell
+dynq --from dvd_rental \
+  --key '.entity = "film" | .id = 1'
+```
+
+> [!TIP]
+> The `--key` filter above uses assignment to produce an object, however a JSON or JSON5 object literal may
+> be used instead:
+>
+> ```shell
+> --key '{ entity: "film", id: 1 }'
+> ```
+
+[Output](docs/examples/film-1.json)
+
 #### Find a `film` with a `G rating`
 
 ```shell
@@ -426,14 +454,6 @@ dynq --from dvd_rental \
 ```
 
 [Output](docs/examples/g-rated-film.json)
-
-> [!TIP]  
-> The `--partition-key` filter above uses assignment to produce an object, however a JSON or JSON5 object literal may
-> be used instead:
->
-> ```shell
-> --partition-key: '{ entity: "film" }'
-> ```
 
 #### Calculate total `amount` of `payments` in `2007-03`
 

@@ -1,0 +1,30 @@
+{
+  "meta": {
+    "consumedCapacity": 0.5,
+    "requestCount": 1,
+    "hitCount": 1
+  },
+  "content": [
+    {
+      "special_features": [
+        "Deleted Scenes",
+        "Behind the Scenes"
+      ],
+      "rental_duration": 6,
+      "rental_rate": 0.99,
+      "release_year": 2006,
+      "length": 86,
+      "replacement_cost": 20.99,
+      "rating": "PG",
+      "description": "A Epic Drama of a Feminist And a Mad Scientist who must Battle a Teacher in The Canadian Rockies",
+      "language_id": 1,
+      "title": "Academy Dinosaur",
+      "uuid": "79e3d69a-64c2-11ef-8f1f-9b3cc55dd229",
+      "last_update": "2013-05-26T14:50:58.951",
+      "fulltext": "'academi':1 'battl':15 'canadian':20 'dinosaur':2 'drama':5 'epic':4 'feminist':8 'mad':11 'must':14 'rocki':21 'scientist':12 'teacher':17",
+      "film_id": 1,
+      "id": 1,
+      "entity": "film"
+    }
+  ]
+}

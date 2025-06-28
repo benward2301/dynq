@@ -98,3 +98,39 @@ test('select (reserved word) name, partition key category, sort key 11, content 
       ]
   );
 });
+
+test('key film 50, content only -> film#50', async () => {
+  const content = await new ReadCommand()
+      .key('.entity = "film" | .id = 50')
+      .contentOnly()
+      .execute()
+      .parse();
+  assert.deepEqual(
+      content,
+      [
+        {
+          special_features: [
+            'Commentaries',
+            'Behind the Scenes'
+          ],
+          rental_duration: 3,
+          rental_rate: 2.99,
+          release_year: 2006,
+          length: 182,
+          replacement_cost: 20.99,
+          rating: 'G',
+          description: 'A Stunning Drama of a Forensic Psychologist And a Husband who must Overcome a Waitress in ' +
+              'A Monastery',
+          language_id: 1,
+          title: 'Baked Cleopatra',
+          uuid: '87115ee6-64c2-11ef-9ef5-5f0c76579979',
+          last_update: '2013-05-26T14:50:58.951',
+          fulltext: `'bake':1 'cleopatra':2 'drama':5 'forens':8 'husband':12 'monasteri':20 'must':14 ` +
+              `'overcom':15 'psychologist':9 'stun':4 'waitress':17`,
+          film_id: 50,
+          id: 50,
+          entity: 'film'
+        }
+      ]
+  );
+});

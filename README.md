@@ -51,6 +51,7 @@ automatic pagination, table segmentation and index expansion.
     - [-m, --compact](#-m---compact)
     - [-g, --rearrange-keys](#-g---rearrange-keys)
 - [Examples](#examples)
+  - [Get film 1](#get-film-1)
   - [Find a film with a G rating](#find-a-film-with-a-g-rating)
   - [Calculate total amount of payments in 2007-03](#calculate-total-amount-of-payments-in-2007-03)
   - [Calculate average payment amount](#calculate-average-payment-amount)

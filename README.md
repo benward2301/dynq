@@ -9,7 +9,7 @@ automatic pagination, table segmentation and index expansion.
 ### Contents
 
 - [Installation](#installation)
-  - [Linux](#linux)
+  - [Linux and macOS](#linux-and-macos)
   - [Docker](#docker)
   - [Building from source](#building-from-source)
 - [Starting out](#starting-out)
@@ -66,9 +66,9 @@ automatic pagination, table segmentation and index expansion.
 
 ## Installation
 
-### Linux
+### Linux and macOS
 
-Linux binaries can be downloaded from https://github.com/benward2301/dynq/releases.
+Linux and macOS binaries can be downloaded from https://github.com/benward2301/dynq/releases.
 
 ### Docker
 
@@ -99,21 +99,13 @@ docker run -i --rm `
 
 ### Building from source
 
-A Linux binary can be built at `target/dynq` using Docker:
+Requires [GraalVM](https://www.graalvm.org/downloads/) and [Maven](https://maven.apache.org/download.cgi).
 
 ```shell
 git clone https://github.com/benward2301/dynq.git
 cd dynq
-docker compose up -d
-docker/build/mvn verify
-docker compose down --rmi all
+mvn package -DskipTests 2>&1
 target/dynq --version
-```
-
-Then a Docker image can be built:
-
-```shell
-docker build -t benward2301/dynq -f docker/local/Dockerfile .
 ```
 
 ## Starting out

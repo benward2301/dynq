@@ -1260,6 +1260,9 @@
       "glob": "com/sun/jna/*/libjnidispatch.so"
     },
     {
+      "glob": "com/sun/jna/*/libjnidispatch.jnilib"
+    },
+    {
       "glob": "commons-logging.properties"
     },
     {
@@ -1276,6 +1279,9 @@
     },
     {
       "glob": "lib/*/libjq.so"
+    },
+    {
+      "glob": "lib/*/libjq.dylib"
     },
     {
       "glob": "mozilla/public-suffix-list.txt"

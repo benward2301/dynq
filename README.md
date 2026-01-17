@@ -43,8 +43,8 @@ automatic pagination, table segmentation and index expansion.
     - [-Q, --request-limit (integer)](#-q---request-limit)
     - [-I, --items-per-request (integer)](#-i---items-per-request)
   - [Output flags](#output-flags)
-    - [--content-only](#--content-only)
-    - [--meta-only](#--meta-only)
+    - [-o, --content-only](#-o---content-only)
+    - [-O, --meta-only](#-o---meta-only)
     - [-U, --no-unmarshall](#-u---no-unmarshall)
     - [--quiet](#-q---quiet)
     - [-C, --colorize](#-c---colorize)
@@ -376,13 +376,13 @@ The maximum number of items scanned per DynamoDB request.
 
 ### Output flags
 
-#### `--content-only`
+#### `-o, --content-only`
 
 Return only the content of the query output.
 
 Incompatible with `--meta-only`.
 
-#### `--meta-only`
+#### `-O, --meta-only`
 
 Return only the metadata of the query output.
 

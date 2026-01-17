@@ -135,7 +135,8 @@ interface ReadCommand : Command {
     fun rearrangeKeys(): Boolean
 
     @CliOption(
-        long = CONTENT_ONLY
+        long = CONTENT_ONLY,
+        short = 'o'
     )
     fun contentOnly(): Boolean
 
@@ -225,6 +226,7 @@ interface ReadCommand : Command {
 
     @CliOption(
         long = METADATA_ONLY,
+        short = 'O',
         precludes = [CONTENT_ONLY, TRANSFORM, AGGREGATE, PRUNE, REDUCE, REARRANGE_KEYS, STREAM]
     )
     fun metadataOnly(): Boolean

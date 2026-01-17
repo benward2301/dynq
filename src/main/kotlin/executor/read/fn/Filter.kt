@@ -1,7 +1,11 @@
 package dynq.executor.read.fn
 
+import com.fasterxml.jackson.databind.module.SimpleModule
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import dynq.cli.command.ReadCommand
 import dynq.cli.command.option.JQ_REDUCE_ITEM_VAR
+import dynq.ddb.model.DynamoDbItem
+import dynq.ddb.model.RawDynamoDbItemSerializer
 import dynq.executor.read.model.FilterOutput
 import dynq.executor.read.model.RawReadOutput
 import dynq.executor.read.model.ReadMetadata
@@ -38,7 +42,8 @@ suspend fun filter(
                 if (command.expand()) expandItems(ddb, command, it)
                 else it
             },
-            filter.pipe(command.limit()?.let { ".[0:${it - state.hitCount}]" })
+            filter.pipe(command.limit()?.let { ".[0:${it - state.hitCount}]" }),
+            command.noUnmarshall()
         )
 
         state.hitCount += filterOutput.items.size
@@ -75,13 +80,26 @@ private data class FilterState(
 
 private fun filterBatch(
     batch: RawReadOutput,
-    expression: String
+    expression: String,
+    noUnmarshall: Boolean
 ): FilterOutput {
-    val items = jqn(
+    val itemsJson = if (noUnmarshall) {
+        val mapper = jacksonObjectMapper()
+        val module = SimpleModule().addSerializer(
+            DynamoDbItem::class.java,
+            RawDynamoDbItemSerializer()
+        )
+        mapper.registerModule(module)
+        mapper.writeValueAsString(batch.items)
+    } else {
         batch.items
             .map(EnhancedDocument::fromAttributeValueMap)
             .map(EnhancedDocument::toJson)
-            .toString(),
+            .toString()
+    }
+
+    val items = jqn(
+        itemsJson,
         expression,
         onError = throwJqError("bad item filter")
     ).asArray()

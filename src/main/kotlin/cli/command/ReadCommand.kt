@@ -239,6 +239,13 @@ interface ReadCommand : Command {
     )
     fun prune(): String?
 
+    @CliOption(
+        long = NO_UNMARSHALL,
+        short = 'U',
+        desc = "output raw DynamoDB format with type descriptors"
+    )
+    fun noUnmarshall(): Boolean
+
 }
 
 private const val TABLE_NAME = "from"
@@ -268,6 +275,7 @@ private const val REDUCE = "reduce"
 private const val REQUEST_LIMIT = "request-limit"
 private const val ITEMS_PER_REQUEST = "items-per-request"
 private const val METADATA_ONLY = "meta-only"
+private const val NO_UNMARSHALL = "no-unmarshall"
 private const val PRUNE = "prune"
 
 private const val RESOURCE_NAME_PATTERN = "[\\w\\-.]*"

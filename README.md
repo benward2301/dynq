@@ -45,6 +45,7 @@ automatic pagination, table segmentation and index expansion.
   - [Output flags](#output-flags)
     - [--content-only](#--content-only)
     - [--meta-only](#--meta-only)
+    - [-U, --no-unmarshall](#-u---no-unmarshall)
     - [--quiet](#-q---quiet)
     - [-C, --colorize](#-c---colorize)
     - [-M, --monochrome](#-m---monochrome)
@@ -387,6 +388,21 @@ Return only the metadata of the query output.
 
 Incompatible with `--content-only`, `--transform`, `--aggregate`, `--prune`, `--reduce`, `--rearrange-keys`
 and `stream`.
+
+#### `-U, --no-unmarshall`
+
+Output raw DynamoDB format with type descriptors instead of unmarshalled JSON values.
+
+```shell
+# Unmarshalled (default)
+{"entity": "film", "id": 50, "title": "Baked Cleopatra"}
+
+# Raw (--no-unmarshall)
+{"entity": {"S": "film"}, "id": {"N": "50"}, "title": {"S": "Baked Cleopatra"}}
+```
+
+When using jq filters with this option, navigate the raw structure using type descriptors (e.g., `.entity.S`
+instead of `.entity`).
 
 #### `-q, --quiet`
 
